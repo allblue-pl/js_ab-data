@@ -1,0 +1,115 @@
+'use strict';
+
+const
+    abData = require('ab-data'),
+    js0 = require('js0'),
+
+    Request = require('./Request')
+;
+
+class TableRequest extends Request
+{
+
+    constructor(db, table)
+    {
+        js0.args(arguments, require('./Database'), require('../Table'));
+        super();
+
+        this._db = db;
+        this._table = table;
+
+        this.setA('delete', async (args) => {
+            return await this._action_Delete_Async(args);
+        });
+        this.setA('row', async (args) => {
+            return await this._action_Row_Async(args);
+        });
+        this.setA('select', async (args) => {
+            return this._action_Select_Async(args);
+        });
+        this.setA('set', async (args) => {
+            return await this._action_Set_Async(args);
+        });
+        this.setA('update', async (args) => {
+            return await this._action_Update_Async(args);
+        });
+    }
+
+    async _action_Delete_Async(args)
+    {
+        console.log('Test', args);
+
+        let result = {
+            success: (await this._table.delete_Async(this._db, {
+                where: args.where,
+            })).success,
+            error: null,
+        };  
+
+        if (!result.success) {
+            result.error = spocky.Debug ?
+                    this._db.getError() :
+                    'Cannot delete rows.';
+        }
+
+        return result;
+    }
+
+    async _action_Select_Async(args)
+    {
+        let result = await this._table.select_Async(this._db, {});
+
+        return {
+            success: result.error === null,
+            rows: result.rows,
+            error: result.error,
+        };
+    }
+
+    async _action_Update_Async(args)
+    {
+        if (args.rows.length === 0) {
+            return {
+                success: true,
+                error: null,
+            };
+        }
+
+        let columnNames = [];
+        let row_0 = args.rows[0];
+        for (let columnName in row_0)
+            columnNames.push(columnName);
+
+        if (!(columnNames.includes('_Id')))
+            throw new Error("No '_Id' column.");
+
+        let rows = [];
+        for (let i = 0; i < args.rows.length; i++) {
+            let row = args.rows[i];
+            if (Object.keys(row).length !== columnNames.length)
+                throw new Error(`Columns inconsistency with first row in row '${i}'.`);
+
+            for (let i = 0; i < columnNames.length; i++) {
+                if (!(columnNames[i] in row)) {
+                    throw new Error(`Column inconsistency with first row.` +
+                            ` No column '${columnNames[i]}' in row '${i}'.`)
+                };
+            }
+
+            rows.push(row);
+        }
+
+        let update_Result = await this._table.update_Async(this._db, rows);
+
+        let result = {
+            success: update_Result.success,
+            error: abData.debug ?
+                    update_Result.error :
+                    null,
+        };
+
+        return result;
+    }
+
+}
+module.exports = TableRequest;
