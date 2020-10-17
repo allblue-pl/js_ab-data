@@ -1,56 +1,22 @@
 'use strict';
 
 const
-    abData = require('ab-data'),
     abNative = require('ab-native'),
-    js0 = require('js0')
+    js0 = require('js0'),
+
+    abData = require('..'),
+
+    DatabaseInfo = require('../DatabaseInfo'),
+    FieldInfo = require('../FieldInfo'),
+    TableInfo = require('../TableInfo')
 ;
 
 export default class Database
 {
 
-    static EscapeString(str)
-    {
-        return str.replace(/[\0\n\r\b\t\\'"\x1a]/g, (c) => {
-            switch (c) {
-                case "\0":
-                    return "\\0";
-                case "\n":
-                    return "\\n";
-                case "\r":
-                    return "\\r";
-                case "\b":
-                    return "\\b";
-                case "\t":
-                    return "\\t";
-                case "\x1a":
-                    return "\\Z";
-                case "'":
-                    return "''";
-                case '"':
-                    return '""';
-                default:
-                    return "\\" + s;
-            }
-        });
-    }
-
-    static Quote(str)
-    {
-        return str
-            .replace(/\\/g, "\\\\")
-            .replace(/\'/g, "\\\'")
-            .replace(/\"/g, "\\\"")
-            .replace(/\n/g, "\\\n")
-            .replace(/\r/g, "\\\r")
-            .replace(/\x00/g, "\\\x00")
-            .replace(/\x1a/g, "\\\x1a");
-    }
-
-
     constructor()
     {
-        this.nativeActions = new abNative.ActionsSet('ABDatabase')
+        let nad = new abNative.ActionsSetDef()
             .addNative('AddDBRequests', {
                 requests: js0.ArrayItems(Array),
             }, {
@@ -113,6 +79,7 @@ export default class Database
                 rows: Array,
                 error: [ 'string', js0.Null ],
             });
+        this.nativeActions = abNative.addActionsSet('ABDatabase', nad);
     }
 
     async addDBRequests_Async(requests)
@@ -141,18 +108,20 @@ export default class Database
 
     async createDatabaseInfo_Async()
     {
-        let databaseInfo = new abData.DatabaseInfo();
+        let databaseInfo = new DatabaseInfo();
         
+        console.log(this.nativeActions)
+
         let tableNames = (await this.nativeActions.callNative_Async('GetTableNames'))
                 .tableNames;
         for (let tableName of tableNames) {
-            let tableInfo = new abData.TableInfo(tableName);
+            let tableInfo = new TableInfo(tableName);
 
             let result = await this.nativeActions.callNative_Async('GetTableColumns', {
                 tableName: tableName,
             });
             for (let column of result.columns) {
-                tableInfo.addFieldInfo(new abData.FieldInfo(
+                tableInfo.addFieldInfo(new FieldInfo(
                     column[0],
                     column[1],
                     '',
@@ -198,6 +167,34 @@ export default class Database
     {
         return await this.nativeActions.callNative_Async('Transaction_Start', {});
     }   
+
+    async updateScheme_Async(scheme)
+    {
+        js0.args(arguments, require('../scheme/DataScheme'));
+
+        let dbInfo_Scheme = scheme.createDatabaseInfo();
+        let dbInfo_DB = await this.createDatabaseInfo_Async();
+
+        let queries = {
+            create: [],
+        };
+        let actions = DatabaseInfo.Compare(dbInfo_Scheme, dbInfo_DB);
+
+        for (let tableName of actions.tables.delete) {
+            let query = `DROP TABLE ${tableName}`;
+            
+            console.log(query);
+            console.log(await this.query_Execute_Async(query));
+        }
+
+        for (let tableName of actions.tables.create) {
+            let tableInfo = dbInfo_Scheme.getTableInfo_ByName(tableName);
+            let query = tableInfo.getQuery_Create();
+
+            console.log(query);
+            console.log(await this.query_Execute_Async(query));
+        }
+    }
 
     async query_Execute_Async(query)
     {

@@ -7,15 +7,27 @@ const
 class RequestProcessor
 {
 
-    constructor(dataScheme)
-    {
-        js0.args(arguments, require('./scheme/DataScheme'));
+    get device() {
+        return this._device;
     }
 
-    async processRequest_Async(deviceInfo, requestName, actionName, actionArgs) {
-        js0.args(arguments, js0.RawObject, 'string', 'string', js0.RawObject);
+    get scheme() {
+        return this._scheme;
+    }
 
-        let response = await this.processRequestBatch_Async(deviceInfo, [
+
+    constructor(dataScheme, device)
+    {
+        js0.args(arguments, require('./scheme/DataScheme'), require('./Device'));
+
+        this._scheme = dataScheme;
+        this._device = device;
+    }
+
+    async processRequest_Async(requestName, actionName, actionArgs) {
+        js0.args(arguments, 'string', 'string', js0.RawObject);
+
+        let response = await this.processRequestBatch_Async([
             [ 'request', requestName, actionName, actionArgs ],
         ]);
 
@@ -25,7 +37,6 @@ class RequestProcessor
         return response.request;
     }
 
-    async getDeviceInfo_Async() { js0.virtual(this); }
     async processRequestBatch_Async(requests) { js0.virtual(this); }
 
 }

@@ -4,6 +4,8 @@ const
     ABDArray = require('./ABDArray'),
     ABDBool = require('./ABDBool'), 
     ABDData = require('./ABDData'),
+    ABDDate = require('./ABDDate'),
+    ABDDateTime = require('./ABDDateTime'),
     ABDDouble = require('./ABDDouble'),
     ABDId = require('./ABDId'),
     ABDInt = require('./ABDInt'),
@@ -20,6 +22,8 @@ class fields_Class
 
     // get ABDArray() { return ABDArray; };
     get ABDBool() { return ABDBool; };
+    get ABDDate() { return ABDDate; }
+    get ABDDateTime() { return ABDDateTime; }
     // get ABDData() { return ABDData; };
     // get ABDDouble() { return ABDDouble; };
     get ABDFloat() { return ABDFloat; };
@@ -45,6 +49,16 @@ class fields_Class
     // {
     //     return new ABDData(properties);
     // }
+
+    Date(properties = {}) 
+    {
+        return new ABDDate(properties);
+    }
+
+    DateTime(properties = {}) 
+    {
+        return new ABDDateTime(properties);
+    }
 
     // Double(properties = {})
     // {

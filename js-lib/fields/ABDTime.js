@@ -2,9 +2,10 @@
 
 const 
     js0 = require('js0'),
-    
+
     ABDField = require('./ABDField')
 ;
+
 
 class ABDTime extends ABDField
 {
@@ -17,7 +18,7 @@ class ABDTime extends ABDField
 
     getType()
     {
-        return 'String';
+        return 'Int';
     }
 
 
@@ -33,9 +34,7 @@ class ABDTime extends ABDField
 
     __unescape(value)
     {
-        js0.args(arguments, 'string');
-
-        return BigInt(value);
+        return parseInt(value);
     }
 
 }

@@ -37,8 +37,6 @@ class TableRequest extends Request
 
     async _action_Delete_Async(args)
     {
-        console.log('Test', args);
-
         let result = {
             success: (await this._table.delete_Async(this._db, {
                 where: args.where,
@@ -55,9 +53,42 @@ class TableRequest extends Request
         return result;
     }
 
+    async _action_Row_Async(args)
+    {
+        js0.args(arguments, js0.Preset({
+            columns: null,
+            limit: [ js0.Null, js0.PresetArray([ 'int', 'int' ]), js0.Default(null) ],
+            where: [ Array, js0.Default([]) ],
+        }));
+
+        args.limit = [ 0, 1 ];
+
+        let result = await this._table.select_Async(this._db, args);
+
+        let row = null;
+        if (result.rows !== null) {
+            if (result.rows.length > 0)
+                row = result.rows[0];
+        }
+
+        return {
+            success: result.error === null,
+            row: row,
+            error: result.error,
+        };
+    }
+
     async _action_Select_Async(args)
     {
-        let result = await this._table.select_Async(this._db, {});
+        js0.args(arguments, js0.Preset({
+            columns: null,
+            limit: [ js0.Null, js0.PresetArray([ 'int', 'int' ]), js0.Default(null) ],
+            where: [ Array, js0.Default([]) ],
+        }));
+
+        console.log('Select Test', args);
+
+        let result = await this._table.select_Async(this._db, args);
 
         return {
             success: result.error === null,
@@ -75,13 +106,15 @@ class TableRequest extends Request
             };
         }
 
+        let pk = this._table.primaryKey;
+
         let columnNames = [];
         let row_0 = args.rows[0];
         for (let columnName in row_0)
             columnNames.push(columnName);
 
-        if (!(columnNames.includes('_Id')))
-            throw new Error("No '_Id' column.");
+        if (!(columnNames.includes(pk)))
+            throw new Error(`No Primary Key '${pk}' column.`);
 
         let rows = [];
         for (let i = 0; i < args.rows.length; i++) {

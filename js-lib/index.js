@@ -25,6 +25,10 @@ class abData_Class
         return require('./scheme');
     }
 
+    get Device() {
+        return require('./Device');
+    }
+
     get DataStore() {
         return require('./DataStore');
     }

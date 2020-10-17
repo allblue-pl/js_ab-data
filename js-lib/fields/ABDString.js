@@ -2,10 +2,10 @@
 
 const 
     js0 = require('js0'),
-
-    Database = require('../Database'),
     
-    ABDField = require('./ABDField')
+    ABDField = require('./ABDField'),
+
+    helper = require('../helper')
 ;
 
 class ABDString extends ABDField
@@ -36,7 +36,7 @@ class ABDString extends ABDField
         if (value === null)
             return 'NULL';
 
-        return `'` + Database.EscapeString(value) + `'`;
+        return `'` + helper.escapeString(value) + `'`;
     }
 
     __unescape(value)

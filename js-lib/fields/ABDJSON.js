@@ -2,10 +2,10 @@
 
 const 
     js0 = require('js0'),
-
-    Database = require('../Database'),
     
-    ABDField = require('./ABDField')
+    ABDField = require('./ABDField'),
+
+    helper = require('../helper')
 ;
 
 class ABDJSON extends ABDField
@@ -29,12 +29,12 @@ class ABDJSON extends ABDField
 
     __escape(value)
     {
-        js0.args(arguments, [ j0.Null, js0.RawObject ]);
+        js0.args(arguments, [ js0.Null, js0.RawObject ]);
 
         if (value === null)
             return 'NULL';
 
-        return `'` + Database.EscapeString(JSON.encode({ value: value })) + `'`;
+        return `'` + helper.escapeString(JSON.stringify({ value: value })) + `'`;
     }
 
     __unescape(value)
@@ -42,7 +42,9 @@ class ABDJSON extends ABDField
         if (value === null)
             return null;
 
-        return JSON.descode(value).value;
+        console.log(value);
+
+        return JSON.parse(helper.unescapeString(value)).value;
     }
 
 }

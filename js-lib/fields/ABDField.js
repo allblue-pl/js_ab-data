@@ -30,7 +30,10 @@ class ABDField
     {
         js0.args(arguments, null);
 
-        return this.__escape(value);
+        if (value === null)
+            return 'NULL';
+
+        return js0.rtn('string', this.__escape(value));
     }
 
     escapeArray(arr)
@@ -44,10 +47,22 @@ class ABDField
         return '(' + arr_Escaped.join(',') + ')';
     }
 
+    unescape(value)
+    {
+        if (value === null)
+            return null;
+
+        return this.__unescape(value);
+    }
 
     __escape(value)
     {
         js0.virtual(this);
+    }
+
+    __unescape(value)
+    {
+        return value;
     }
 
 }

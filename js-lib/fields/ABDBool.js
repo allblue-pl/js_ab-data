@@ -25,13 +25,10 @@ class ABDBool extends ABDField
     {
         js0.args(arguments, 'boolean');
 
-        if (value === null)
-            return rtn('NULL');
-
         if (value)
-            return rtn('1');
+            return '1';
 
-        return rtn('0');
+        return '0';
     }
 
     __unescape(value)

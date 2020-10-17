@@ -12,43 +12,31 @@ const
 class RequestProcessor_Web extends RequestProcessor
 {
 
-    constructor(dataScheme, apiUri)
+    constructor(dataScheme, device, apiUri)
     {
-        super(dataScheme);
-        js0.args(arguments, require('./scheme/DataScheme'), 'string');
+        super(dataScheme, device);
+        js0.args(arguments, require('./scheme/DataScheme'), require('./Device'),
+                'string');
 
-        this._dataScheme = dataScheme;
         this._apiUri = apiUri;
     }
 
-    async getDeviceInfo_Async()
+    processRequestBatch_Async(requests)
     {
-        let result = await webABApi.json_Async(this._apiUri + 'register-device', {
-            fixed: false,
-        });
-
-        if (!result.isSuccess()) {
-            if (abData.debug)
-                console.warn(result.data.data);
-         
-            throw new Error(`Cannot initialize 'ABData': ` + result.message);
-        }
-
-        return result.data.deviceInfo;
-    }
-
-    processRequestBatch_Async(deviceInfo, requests)
-    {
-        js0.args(arguments, js0.RawObject, Array);
+        js0.args(arguments, Array);
 
         return new Promise((resolve, reject) => {
             webABApi.json(this._apiUri + 'request', { 
-                deviceInfo: deviceInfo,
-                requests: requests 
+                deviceInfo: {
+                    deviceId: this.device.id,
+                    deviceHash: this.device.hash,
+                },
+                requests: requests,
                     }, (result) => {
                 if (!result.isSuccess()) {
-                    console.error(result.message);
-                    console.log(result.data.data);
+                    console.error('Request error: ' + result.message);
+                    if (abData.debug)
+                        console.warn(result.data.data);
                     
                     reject(result.message);
                     return;

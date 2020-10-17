@@ -7,20 +7,25 @@ const
 class DataStore
 {
 
+    get device() {
+        return this._requestProcessor.device;
+    }
+
+    get lastId() {
+        return this._device.lastId;
+    }
+
     get scheme() {
         return this._scheme;
     }
 
 
-    constructor(dataScheme, requestProcessor)
+    constructor(requestProcessor)
     {
-        js0.args(arguments, require('./scheme/DataScheme'), 
-                require('./RequestProcessor'));
+        js0.args(arguments, require('./RequestProcessor'));
 
-        this._scheme = dataScheme;
         this._requestProcessor = requestProcessor;
-
-        this._deviceInfo = null;
+        this._scheme = requestProcessor.scheme;
     }
 
     getT(tableName)
@@ -38,29 +43,34 @@ class DataStore
         return this._scheme.tables.get(tableName);
     }
 
-    async init_Async()
-    {
-        this._deviceInfo = await this._requestProcessor.getDeviceInfo_Async();
+    // async init_Async()
+    // {
+    //     this._deviceInfo = await this._requestProcessor.getDeviceInfo_Async();
 
-        console.log(this._deviceInfo);
+    //     console.log(this._deviceInfo);
+    // }
+
+    // isRegistered()
+    // {
+    //     return this._deviceInfo.deviceId !== null;
+    // }
+
+    nextId()
+    {
+        return this.device.nextId();
     }
 
-    isRegistered()
-    {
-        return this._deviceInfo.deviceId !== null;
-    }
-
-    async register_Async()
-    {
-        await this._requestProcessor.register_Async();
-    }
+    // async register_Async()
+    // {
+    //     await this._requestProcessor.register_Async();
+    // }
 
     async request_Async(requestName, actionName, actionArgs)
     {
         js0.args(arguments, 'string', 'string', js0.RawObject);
 
         return await this._requestProcessor.processRequest_Async(
-                this._deviceInfo, requestName, actionName, actionArgs);
+                requestName, actionName, actionArgs);
     }
 
     async requestB_Async(requests)
@@ -77,7 +87,7 @@ class DataStore
             this._validateRequest(request)
 
         let response = await this._requestProcessor.processRequestBatch_Async(
-                this._deviceInfo, requests);
+                requests);
 
         for (let request of requests)
             this._validateResponse(response, request);

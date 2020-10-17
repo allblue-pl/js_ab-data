@@ -6,17 +6,18 @@ const
     ABDField = require('./ABDField')
 ;
 
-class ABDDouble extends ABDField
+class ABDDateTime extends ABDField
 {
 
-    constructor(properties)
+    constructor(properties = {})
     {
+        js0.args(arguments, [ js0.RawObject, js0.Default ]);
         super(properties);
     }
 
     getType()
     {
-        return 'Float';
+        return 'Long';
     }
 
 
@@ -29,8 +30,8 @@ class ABDDouble extends ABDField
 
     __unescape(value)
     {
-        return parseFloat(value);
+        return Number(value);
     }
 
 }
-module.exports = ABDDouble;
+module.exports = ABDDateTime;

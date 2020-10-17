@@ -5,19 +5,17 @@ const
     webABApi = require('web-ab-api'),
 
     abData = require('.'),
-    DatabaseInfo = require('./DatabaseInfo'),
-    NativeDatabase = require('./NativeDatabase'),
     RequestProcessor = require('./RequestProcessor')
 ;
 
 class RequestProcessor_Native extends RequestProcessor
 {
 
-    constructor(dataScheme, apiUri, db)
+    constructor(dataScheme, device, apiUri, db)
     {
-        js0.args(arguments, require('./scheme/DataScheme'), 'string',
-                require('./native/Database'));
-        super(dataScheme);
+        js0.args(arguments, require('./scheme/DataScheme'), require('./Device'),
+                'string', require('./native/Database'));
+        super(dataScheme, device);
 
         this._scheme = dataScheme;
         this._apiUri = apiUri;
@@ -139,13 +137,15 @@ class RequestProcessor_Native extends RequestProcessor
     async syncDB_Async()
     {
         let rDBRequests = await this._db.getDBRequests_Async();
-
-        console.log(rDBRequests);
         
-        let result = await webABApi.json_Async(this._apiUri + 'sync-db', 
-                { rDBRequests: rDBRequests });
-
-        console.log(result);
+        let result = await webABApi.json_Async(this._apiUri + 'sync-db', { 
+            deviceInfo: {
+                deviceId: this.device.id,
+                deviceHash: this.device.hash,
+                lastUpdate: this.device.lastUpdate,
+            },
+            rDBRequests: rDBRequests 
+        });
         
         if (!result.isSuccess())
             console.warn(result.data.data);
@@ -159,7 +159,20 @@ class RequestProcessor_Native extends RequestProcessor
 
         await this._db.transaction_Start_Async();
 
+        console.log(result.data);
+
+        let result_DeviceInfo = await this.updateDeviceInfo(result.data.deviceInfo.lastId,
+                    result.data.deviceInfo.lastUpdate);
+        console.log(result_DeviceInfo);
+        if (!result_DeviceInfo.success) {
+            success = false;
+            console.error('Cannot update device info.', result_DeviceInfo.error);
+        }
+
         for (let tableName in response.updateData.update) {
+            if (!this._scheme.hasTable(tableName))
+                continue;
+
             let result = await this._scheme.getTable(tableName).update_Async(this._db,
                     response.updateData.update[tableName]);
             
@@ -170,6 +183,9 @@ class RequestProcessor_Native extends RequestProcessor
         }
 
         for (let tableName in response.updateData.delete) {
+            if (!this._scheme.hasTable(tableName))
+                continue;
+
             let result = await this._scheme.getTable(tableName).delete_Async(this._db, {
                 where: [
                     [ '_Id', 'IN', response.updateData.delete[tableName] ],
@@ -191,36 +207,31 @@ class RequestProcessor_Native extends RequestProcessor
             };
         }
 
+        this.device.update(result.data.deviceInfo.lastId, 
+                result.data.deviceInfo.lastUpdate);
+
+        console.log('Device', this.device);
+
         return {
             success: true,
             error: null,
         };
     }
 
-    async updateDB_Async()
+    async updateDeviceInfo(lastId, lastUpdate)
     {
-        let dbInfo_Scheme = this._scheme.createDatabaseInfo();
-        let dbInfo_DB = await this._db.createDatabaseInfo_Async();
-
-        let queries = {
-            create: [],
-        };
-        let actions = DatabaseInfo.Compare(dbInfo_Scheme, dbInfo_DB);
-
-        for (let tableName of actions.tables.delete) {
-            let query = `DROP TABLE ${tableName}`;
-            
-            console.log(query);
-            console.log(await this._db.query_Execute_Async(query));
-        }
-
-        for (let tableName of actions.tables.create) {
-            let tableInfo = dbInfo_Scheme.getTableInfo_ByName(tableName);
-            let query = tableInfo.getQuery_Create();
-
-            console.log(query);
-            console.log(await this._db.query_Execute_Async(query));
-        }
+        let tSettings = this._scheme.getTable('_Native_Settings');
+        return tSettings.update_Async(this._db, [
+            {
+                Name: 'deviceInfo',
+                Data: {
+                    deviceId: this.device.id,
+                    deviceHash: this.device.hash,
+                    lastId: lastId,
+                    lastUpdate: lastUpdate,
+                }
+            },
+        ]);
     }
 
 }

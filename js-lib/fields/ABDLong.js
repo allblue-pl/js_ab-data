@@ -23,18 +23,13 @@ class ABDLong extends ABDField
 
     __escape(value)
     {
-        js0.args(arguments, [ js0.Int, js0.Null ]);
-
-        if (value === null)
-            return 'NULL';
+        js0.args(arguments, js0.Long);
 
         return String(value);
     }
 
     __unescape(value)
     {
-        js0.args(arguments, 'string');
-
         return BigInt(value);
     }
 

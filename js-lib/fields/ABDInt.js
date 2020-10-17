@@ -34,9 +34,9 @@ class ABDInt extends ABDField
 
     __unescape(value)
     {
-        js0.args(arguments, 'string');
-
-        return BigInt(value);
+        js0.args(arguments);
+            
+        return parseInt(value);
     }
 
 }

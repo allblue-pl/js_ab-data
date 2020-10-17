@@ -22,6 +22,8 @@ class DataScheme
 
         this._requests = new Map();
         this._tables = new Map();
+
+        this._ignored_TableNames = [];
     }
 
     createDatabaseInfo()
@@ -90,6 +92,11 @@ class DataScheme
         return this;
     }
 
+    getIgnored_TableNames()
+    {
+        return this._ignored_TableNames;
+    }
+
     getRequestDef(requestName)
     {
         if (!this.hasRequestDef(requestName))
@@ -113,10 +120,26 @@ class DataScheme
         return this._tables.get(tableName);
     }
     
+    hasTable(tableName)
+    {
+        js0.args(arguments, 'string');
+
+        return this._tables.has(tableName);
+    }
+
     hasRequestDef(requestName)
     {
         return this._requests.has(requestName);
     }
+
+    ignoreT(tableNames)
+    {   
+        js0.args(arguments, js0.Iterable('string'));
+
+        this._ignored_TableNames = tableNames;
+
+        return this;
+    }       
 
 }
 module.exports = DataScheme;
