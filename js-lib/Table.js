@@ -38,6 +38,7 @@ class Table
         this._alias = alias;
         this._primaryKey = null;
         this._columns = null;
+        this._rowParser = null;
 
         if (name[0] !== '_') {
             columns = [
@@ -48,7 +49,19 @@ class Table
 
             this.setPrimaryKey('_Id');
         }
-        this._columns = new js0.List(columns);
+
+        this._columns = new js0.List();
+        for (let column of columns) {
+            let name = column[0];
+            let field = column[1];
+            let validatorInfo = field.getValidatorInfo(
+                column.length > 2 ? column[2] : {});
+
+            this._columns.set(name, {
+                field: field,
+                validatorInfos: [ validatorInfo ],
+            });
+        }
     }
 
     async delete_Async(db, parameters = {})
@@ -84,9 +97,23 @@ class Table
         return this._columns.get(columnName);
     }
 
+    getColumn_Field(columnName)
+    {
+        return this.getColumn(columnName).field;
+    }
+
     getTableName()
     {
         return this._name;
+    }
+
+    getValidatorInfo()
+    {
+        let validatorInfo = {};
+        for (let [ columnName, column ] of this._columns)
+            validatorInfo[columnName] = column.validatorInfos;
+
+        return validatorInfo;
     }
 
     getQuery_Conditions(columnValues, tableOnly = false)
@@ -178,6 +205,13 @@ class Table
         return this;
     }
 
+    setRowParse(parserFn)
+    {
+        js0.args(arguments, 'function');
+
+        this._rowParser = parserFn;
+    }
+
     async update_Async(db, rows)
     {
         js0.args(arguments, require('./native/Database'), 
@@ -250,7 +284,7 @@ class Table
         if (!(pk in row_0))
             throw new Error(`No pk set in rows.`);
         for (let columnName in rows[0])
-            columns.set(columnName, this.getColumn(columnName));
+            columns.set(columnName, this.getColumn_Field(columnName));
         // foreach ($rows[$first_key] as $col_name => $col_val) {
         //     if (!$ignore_not_existing) {
         //         columns[$col_name] = $this->getColumn($col_name, true);
@@ -436,7 +470,7 @@ class Table
             let sign = columnCondition[1];
             let value = columnCondition[2];
 
-            let column = this.getColumn(columnName);
+            let column = this.getColumn_Field(columnName);
 
             // let columnName_DB = tableOnly ? Database.Quote(columnName) :
             //         this.getColumn(columnName).expression;

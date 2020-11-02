@@ -21,6 +21,11 @@ class ABDId extends ABDField
     }
 
 
+    __getValidatorType()
+    {
+        return 'long';
+    }
+
     __escape(value)
     {
         js0.args(arguments, js0.Long);

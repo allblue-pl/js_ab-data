@@ -21,6 +21,11 @@ class ABDBool extends ABDField
     }
 
     
+    __getValidatorType()
+    {
+        return 'bool';
+    }
+
     __escape(value)
     {
         js0.args(arguments, 'boolean');

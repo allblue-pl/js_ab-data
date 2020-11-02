@@ -19,6 +19,8 @@ class FieldInfo
             return `bigint(20)`;
         else if (field instanceof require('./fields/ABDDouble'))
             return `double`;
+        else if (field instanceof require('./fields/ABDFloat'))
+            return `float`;
         else if (field instanceof require('./fields/ABDId'))
             return `bigint(20)`;
         else if (field instanceof require('./fields/ABDInt'))

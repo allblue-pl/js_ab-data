@@ -11,6 +11,12 @@ class ABDDouble extends ABDField
         super(properties);
     }
 
+
+    __getValidatorType()
+    {
+        return 'number';
+    }
+
     __escape(value)
     {
         js0.args(arguments, 'number');

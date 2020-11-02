@@ -27,6 +27,11 @@ class ABDJSON extends ABDField
     }
 
 
+    __getValidatorType()
+    {
+        return 'json';
+    }
+
     __escape(value)
     {
         js0.args(arguments, [ js0.Null, js0.RawObject ]);

@@ -25,6 +25,17 @@ class ABDField
     {
         js0.virtual(this);
     }
+
+    getValidatorInfo(validatorArgs)
+    {
+        let validatorType = this.__getValidatorType();
+        validatorArgs.notNull = this._properties.notNull;
+
+        return {
+            type: validatorType,
+            args: validatorArgs,
+        };
+    }
         
     escape(value)
     {
@@ -55,15 +66,14 @@ class ABDField
         return this.__unescape(value);
     }
 
-    __escape(value)
-    {
-        js0.virtual(this);
-    }
 
     __unescape(value)
-    {
+    { 
         return value;
     }
+
+    __getValidatorType() { js0.virtual(this); }
+    __escape(value) { js0.virtual(this); }
 
 }
 module.exports = ABDField;

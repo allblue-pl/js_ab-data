@@ -29,6 +29,11 @@ class ABDString extends ABDField
     }
 
 
+    __getValidatorType()
+    {
+        return 'text';
+    }
+
     __escape(value)
     {
         js0.args(arguments, [ js0.Null, 'string' ]);

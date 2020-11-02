@@ -22,6 +22,11 @@ class ABDTime extends ABDField
     }
 
 
+    __getValidatorType()
+    {
+        return 'int';
+    }
+
     __escape(value)
     {
         js0.args(arguments, js0.Int);

@@ -21,6 +21,11 @@ class ABDDateTime extends ABDField
     }
 
 
+    __getValidatorType()
+    {
+        return 'long';
+    }
+
     __escape(value)
     {
         js0.args(arguments, 'number');

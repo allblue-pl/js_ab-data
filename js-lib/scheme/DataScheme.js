@@ -32,7 +32,8 @@ class DataScheme
 
         for (let [ tableName, table ] of this._tables) {
             let tableInfo = new TableInfo(table.name);
-            for (let [ fieldName, field ] of table.columns) {
+            for (let [ fieldName, column ] of table.columns) {
+                let field = column.field;
                 let fieldInfo = new FieldInfo(
                     fieldName,
                     FieldInfo.GetType_FromField(field),

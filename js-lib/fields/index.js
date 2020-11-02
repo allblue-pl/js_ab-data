@@ -7,6 +7,7 @@ const
     ABDDate = require('./ABDDate'),
     ABDDateTime = require('./ABDDateTime'),
     ABDDouble = require('./ABDDouble'),
+    ABDFloat = require('./ABDFloat'),
     ABDId = require('./ABDId'),
     ABDInt = require('./ABDInt'),
     ABDJSON = require('./ABDJSON'),

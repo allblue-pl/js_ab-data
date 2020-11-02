@@ -13,8 +13,15 @@ class TableRequestDef extends RequestDef
         return {
             columns: [ js0.Iterable('string'), js0.Null, js0.Default(null) ],
             where: [ Array, js0.Default([]) ],
+            groupBy: [ js0.Iterable('string'), js0.Null, js0.Default(null) ],
             limit: [ js0.PresetArray([ js0.Int, js0.Int ]), js0.Null, 
                     js0.Default(null) ],
+            join: [ js0.Iterable(js0.Preset({
+                prefix: 'string',
+                table: 'string',
+                on: js0.PresetArray([ 'int', 'int' ]),
+                columns: [ js0.Iterable('string'), js0.Null, js0.Default(null) ],
+                    })), js0.Default([]) ],
         };
     }
 
@@ -40,7 +47,7 @@ class TableRequestDef extends RequestDef
             })
             .defA('select', 'r',
                 TableRequestDef.Args_Select(), {
-                rows: Array,
+                rows: [ Array, js0.Null ],
 
                 success: 'boolean',
                 error: [ 'string', js0.Null ],

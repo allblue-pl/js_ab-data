@@ -6,7 +6,7 @@ const
     ABDField = require('./ABDField')
 ;
 
-class ABDDouble extends ABDField
+class ABDFloat extends ABDField
 {
 
     constructor(properties)
@@ -19,6 +19,11 @@ class ABDDouble extends ABDField
         return 'Float';
     }
 
+
+    __getValidatorType()
+    {
+        return 'number';
+    }
 
     __escape(value)
     {
@@ -33,4 +38,4 @@ class ABDDouble extends ABDField
     }
 
 }
-module.exports = ABDDouble;
+module.exports = ABDFloat;
