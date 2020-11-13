@@ -19,7 +19,8 @@ class TableRequestDef extends RequestDef
             join: [ js0.Iterable(js0.Preset({
                 prefix: 'string',
                 table: 'string',
-                on: js0.PresetArray([ 'int', 'int' ]),
+                on: js0.Iterable(js0.PresetArray([ 'string', 'string' ])),
+                where: [ Array, js0.Default([]) ],
                 columns: [ js0.Iterable('string'), js0.Null, js0.Default(null) ],
                     })), js0.Default([]) ],
         };

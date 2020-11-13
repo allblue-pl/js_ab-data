@@ -4,7 +4,7 @@ const
     abData = require('ab-data'),
     js0 = require('js0'),
 
-    TableRequestDef = require('../TableRequestDef'),
+    TableRequestDef = require('../scheme/TableRequestDef'),
 
     Request = require('./Request')
 ;
@@ -82,7 +82,7 @@ class TableRequest extends Request
 
     async _action_Select_Async(args)
     {
-        js0.args(arguments, js0.Preset(TableRequestDef.Args_Select));
+        js0.args(arguments, js0.Preset(TableRequestDef.Args_Select()));
 
         let result = await this._table.select_Async(this._db, args);
 

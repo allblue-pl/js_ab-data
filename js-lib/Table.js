@@ -4,7 +4,9 @@ const
     js0 = require('js0'),
     
     fields = require('./fields'),
-    helper = require('./helper')
+    helper = require('./helper'),
+
+    TableRequestDef = require('./scheme/TableRequestDef')
 ;
 
 class Table
@@ -64,7 +66,7 @@ class Table
         }
     }
 
-    async delete_Async(db, parameters = {})
+    async delete_Async(db, args = {})
     {
         js0.args(arguments, null, js0.Preset({
             where: [ Array ],
@@ -73,10 +75,10 @@ class Table
         let tableName_DB = helper.quote(this.name);
         let query = `DELETE FROM ${tableName_DB}`;
 
-        if (parameters.where !== null) {
-            let where_Str = this.getQuery_Conditions(parameters.where);
+        if (args.where !== null) {
+            let where_Str = this.getQuery_Conditions(args.where);
             if (where_Str !== '')
-            query += ' WHERE ' + where_Str;
+                query += ' WHERE ' + where_Str;
         }
 
         console.log(query);
@@ -102,6 +104,16 @@ class Table
         return this.getColumn(columnName).field;
     }
 
+    getColumnNames()
+    {
+        return this._columns.keys();
+        // let columnNames = [];
+        // for (let column of this._columns)
+        //     columnNames.push(column.name);
+
+        // return columnNames;
+    }
+
     getTableName()
     {
         return this._name;
@@ -123,17 +135,22 @@ class Table
         return this._getQuery_Conditions_Helper(columnValues, 'AND',
                 tableOnly);
     }
+    
+    hasColumn(columnName)
+    {
+        return this._columns.has(columnName);
+    }
 
-    async row_Async(db, parameters = {})
+    async row_Async(db, args = {})
     {
         js0.args(arguments, require('./native/Database'), js0.Preset({
             columns: null,
             where: [ Array, js0.Default([]) ],
         }));
 
-        parameters.limit = [ 0, 1 ];
+        args.limit = [ 0, 1 ];
 
-        let result = await this.select_Async(db, parameters);
+        let result = await this.select_Async(db, args);
 
         if (result.rows === null)
             return result;
@@ -151,29 +168,29 @@ class Table
         };
     }
 
-    async select_Async(db, parameters = {})
+    async select_Async(db, args = {})
     {
-        js0.args(arguments, require('./native/Database'), js0.Preset({
-            columns: null,
-            limit: [ js0.Null, js0.PresetArray([ 'int', 'int' ]), js0.Default(null) ],
-            where: [ Array, js0.Default([]) ],
-        }));
+        js0.args(arguments, require('./native/Database'), 
+                [ js0.RawObject, js0.Default ]);
+
+        js0.typeE(args, js0.Preset(TableRequestDef.Args_Select()));
 
         let tableName_DB = helper.quote(this.name);
         let query = `SELECT * FROM ${tableName_DB}`;
 
-        if (parameters.where !== null) {
-            let where_Str = this.getQuery_Conditions(parameters.where);
+        if (args.where !== null) {
+            let where_Str = this.getQuery_Conditions(args.where);
+            console.log('Here', where_Str);
             if (where_Str !== '')
-            query += ' WHERE ' + where_Str;
+                query += ' WHERE ' + where_Str;
         }
 
-        if (parameters.limit !== null)
-            query += ` LIMIT ${parameters.limit[0]}, ${parameters.limit[1]}`;
+        if (args.limit !== null)
+            query += ` LIMIT ${args.limit[0]}, ${args.limit[1]}`;
         
         let columnTypes = [];
         for (let [ columnName, column ] of this.columns)
-            columnTypes.push(column.getType());
+            columnTypes.push(column.field.getType());
 
         let result = await db.query_Select_Async(query, columnTypes);
 
@@ -187,9 +204,17 @@ class Table
         let rows = [];
         for (let result_Row of result.rows) {
             let row = {};
-            for (let i = 0; i < this.columns.size; i++)
-                row[this.columns.getKeyAt(i)] = this.columns.getAt(i).unescape(result_Row[i]);
+            for (let i = 0; i < this.columns.size; i++) {
+                row[this.columns.getKeyAt(i)] = this.columns.getAt(i).field
+                        .unescape(result_Row[i]);
+            }
             rows.push(row);
+        }
+
+        if (args.join.length > 0) {
+            let result_Join = await this._join_Async(db, rows, args.join);
+            if (!result_Join.success)
+                return result_Join;
         }
 
         return {
@@ -216,6 +241,8 @@ class Table
     {
         js0.args(arguments, require('./native/Database'), 
                 js0.ArrayItems(js0.RawObject));
+
+        console.log(rows);
 
         if (rows.length === 0) {
             return {
@@ -262,8 +289,6 @@ class Table
 
             rows_Existing = result.rows;
         }
-
-        console.log('Existing', rows_Existing);
 
         let ids_Existing = [];
         for (let row of rows_Existing)
@@ -436,39 +461,37 @@ class Table
 
     _getQuery_Conditions_Helper(columnValues, logicOperator, tableOnly = false)
     {
-        js0.args(arguments, Array, 'string', [ 'boolean', js0.Default ]);
+        js0.args(arguments, Array, [ 'string', js0.Null ], [ 'boolean', js0.Default ]);
 
-        if (columnValues.length === 2) {
-            if (columnValues[0] !== 'OR' && columnValues[0] !== 'AND') 
-                throw new Error(`Unknown 'columnCondition' logic operator '${columnValues[0]}'.`);
-            
-            console.log('Here');
+        if (columnValues.length === 0)
+            return '';
 
+        let type = this._getQuery_Conditions_Helper_GetType(columnValues);
+
+        if (type === 'conjuctionArray') {
             return this._getQuery_Conditions_Helper(columnValues[1],
                     columnValues[0], tableOnly);
         }
 
-        let args = [];
-        for (let columnCondition of columnValues) {
-            if (!js0.type(columnCondition, Array)) {
-                console.error('`columnValues`', columnValues);
-                throw new Error('`columnCondition` must be an array.');
+        if (type === 'conjuction') {
+            if (logicOperator === null)
+                logicOperator = 'AND';
+                
+            let args = [];
+            for (let columnCondition of columnValues) {
+                let columnCondition_Str = this._getQuery_Conditions_Helper(columnCondition,
+                        null, tableOnly);
+                if (columnCondition_Str !== '')
+                    args.push('(' + columnCondition_Str + ')');
             }
 
-            if (columnCondition.length === 2) {
-                if (columnCondition[0] !== 'OR' && columnCondition[0] !== 'AND') 
-                    throw new Error(`Unknown 'columnCondition' logic operator '${columnCondition[0]}'.`);
-                args.push('(' + this._getQuery_Conditions_Helper(columnCondition[1],
-                        columnCondition[0], tableOnly) + ')');
-                continue;
-            } else if (columnCondition.length !== 3) {
-                console.error('Column condition:', columnCondition);
-                throw new Error(`Wrong 'columnCondition' format.`);
-            }
+            return args.join(` ${logicOperator} `)
+        }
 
-            let columnName = columnCondition[0];
-            let sign = columnCondition[1];
-            let value = columnCondition[2];
+        if (type === 'condition') {
+            let columnName = columnValues[0];
+            let sign = columnValues[1];
+            let value = columnValues[2];
 
             let column = this.getColumn_Field(columnName);
 
@@ -498,10 +521,148 @@ class Table
                 }
             }
 
-            args.push(`${columnName_DB} ${sign}${value_DB}`);
+            return `${columnName_DB} ${sign}${value_DB}`;
         }
 
-        return args.join(` ${logicOperator} `);
+        throw new Error(`Unknown 'columnValues' type.`);
+    }
+
+    _getQuery_Conditions_Helper_GetType(columnValues)
+    {
+        if (columnValues.length === 2) {
+            if (columnValues[0] === 'OR' || columnValues[0] === 'AND') {
+                if (columnValues[1] instanceof Array)
+                    return 'conjuctionArray';
+            }
+        }
+
+        let isConjuction = true;
+        for (let columnValue of columnValues) {
+            if (!(columnValue instanceof Array))
+                isConjuction = false;
+        }
+        if (isConjuction)
+            return 'conjuction';
+
+        if (columnValues.length === 3) 
+            return 'condition';
+
+        console.error('Condition column values:', columnValues);
+        throw new Error('Wrong condition format.');
+    }
+
+    async _join_Async(db, rows, joinArgs)
+    {
+        js0.args(arguments, require('../native/Database'), Array, 
+                TableRequestDef.Args_Select().join);
+
+        for (let join of joinArgs) {
+            let table = join.table;
+
+            for (let on of join.on) {
+                if (!this.hasColumn(on[1])) {
+                    return {
+                        success: false,
+                        rows: null,
+                        error: `Column '${on[1]}' from 'on' join does not exist.`,
+                    };
+                }
+            }
+
+            let columnNames = null;
+            if (join.columns === null)
+                columnNames = table.getColumnNames();
+            else {
+                columnNames = [];
+                for ( columnName of join.columns) {
+                    if (!table.hasColumn(columnName)) {
+                        return {
+                            success: false,
+                            rows: null,
+                            error: `Column '${columnName}' in 'columns'` +
+                                    ` in join '${join.table}' does not exist.`,
+                        };
+                    }
+
+                    columnNames.push(columnName);
+                }
+            }
+
+            if (rows.length === 0) 
+                continue;
+
+            let join_Rows = null;
+
+            let on_ColValues = {};
+            let groupBy_Arr = [];
+            for (let on of join.on) {
+                on_ColValues[on[1]] = [];
+                groupBy_Arr.push(on[1]);
+            }
+
+            for (let row of rows) {
+                for (let on of join.on)
+                    on_ColValues[on[1]].push(row[on[1]]);
+            }
+
+            let where = join.where;
+            for (let on of join.on) {
+                if (on_ColValues[on[1]].length > 0) {
+                    where.push(
+                        [ on[0], 'IN', on_ColValues[on[1]] ],
+                    );
+                }
+            }
+
+            console.log(where);
+
+            let result = await table.select_Async(db, {
+                columns: columnNames,
+                where: where,
+                limit: null,
+                groupBy: groupBy_Arr,
+                join: [],
+            });
+
+            if (result.error !== null) {
+                return {
+                    success: false,
+                    rows: null,
+                    error: `Join '${join.table.name}': ` + result.error,
+                };
+            }
+
+            join_Rows = result.rows;
+
+            for (let row of rows) {
+                let join_Row_Matched = null;
+                for (let join_Row of join_Rows) {
+                    let joinFound = true;
+                    for (let on of join.on) {
+                        if (row[on[0]] !== join_Row[on[1]]) {
+                            joinFound = false;
+                            break;
+                        }
+                    }
+
+                    if (joinFound) {
+                        join_Row_Matched = join_Row;
+                        break;
+                    }
+                }
+
+                for (let columnName of columnNames) {
+                    row[join['prefix'] + columnName] = join_Row_Matched === null ?
+                            null : join_Row_Matched[colName];
+                }
+            }
+        }
+
+        return {
+            success: true,
+            rows: rows,
+            error: null,
+        };
     }
 
 }

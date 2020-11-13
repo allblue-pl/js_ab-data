@@ -65,9 +65,11 @@ class DataStore
     //     await this._requestProcessor.register_Async();
     // }
 
-    async request_Async(requestName, actionName, actionArgs)
+    async request_Async(requestName, actionName, actionArgs = {})
     {
-        js0.args(arguments, 'string', 'string', js0.RawObject);
+        js0.args(arguments, 'string', 'string', [ js0.RawObject, js0.Default ]);
+
+        this._validateRequest([ 'request', requestName, actionName, actionArgs ]);
 
         return await this._requestProcessor.processRequest_Async(
                 requestName, actionName, actionArgs);
@@ -75,7 +77,7 @@ class DataStore
 
     async requestB_Async(requests)
     {
-        return await this.processRequestBatch_Async(requests);
+        return await this.requestBatch_Async(requests);
     }
 
     async requestBatch_Async(requests)
@@ -123,7 +125,6 @@ class DataStore
             throw new Error(`Result '${requestId}' not found in response.`);
 
         let errors = [];
-        console.log(response[requestId], actionDef);
         if (!js0.type(response[requestId], js0.Preset(actionDef.resultDef), errors)) {
             console.error(`Result errors:`, errors);
             throw new Error(`Request action '${requestName}:${actionName}' result error.`);
@@ -147,6 +148,7 @@ class DataStore
 
         let actionDef = requestDef.getActionDef(actionName);
         let errors = [];
+        console.log(actionArgs, actionDef.argsDef);
         if (!js0.type(actionArgs, js0.Preset(actionDef.argsDef), errors)) {
             console.error(`Args errors:`, errors);
             throw new Error(`Request action '${requestName}:${actionName}' args error.`);

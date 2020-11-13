@@ -52,7 +52,10 @@ class RequestProcessor_Native extends RequestProcessor
     {
         js0.args(arguments, Array)
 
-        let response = {};
+        let response = {
+            success: false,
+            error: null,
+        };
 
         let success = true;
 
@@ -70,6 +73,13 @@ class RequestProcessor_Native extends RequestProcessor
             response[requestId] = result;
 
             if (!result.success) {
+                if (response.error === null)
+                    response.error = result.error;
+                else {
+                    response.error += ' ' + `[Request '${requestId}':` + 
+                            result.error + `']`;
+                }
+
                 if (abData.debug) {
                     console.error(`Cannot process action '${requestName}:${actionName}'`, 
                             actionArgs);
@@ -95,7 +105,9 @@ class RequestProcessor_Native extends RequestProcessor
                 console.error('Cannot commit.');
         }
 
-        return success ? response : null;    
+        response.success = success;
+
+        return response;
     }
 
     async register_Async()
