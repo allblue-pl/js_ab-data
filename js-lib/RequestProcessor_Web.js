@@ -30,6 +30,7 @@ class RequestProcessor_Web extends RequestProcessor
                 deviceInfo: {
                     deviceId: this.device.id,
                     deviceHash: this.device.hash,
+                    declaredItemIds: this.device.declaredItemIds,
                 },
                 requests: requests,
                     }, (result) => {

@@ -18,6 +18,7 @@ class ABDString extends ABDField
     constructor(size, properties = {})
     {
         js0.args(arguments, js0.Int, [ js0.RawObject, js0.Default ]);
+
         super(properties);
 
         this._size = size;

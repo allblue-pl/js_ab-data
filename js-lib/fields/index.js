@@ -96,9 +96,9 @@ class fields_Class
     //     return new ABDObject(properties);
     // }
 
-    String(properties = {})
+    String(size, properties = {})
     {
-        return new ABDString(properties);
+        return new ABDString(size, properties);
     }
 
     Time(properties = {})

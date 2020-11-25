@@ -7,16 +7,25 @@ const
 class Device
 {
 
-    get id() {
-        return this._id;
+    static get Devices_Offset() {
+        return 100000000;
+    }
+
+
+    get declaredItemIds() {
+        return this._declaredItemIds;
     }
 
     get hash() {
         return this._hash;
     }
 
-    get lastId() {
-        return this._lastId;
+    get id() {
+        return this._id;
+    }
+
+    get lastItemId() {
+        return this._lastItemId;
     }
 
     get lastUpdate() {
@@ -24,27 +33,33 @@ class Device
     }
 
 
-    constructor(deviceId, deviceHash, lastId, lastUpdate)
+    constructor(deviceId, deviceHash, lastUpdate, lastItemId)
     {
         js0.args(arguments, js0.Long, 'string', js0.Long, [ js0.Long, js0.Null ]);
 
+        console.log('Device', deviceId);
+
         this._id = deviceId;
         this._hash = deviceHash;
-        this._lastId = null;
+        this._lastItemId = lastItemId;
+        this._declaredItemIds = [];
         this._lastUpdate = lastUpdate;
-
-        this._nextId = lastId;
     }
 
     nextId()
     {
-        return this._id * 100000000 + (++this._nextId);
+        let nextId = this._id * Device.Devices_Offset + (++this._lastItemId);
+        this._declaredItemIds.push(this._lastItemId);
+
+        return nextId;
     }
 
-    update(lastId, lastUpdate)
+    update(lastUpdate, lastItemId)
     {
-        this._lastId = lastId;
+        js0.args(arguments, js0.Long, js0.Long);
+
         this._lastUpdate = lastUpdate;
+        this._lastItemId = lastItemId;
     }
 
 }
