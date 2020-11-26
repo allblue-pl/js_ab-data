@@ -37,8 +37,6 @@ class Device
     {
         js0.args(arguments, js0.Long, 'string', js0.Long, [ js0.Long, js0.Null ]);
 
-        console.log('Device', deviceId);
-
         this._id = deviceId;
         this._hash = deviceHash;
         this._lastItemId = lastItemId;
