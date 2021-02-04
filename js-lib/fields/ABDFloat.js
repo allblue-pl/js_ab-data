@@ -3,7 +3,9 @@
 const 
     js0 = require('js0'),
     
-    ABDField = require('./ABDField')
+    ABDField = require('./ABDField'),
+
+    ABDFloatValidator = require('../validators/ABDFloatValidator')
 ;
 
 class ABDFloat extends ABDField
@@ -20,9 +22,9 @@ class ABDFloat extends ABDField
     }
 
 
-    __getValidatorType()
+    __getFieldValidator(fieldValidatorInfo)
     {
-        return 'number';
+        return new ABDFloatValidator(fieldValidatorInfo);
     }
 
     __escape(value)

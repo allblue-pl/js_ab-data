@@ -3,7 +3,9 @@
 const 
     js0 = require('js0'),
 
-    ABDField = require('./ABDField')
+    ABDField = require('./ABDField'),
+
+    ABDLongValidator = require('../validators/ABDLongValidator')
 ;
 
 class ABDId extends ABDField
@@ -21,9 +23,9 @@ class ABDId extends ABDField
     }
 
 
-    __getValidatorType()
+    __getFieldValidator(fieldValidatorInfo)
     {
-        return 'long';
+        return new ABDLongValidator(fieldValidatorInfo);
     }
 
     __escape(value)
@@ -35,7 +37,7 @@ class ABDId extends ABDField
 
     __unescape(value)
     {
-        return BigInt(value);
+        return Number(value);
     }
 
 }

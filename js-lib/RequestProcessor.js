@@ -29,7 +29,7 @@ class RequestProcessor
 
         let response = await this.processRequestBatch_Async([
             [ 'request', requestName, actionName, actionArgs ],
-        ]);
+        ], {});
 
         if (response === null)
             return null;
@@ -37,7 +37,7 @@ class RequestProcessor
         return response.request;
     }
 
-    async processRequestBatch_Async(requests) { js0.virtual(this); }
+    async processRequestBatch_Async(requests, args) { js0.virtual(this); }
 
 }
 module.exports = RequestProcessor;

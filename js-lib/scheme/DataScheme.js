@@ -85,6 +85,8 @@ class DataScheme
     {
         js0.args(arguments, 'string', require('../Table'));
 
+        this._validateTableId(table.getTableId());
+
         if (this._tables.has(tableName))
             throw new Error(`Table '${tableName}' already exists.`);
 
@@ -120,12 +122,35 @@ class DataScheme
 
         return this._tables.get(tableName);
     }
+
+    getTable_ById(tableId)
+    {
+        for (let [ tableName, table ] of this._tables) {
+            if (table.getTableId() === tableId)
+                return table;
+        }
+
+        throw new Error(`Table with id '${tableId}' does not exist.`);
+    }
     
     hasTable(tableName)
     {
         js0.args(arguments, 'string');
 
         return this._tables.has(tableName);
+    }
+
+    hasTable_ById(tableId)
+    {
+        js0.args(arguments, 'int');
+
+        for (let [ tableName, table ] of this._tables) {
+            console.log(tableId, table.getTableId());
+            if (table.getTableId() === tableId)
+                return true;
+        }
+
+        return false;
     }
 
     hasRequestDef(requestName)
@@ -140,7 +165,85 @@ class DataScheme
         this._ignored_TableNames = tableNames;
 
         return this;
-    }       
+    }  
+    
+    validateResponse(response, request)
+    {
+        if (response === null)
+            return;
+
+        let requestId = request[0];
+        let requestName = request[1];
+        let actionName = request[2];
+        let actionArgs = request[3];
+
+        let requestDef = this.getRequestDef(requestName);
+        let actionDef = requestDef.getActionDef(actionName);
+
+        if (!(requestId in response))
+            throw new Error(`Result '${requestId}' not found in response.`);
+
+        let errors = [];
+        if (!js0.type(response[requestId], js0.Preset(actionDef.resultDef), errors)) {
+            console.error(`Result errors:`, errors);
+            throw new Error(`Request action '${requestName}:${actionName}' result error.`);
+        }
+    }
+
+    validateResult(request, result)
+    {
+        let requestId = request[0];
+        let requestName = request[1];
+        let actionName = request[2];
+        let actionArgs = request[3];
+
+        let requestDef = this.getRequestDef(requestName);
+        let actionDef = requestDef.getActionDef(actionName);
+
+        if (!js0.type(result, js0.RawObject)) {
+            console.error(`'${requestName}:${actionName}' result:`, result);
+            throw new Error(`Result of '${requestName}:${actionName}' must be a 'RawObject'.`);
+        }
+
+        let errors = [];
+        if (!js0.type(result, js0.Preset(actionDef.resultDef), errors)) {
+            console.error(`'${requestName}:${actionName}' result:`, result);
+            console.error(`Result errors:`, errors);``
+            throw new Error(`Request action '${requestName}:${actionName}' result error.`);
+        }
+    }
+
+    validateRequest(request)
+    {
+        let requestId = request[0];
+        let requestName = request[1];
+        let actionName = request[2];
+        let actionArgs = request[3];
+
+        if (!this.hasRequestDef(requestName))
+            throw new Error(`Request '${requestName}' not defined.`);
+        
+        let requestDef = this.getRequestDef(requestName);
+
+        if (!requestDef.hasActionDef(actionName))
+            throw new Error(`Action '${requestName}:${actionName}' not defined.`);
+
+        let actionDef = requestDef.getActionDef(actionName);
+        let errors = [];
+        if (!js0.type(actionArgs, js0.Preset(actionDef.argsDef), errors)) {
+            console.error(`Args errors:`, errors);
+            throw new Error(`Request action '${requestName}:${actionName}' args error.`);
+        }
+    }
+
+
+    _validateTableId(tableId)
+    {
+        for (let [ tableName, table ] of this._tables) {
+            if (table.getTableId() === tableId)
+                throw new Error(`Table with id '${tableId}' already exists ('${tableName}')`);
+        }
+    }
 
 }
 module.exports = DataScheme;

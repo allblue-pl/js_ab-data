@@ -32,21 +32,23 @@ class Table
         return this._properties;
     }
 
-    constructor(name, alias, columns)
+    constructor(id, name, alias, columns)
     {   
-        js0.args(arguments, 'string', 'string', Array);
+        js0.args(arguments, 'int', 'string', 'string', Array);
 
+        this._id = id;
         this._name = name;
         this._alias = alias;
         this._primaryKey = null;
         this._columns = null;
         this._rowParser = null;
+        this._columnValidators = {};
 
         if (name[0] !== '_') {
             columns = [
                 [ '_Id', fields.Id({ notNull: true, }) ],
-                [ '_Modified_DateTime', fields.Long({ notNull: true, }) ],
-                [ '_Modified_DeviceId', fields.Long({}) ],
+                [ '_Modified_DateTime', fields.Long({ notNull: false, }) ],
+                // [ '_Modified_DeviceId', fields.Long({}) ],
             ].concat(columns);
 
             this.setPrimaryKey('_Id');
@@ -56,21 +58,35 @@ class Table
         for (let column of columns) {
             let name = column[0];
             let field = column[1];
-            let validatorInfo = field.getValidatorInfo(
-                column.length > 2 ? column[2] : {});
+            let fieldValidatorInfo = column.length > 2 ? column[2] : {};
 
             this._columns.set(name, {
                 field: field,
-                validatorInfos: [ validatorInfo ],
+                fieldValidator: field.getFieldValidator(fieldValidatorInfo),
             });
         }
+    }
+
+    addColumnValidator(columnName, fieldValidator)
+    {
+        js0.args(arguments, 'string', require('./validators/ABDFieldValidator'));
+
+        if (!this.hasColumn(columnName))
+            throw new Error(`Column '${columnName}' does not exist.`);
+
+        if (!(columnName in this._columnValidators))
+            this._columnValidators[columnName] = [];
+
+        this._columnValidators[columnName].push(fieldValidator);
+
+        return this;
     }
 
     async delete_Async(db, args = {})
     {
         js0.args(arguments, null, js0.Preset({
-            where: [ Array ],
-        }));
+            where: [ Array, js0.Default([]) ],
+        }, args));
 
         let tableName_DB = helper.quote(this.name);
         let query = `DELETE FROM ${tableName_DB}`;
@@ -81,14 +97,7 @@ class Table
                 query += ' WHERE ' + where_Str;
         }
 
-        console.log(query);
-
-        let result = await db.query_Execute_Async(query);
-
-        return {
-            success: result.success,
-            error: result.error,
-        };
+        await db.query_Execute_Async(query);
     }
 
     getColumn(columnName)
@@ -112,6 +121,11 @@ class Table
         //     columnNames.push(column.name);
 
         // return columnNames;
+    }
+
+    getTableId()
+    {
+        return this._id;
     }
 
     getTableName()
@@ -143,29 +157,17 @@ class Table
 
     async row_Async(db, args = {})
     {
-        js0.args(arguments, require('./native/Database'), js0.Preset({
-            columns: null,
-            where: [ Array, js0.Default([]) ],
-        }));
+        js0.args(arguments, require('./native/Database'), 
+                js0.Preset(TableRequestDef.Args_Select()));
 
         args.limit = [ 0, 1 ];
 
-        let result = await this.select_Async(db, args);
+        let rows_DB = await this.select_Async(db, args);
 
-        if (result.rows === null)
-            return result;
+        if (rows_DB.length === 0)
+            return null;
 
-        if (result.rows.length === 0) {
-            return {
-                row: null,
-                error: null,
-            };
-        }
-
-        return {
-            row: result.rows[0],
-            error: null,
-        };
+        return rows_DB[0];
     }
 
     async select_Async(db, args = {})
@@ -180,9 +182,20 @@ class Table
 
         if (args.where !== null) {
             let where_Str = this.getQuery_Conditions(args.where);
-            console.log('Here', where_Str);
             if (where_Str !== '')
                 query += ' WHERE ' + where_Str;
+        }
+
+        if (args.orderBy.length > 0) {
+            let orderBy_Arr = [];
+            for (let orderBy of args.orderBy) {
+                let column_Field = this.getColumn_Field(orderBy[0]);
+                orderBy_Arr.push(column_Field.expr + orderBy[1] ? ' DESC' : '');
+            }
+
+            query += ' ORDER BY ' + orderBy_Arr.join(', ');
+
+            console.log('order by', query);
         }
 
         if (args.limit !== null)
@@ -192,17 +205,10 @@ class Table
         for (let [ columnName, column ] of this.columns)
             columnTypes.push(column.field.getType());
 
-        let result = await db.query_Select_Async(query, columnTypes);
-
-        if (result.error !== null) {
-            return {
-                rows: null,
-                error: result.error,
-            };
-        }
+        let rows_DB = await db.query_Select_Async(query, columnTypes);
 
         let rows = [];
-        for (let result_Row of result.rows) {
+        for (let result_Row of rows_DB) {
             let row = {};
             for (let i = 0; i < this.columns.size; i++) {
                 row[this.columns.getKeyAt(i)] = this.columns.getAt(i).field
@@ -211,16 +217,10 @@ class Table
             rows.push(row);
         }
 
-        if (args.join.length > 0) {
-            let result_Join = await this._join_Async(db, rows, args.join);
-            if (!result_Join.success)
-                return result_Join;
-        }
+        if (args.join.length > 0)
+            rows = await this._join_Async(db, rows, args.join);
 
-        return {
-            rows: rows,
-            error: null,
-        };
+        return rows;
     }
 
     setPrimaryKey(primaryKey)
@@ -230,7 +230,7 @@ class Table
         return this;
     }
 
-    setRowParse(parserFn)
+    setRowParser(parserFn)
     {
         js0.args(arguments, 'function');
 
@@ -241,8 +241,6 @@ class Table
     {
         js0.args(arguments, require('./native/Database'), 
                 js0.ArrayItems(js0.RawObject));
-
-        console.log(rows);
 
         if (rows.length === 0) {
             return {
@@ -264,30 +262,25 @@ class Table
             if (!(pk in row))
                 throw new Error(`No Primary Key '${pk}' set in row '${i}'.`);
 
-            if (row._Id === null) {
-                row._Id = await db.getNextId_Async(this.getTableName());
-                rows_Insert.push(row);
-            } else {
-                rows_Left.push(row);
-                ids_ExistCheck.push(row[pk]);
-            }
+            rows_Left.push(row);
+            ids_ExistCheck.push(row[pk]);
 
-            if (this._columns.has('_Modified_DateTime'))
-                row._Modified_DateTime = (new Date()).getTime();
+            // console.log(row[pk], this.getColumn_Field(pk).unescape(row[pk]));
+
+            // if (this._columns.has('_Modified_DateTime'))
+            //     row._Modified_DateTime = null; // (new Date()).getTime();
         }
 
         let rows_Existing = [];
         if (ids_ExistCheck.length > 0) {
-            let result = await this.select_Async(db, {
+            let rows_DB = await this.select_Async(db, {
+                columns: [ pk ],
                 where: [
                     [ pk, 'IN', ids_ExistCheck ],
                 ],
             });
 
-            if (result.error !== null)
-                throw new Error('Cannot get existing rows.');
-
-            rows_Existing = result.rows;
+            rows_Existing = rows_DB;
         }
 
         let ids_Existing = [];
@@ -302,8 +295,8 @@ class Table
         }
 
         let columns = new Map();
-        if (this._columns.has('_Modified_DateTime'))
-            columns.set('_Modified_DateTime', fields.Time({ notNull: true }));
+        // if (this._columns.has('_Modified_DateTime'))
+        //     columns.set('_Modified_DateTime', fields.Time({ notNull: true }));
 
         let row_0 = rows[0];
         if (!(pk in row_0))
@@ -397,6 +390,7 @@ class Table
                     try {
                         value_DB = column.escape(row[columnName]);
                     } catch (e) {
+                        console.error(e);
                         throw new Error(`Cannot escape column '${columnName}'.`);
                     }
 
@@ -411,38 +405,26 @@ class Table
             query_Update += ` WHERE ${pk} IN (` + ids_DB.join(',') + ')';
         }
 
-        await db.transaction_Start_Async();
-
-        console.log('Insert', query_Insert);
-        console.log('Update', query_Update);
+        let localTransaction = false;
+        if (db.transaction_IsAutocommit()) {
+            localTransaction = true;
+            await db.transaction_Start_Async();
+        }
         
         if (query_Insert !== null) {
-            let result_Insert = await db.query_Execute_Async(query_Insert);
-            if (!result_Insert.success) {
-                return {
-                    success: false,
-                    error: 'Insert: ' + result_Insert.error,
-                };
-            }
+            console.log('INSERT', query_Insert);
+            await db.query_Execute_Async(query_Insert);
+            // let affectedRows = db.getAffectedRows_Async();
         }
 
         if (query_Update !== null) {
-            let result_Update = await db.query_Execute_Async(query_Update);
-            if (!result_Update.success) {
-                return {
-                    success: false,
-                    error: 'Update: ' + result_Update.error,
-                };
-            }
+            console.log('UPDATE', query_Update);
+            await db.query_Execute_Async(query_Update);
+            // let affectedRows = db.getAffectedRows_Async();
         }
 
-        let result_Transaction = await db.transaction_Finish_Async(true);
-        if (!result_Transaction.success) {
-            return {
-                success: false,
-                error: 'Transaction: ' + result_Transaction.error,
-            };
-        }
+        if (localTransaction)
+            await db.transaction_Finish_Async(true);
 
         return {
             success: true,
@@ -450,14 +432,68 @@ class Table
         };
     }
 
+    // async updateRequests_Async(db, action, rows)
+    // {
+    //     js0.args(arguments, null, Array);
 
-    async updateRequests_Async(db, action, rows)
+    //     let query = `INSERT INTO ${tableName_DB} (${columnNames_DB_Str})` +
+    //             ` VALUES ${values_DB_Str}`
+    // }
+
+    validateColumn(validator, validatorFieldName, columnName, value)
     {
-        js0.args(arguments, null, Array);
+        js0.args(arguments, require('./Validator'), 'string', 'string', null);
 
-        let query = `INSERT INTO ${tableName_DB} (${columnNames_DB_Str})` +
-                ` VALUES ${values_DB_Str}`
+        validator.addField(validatorFieldName, value);
+
+        let column = this.getColumn(columnName);
+        // let column_ValidatorField = column.field.getFieldValidator(
+        //         column.fieldValidatorInfo);
+
+        validator.addFieldValidator(validatorFieldName, column.fieldValidator);
+        if (columnName in this._columnValidators) {
+            for (let fieldValidator of this._columnValidators[columnName])
+                validator.addFieldValidator(validatorFieldName, fieldValidator);
+        }
     }
+
+    validateRow(validator, row, columns = null)
+    {
+        js0.args(arguments, require('./Validator'), js0.RawObject,
+                [ js0.Null, js0.RawObject, js0.Default() ]);
+
+        if (columns === null) {
+            columns = {};
+            for (let [ columnName, column ] of this.columns)
+                columns[columnName] = columnName;
+        }
+
+        for (let columnName in columns) {
+            if (!(columnName in row))
+                throw new Error(`Column '${columnName}' not set in row.`);
+
+            this.validateColumn(validator, columns[columnName], columnName,
+                    row[columnName]);
+        }
+    }
+
+    validateRow_Default(validator, row, ignoreColumns = [])
+    {
+        js0.args(arguments, require('./Validator'), js0.RawObject,
+                [ Array, js0.Default() ]);
+
+        let columns = {};
+        for (let [ columnName, column ] of this.columns) {
+            if (columnName === '_Modified_DateTime')
+                continue;
+
+            if (!ignoreColumns.includes(columnName))
+                columns[columnName] = columnName;
+        }
+
+        this.validateRow(validator, row, columns);
+    }
+
 
     _getQuery_Conditions_Helper(columnValues, logicOperator, tableOnly = false)
     {
@@ -556,16 +592,24 @@ class Table
         js0.args(arguments, require('../native/Database'), Array, 
                 TableRequestDef.Args_Select().join);
 
+        console.log(rows);
+
+        let rows_Joined = [];
+        for (let row of rows)
+            rows_Joined.push(row);
+
         for (let join of joinArgs) {
             let table = join.table;
 
             for (let on of join.on) {
                 if (!this.hasColumn(on[1])) {
-                    return {
-                        success: false,
-                        rows: null,
-                        error: `Column '${on[1]}' from 'on' join does not exist.`,
-                    };
+                    throw new Error(`Join column '${on[1]}' from base table ` +
+                            `'${this.getTableName()}' does not exist.`);
+                }
+
+                if (!table.hasColumn(on[0])) {
+                    throw new Error(`Join column '${on[0]}' from join table ` +
+                            `'${table.getTableName()}' does not exist.`);
                 }
             }
 
@@ -574,14 +618,10 @@ class Table
                 columnNames = table.getColumnNames();
             else {
                 columnNames = [];
-                for ( columnName of join.columns) {
+                for (let columnName of join.columns) {
                     if (!table.hasColumn(columnName)) {
-                        return {
-                            success: false,
-                            rows: null,
-                            error: `Column '${columnName}' in 'columns'` +
-                                    ` in join '${join.table}' does not exist.`,
-                        };
+                        throw new Error(`Column '${columnName}' in 'columns'` +
+                                ` in join '${join.table}' does not exist.`);
                     }
 
                     columnNames.push(columnName);
@@ -591,32 +631,30 @@ class Table
             if (rows.length === 0) 
                 continue;
 
-            let join_Rows = null;
+            // let join_Rows = null;
 
             let on_ColValues = {};
             let groupBy_Arr = [];
             for (let on of join.on) {
-                on_ColValues[on[1]] = [];
-                groupBy_Arr.push(on[1]);
+                on_ColValues[on[0]] = [];
+                groupBy_Arr.push(on[0]);
             }
 
             for (let row of rows) {
                 for (let on of join.on)
-                    on_ColValues[on[1]].push(row[on[1]]);
+                    on_ColValues[on[0]].push(row[on[1]]);
             }
 
-            let where = join.where;
+            let where = [ join.where ];
             for (let on of join.on) {
-                if (on_ColValues[on[1]].length > 0) {
+                if (on_ColValues[on[0]].length > 0) {
                     where.push(
-                        [ on[0], 'IN', on_ColValues[on[1]] ],
+                        [ on[0], 'IN', on_ColValues[on[0]] ],
                     );
                 }
             }
 
-            console.log(where);
-
-            let result = await table.select_Async(db, {
+            let join_Rows = await table.select_Async(db, {
                 columns: columnNames,
                 where: where,
                 limit: null,
@@ -624,22 +662,13 @@ class Table
                 join: [],
             });
 
-            if (result.error !== null) {
-                return {
-                    success: false,
-                    rows: null,
-                    error: `Join '${join.table.name}': ` + result.error,
-                };
-            }
-
-            join_Rows = result.rows;
-
+            let rows_Joined_New = [];
             for (let row of rows) {
                 let join_Row_Matched = null;
                 for (let join_Row of join_Rows) {
                     let joinFound = true;
                     for (let on of join.on) {
-                        if (row[on[0]] !== join_Row[on[1]]) {
+                        if (row[on[1]] !== join_Row[on[0]]) {
                             joinFound = false;
                             break;
                         }
@@ -651,18 +680,21 @@ class Table
                     }
                 }
 
+                if (joinArgs.type === 'inner' && join_Row_Matched === null)
+                    continue;
+            
+                rows_Joined_New.push(row);
+
                 for (let columnName of columnNames) {
                     row[join['prefix'] + columnName] = join_Row_Matched === null ?
-                            null : join_Row_Matched[colName];
+                            null : join_Row_Matched[columnName];
                 }
             }
+
+            rows_Joined = rows_Joined_New;
         }
 
-        return {
-            success: true,
-            rows: rows,
-            error: null,
-        };
+        return rows_Joined;
     }
 
 }

@@ -1,96 +1,106 @@
-// 'use strict';
+'use strict';
 
-// const
-//     js0 = require('js0')
-// ;
+const
+    js0 = require('js0')
+;
 
-// class Validator
-// {
+class Validator
+{
 
-//     constructor()
-//     {
-//         this._info =  {
-//             'valid': true,
-//             'fields': [],
-//             'state': '',
-//             'errors': [],
-//         };
-//     }
+    constructor()
+    {
+        this._info =  {
+            'valid': true,
+            'fields': {},
+            'state': '',
+            'errors': [],
+        };
+    }
 
-//     add(fieldName, fieldValue, fieldValidators)
-//     {
-//         js0.args(arguments, 'string', null, 
-//                 js0.Iterable(require('./validators/ABDFieldValidators')));
+    addField(fieldName, fieldValue)
+    {
+        js0.args(arguments, 'string', null);
 
-//         this._fields_Add(fieldName, fieldValue);
+        this._fields_Add(fieldName, fieldValue);
+    }
 
-//         for (let fieldValidator of fieldValidators)
-//             this._fields_Add(fieldName, fieldValidator);
-//     }
+    addFieldValidator(fieldName, fieldValidator)
+    {
+        js0.args(arguments, 'string', require('./validators/ABDFieldValidator'));
 
-//     addFieldValidator(name, fieldValidator)
-//     {
-//         js0.args(arguments, 'string', require('./validators/ABDFieldValidators'));
+        if (!this.hasField(fieldName))
+            throw new Error(`Field '${fieldName}' does not exist.`);
 
-//         throw new Error('Not implemented.');
-//     }
+        fieldValidator.validate(this, fieldName, this._info.fields[fieldName].value);
+    }
 
-//     getInfo()
-//     {
-//         return this._info;
-//     }
+    getInfo()
+    {
+        return this._info;
+    }
 
-//     error(message)
-//     {
-//         js0.args(arguments, 'string');
+    error(message)
+    {
+        js0.args(arguments, 'string');
 
-//         this._info['valid'] = false;
-//         this._info['errors'].push(message);
-//     }
+        this._info['valid'] = false;
+        this._info['errors'].push(message);
+    }
 
-//     fieldError(fieldName, message)
-//     {
-//         js0.args(arguments, 'string');
+    fieldError(fieldName, message)
+    {
+        js0.args(arguments, 'string');
 
-//         let field = this._fields_Get(fieldName);
+        let field = this._fields_Get(fieldName);
 
-//         this._info['valid'] = false;
-//         this._info['state'] = 'error';
+        this._info['valid'] = false;
+        this._info['state'] = 'error';
 
-//         field['errors'].push(message);
-//     }
+        field['valid'] = false;
+        field['errors'].push(message);
+    }
 
-//     isValid()
-//     {
-//         return this._info['valid'];
-//     }
+    hasField(fieldName)
+    {
+        js0.args(arguments, 'string');
+
+        return fieldName in this._info['fields'];
+    }
+
+    isValid()
+    {
+        return this._info['valid'];
+    }
 
 
-//     _fields_Add(fieldName, fieldValue)
-//     {
-//         this._info['fields'][fieldName] = {
-//             'valid': true,
-//             'value': field_value,
-//             'state': '',
-//             'errors': [],
-//             'warnings': [],
-//             'successes': [],
-//         };
+    _fields_Add(fieldName, fieldValue)
+    {
+        js0.args(arguments, 'string', null);
 
-//         return this._info['fields'][fieldName];
-//     }
+        this._info['fields'][fieldName] = {
+            'valid': true,
+            'value': fieldValue,
+            'state': '',
+            'errors': [],
+            'warnings': [],
+            'successes': [],
+        };
 
-//     _field_Get(fieldName)
-//     {
-//         if (!isset($this->info['fields'][$field_name]))
-//             throw new \Exception("Field `{$field_name}` does not exist.");
+        return this._info['fields'][fieldName];
+    }
 
-//         return $this->info['fields'][$field_name];
-//     }
+    _fields_Get(fieldName)
+    {
+        if (!this.hasField(fieldName))
+            throw new Error(`Field '${fieldName}' does not exist.`);
 
-//     _fields_Exists(fieldName)
-//     {
-//         return fieldName in this._info['fields'];
-//     }
+        return this._info.fields[fieldName];
+    }
 
-// }
+    // _fields_Exists(fieldName)
+    // {
+    //     return fieldName in this._info['fields'];
+    // }
+
+}
+module.exports = Validator;

@@ -1,11 +1,14 @@
 {
     "abDependencies": {
+        "ab-data": "",
         "ab-date": "",
         "ab-fs": "",
         "ab-fs-matcher": "",
         "ab-fs-watcher": "",
         "ab-log": "",
         "ab-mysql": "",
+        "ab-strings": "",
+        "ab-text": "",
         "ab-tasks": "",
         "js0": ""
     }

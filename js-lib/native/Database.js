@@ -5,23 +5,50 @@ const
     js0 = require('js0'),
 
     abData = require('..'),
+    helper = require('../helper'),
 
     DatabaseInfo = require('../DatabaseInfo'),
     FieldInfo = require('../FieldInfo'),
-    TableInfo = require('../TableInfo')
+    TableInfo = require('../TableInfo'),
+
+    ABDDatabaseError = require('./ABDDatabaseError')
 ;
 
-export default class Database
+class Database
 {
+
+    static EscapeString(str)
+    {
+        return helper.escapeString(str);
+    }
+
+    static UnescapeString(str)
+    {
+        return helper.unescapeString(str);
+    }
+
+    static Quote(str)
+    {
+        return helper.quote(str);
+    }
+
 
     constructor()
     {
+        this._autocommit = true;
+        this._lastError = null;
+
         let nad = new abNative.ActionsSetDef()
             .addNative('AddDBRequests', {
                 requests: js0.ArrayItems(Array),
             }, {
                 success: 'boolean',
                 error: [ 'string', null ],
+            })
+            .addNative('GetAffectedRows', {
+
+            }, {
+                affectedRows: [ 'int', js0.Null ],
             })
             .addNative('GetDBRequests', {
 
@@ -65,7 +92,10 @@ export default class Database
                 success: 'boolean',
                 error: [ 'string', js0.Null ],
             })
-            .addNative('Transaction_Start', {}, null)
+            .addNative('Transaction_Start', {}, {
+                success: 'boolean',
+                error: [ 'string', js0.Null ],
+            })
             .addNative('Query_Execute', {
                 query: 'string',
             }, {
@@ -76,6 +106,7 @@ export default class Database
                 query: 'string',
                 columnTypes: js0.Iterable('string'),
             }, {
+                success: 'boolean',
                 rows: Array,
                 error: [ 'string', js0.Null ],
             });
@@ -84,13 +115,53 @@ export default class Database
 
     async addDBRequests_Async(requests)
     {
-        let result = (await this.nativeActions.callNative_Async('AddDBRequests', {
-            requests: requests,
-                }));
-        if (!result.success)
-            abData.error('AddDBRequests Error', result.error);
+        js0.args(arguments, );
 
-        return result.success;
+        let localTransaction = false;
+        if (this.transaction_IsAutocommit()) {
+            localTransaction = true;
+            await this.transaction_Start_Async();
+        }
+
+        let nextRequestId = 1;
+        let nextRequestId_Rows = await this.query_Select_Async(
+                `SELECT Name, Data FROM _ABData_Settings WHERE Name = 'nextRequestId'`, 
+                [ 'String', 'String' ]);
+        if (nextRequestId_Rows.length !== 0)
+            nextRequestId = JSON.parse(nextRequestId_Rows[0][1])['value'];
+
+        let query = `INSERT INTO _ABData_DBRequests ` +
+                `(Id, RequestName, ActionName, ActionArgs)` +
+                ` VALUES `;
+
+        let requests_DB = [];
+        for (let request of requests) {
+            query += `(`;
+            query += ++nextRequestId + `, `;
+            query += `'` + request[0] + `', `;
+            query += `'` + request[1] + `', `;
+            query += `'` + Database.EscapeString(JSON.stringify(request[2])) + `'`;
+            query += `)`;
+        }
+
+        await this.query_Execute_Async(query);
+
+        let nextRequestId_JSON_Str = JSON.stringify({ value: nextRequestId });
+        if (nextRequestId_Rows.length === 0) {
+            await this.query_Execute_Async(
+                    `INSERT INTO _ABData_Settings (Name, Data)` + 
+                    ` VALUES('nextRequestId', '${nextRequestId_JSON_Str}')`);
+        } else {
+            await this.query_Execute_Async(
+                    `UPDATE _ABData_Settings` + 
+                    ` SET Name = 'nextRequestId', Data = '${nextRequestId_JSON_Str}'` + 
+                    ` WHERE Name = 'nextRequestId'`);
+        }
+
+        if (localTransaction)
+            await this.transaction_Finish_Async(true);
+
+        console.log('Test', localTransaction, new Error());
 
         // return (await this.nativeActions.callNative_Async('AddDBRequests', {
         //     requests: requests,
@@ -99,18 +170,20 @@ export default class Database
 
     async getDBRequests_Async(requests)
     {
-        let result = (await this.nativeActions.callNative_Async('GetDBRequests', {}));
+        let rows = await this.query_Select_Async(
+                `SELECT Id, RequestName, ActionName, ActionArgs` +
+                ` FROM _ABData_DBRequests`, 
+                [ 'Long', 'String', 'String', 'String' ]);
 
-        console.log(result);
+        for (let row of rows)
+            row[3] = JSON.parse(row[3]);
 
-        return result.rows;
+        return rows;
     }
 
     async createDatabaseInfo_Async()
     {
         let databaseInfo = new DatabaseInfo();
-        
-        console.log(this.nativeActions)
 
         let tableNames = (await this.nativeActions.callNative_Async('GetTableNames'))
                 .tableNames;
@@ -140,6 +213,11 @@ export default class Database
 
     }
 
+    getLastError()
+    {
+        return this._lastError;
+    }
+
     async getNextId_Async(tableName)
     {
         js0.args(arguments, 'string');
@@ -159,13 +237,29 @@ export default class Database
     {
         js0.args(arguments, 'boolean');
 
-        return await this.nativeActions.callNative_Async('Transaction_Finish', 
+        let result = await this.nativeActions.callNative_Async('Transaction_Finish', 
                 { commit: commit });
+
+        if (!result.success)
+            throw new ABDDatabaseError(result.error);
+
+        this._autocommit = true;
+        // return result.success;
     }   
+
+    transaction_IsAutocommit()
+    {
+        return this._autocommit;
+    }
 
     async transaction_Start_Async()
     {
-        return await this.nativeActions.callNative_Async('Transaction_Start', {});
+        let result = await this.nativeActions.callNative_Async('Transaction_Start', {});
+        if (!result.success)
+            throw new ABDDatabaseError(result.error);
+
+        this._autocommit = false;
+        // return result.success;
     }   
 
     async updateScheme_Async(scheme)
@@ -192,20 +286,28 @@ export default class Database
             let query = tableInfo.getQuery_Create();
 
             console.log(query);
-            console.log(await this.query_Execute_Async(query));
+            await this.query_Execute_Async(query);
         }
     }
 
     async query_Execute_Async(query)
     {
-        return await this.nativeActions.callNative_Async('Query_Execute', 
+        let result = await this.nativeActions.callNative_Async('Query_Execute', 
                 { query: query });
+
+        if (!result.success)
+            throw new ABDDatabaseError(result.error);
     }   
 
     async query_Select_Async(query, columnTypes)
     {
-        return await this.nativeActions.callNative_Async('Query_Select', 
+        let result = await this.nativeActions.callNative_Async('Query_Select', 
                 { query: query, columnTypes: columnTypes });
+
+        if (!result.success)
+            throw new ABDDatabaseError(result.error);
+
+        return result.rows;
     }
 
 }

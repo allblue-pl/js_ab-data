@@ -1,90 +1,101 @@
-// 'use strict';
+'use strict';
 
-// const
-//     js0 = require('js0')
-// ;
+const
+    abStrings = require('ab-strings'),
+    abText = require('ab-text'),
+    js0 = require('js0'),
 
-// export default class ABDStringValidator
-// {
+    ABDFieldValidator = require('./ABDFieldValidator')
+;
 
-//     constructor(args)
-//     {
-//         js0.args(arguments, js0.Preset({
-//             'notNull': [ 'boolean', js0.Default(true) ],
-//             'required': [ 'boolean', js0.Default(true) ],
-//             'minLength': [ js0.Int, js0.Null, js0.Default(null) ],
-//             'maxLength': [ js0.Int, js0.Null, js0.Default(null) ],
-//             'regexp': [ 'string', js0.Null, js0.Default(null) ],
-//             'trim': [ 'boolean', js0.Default(false) ],
-//             'chars': abStrings.GetsCharsRegexp_Basic('\r\n'),
-//         }));
+class ABDStringValidator extends ABDFieldValidator
+{
 
-//         super(args);
-//     }
+    constructor(args)
+    {
+        js0.args(arguments, js0.Preset({
+            'notNull': [ 'boolean', js0.Default(true) ],
+            'required': [ 'boolean', js0.Default(true) ],
+            'minLength': [ js0.Int, js0.Null, js0.Default(null) ],
+            'maxLength': [ js0.Int, js0.Null, js0.Default(null) ],
+            'regexp': [ 'string', js0.Null, js0.Default(null) ],
+            'trim': [ 'boolean', js0.Default(false) ],
+            'chars': [ 'string', js0.Default(abStrings.getCharsRegExp_Basic()) ],
+        }));
 
-//     __validate(value)
-//     {
-//         return;
+        super(args);
+    }
 
-//         // let args = this.getArgs();
 
-//         // if (args['trim'])
-//         //     value = trim(value);
+    __validate(validator, fieldName, value)
+    {
+        if (this.args['trim'])
+            value = value.trim();
 
-//         // if (value === '') {
-//         //     if (args['required'])
-//         //         this.error(this.texts.notSet);
+        if (value === '') {
+            if (this.args['required'])
+                validator.fieldError(fieldName, abText.$('abData.errors_NotSet'));
 
-//         //     return;
-//         // } else {
-//         //     if (args['minLength'] !== null) {
-//         //         if (mb_strlen(value) < args['minLength']) {
-//         //             this.error(this.texts.get(
-//         //                     'text_BelowMinLength', [args['minLength']]));
-//         //         }
-//         //     }
+            return;
+        } else {
+            if (this.args['minLength'] !== null) {
+                if (value.length < this.args['minLength']) {
+                    validator.fieldError(fieldName, abText.$(
+                            'abData.errors_BelowMinLength', 
+                            [this.args['minLength']]));
+                }
+            }
 
-//         //     if (args['maxLength'] !== null) {
-//         //         if (args['maxLength'] > 0)
-//         //             if (mb_strlen(value) > args['maxLength'])
-//         //                 this.error(this.texts.get(
-//         //                     'text_AboveMaxLength', [args['maxLength']]));
-//         //     }
+            if (this.args['maxLength'] !== null) {
+                if (this.args['maxLength'] > 0) {
+                    if (value.length > this.args['maxLength']) {
+                        validator.fieldError(fieldName, abText.$(
+                                'abData.errors_AboveMaxLength', 
+                                { maxLength: this.args['maxLength'] }));
+                    }
+                }
+            }
 
-//         //     if (args['regexp'] !== null) {
-//         //         regexp = str_replace('#', '\\#', args['regexp'][0]);
-//         //         if (!preg_match("#{regexp}#", value)) {
-//         //             this.error(this.texts.get('text_WrongFormat',
-//         //                 [args['regexp'][1]]));
-//         //         }
-//         //     }
+            if (this.args['regexp'] !== null) {
+                // regexp = str_replace('#', '\\#', this.args['regexp'][0]);
+                let regexp = this.args['regexp'][0];
 
-//         //     if (args['chars'] !== null) {
-//         //         chars = str_replace('#', '\\#', args['chars']);
-//         //         // value = ' hello ';
-//         //         // echo '#' . chars . '#' . value . '#';
-//         //         if (!preg_match("#^[{chars}]*#", value)) {
-//         //             preg_match_all("#[^{chars}]#", value, matches,
-//         //                     PREG_SET_ORDER);
-//         //             not_allowed_chars_arr = [];
-//         //             foreach (matches as match) {
-//         //                 if (match[0] === ' ')
-//         //                     match[0] = '\' \'';
+                if (!(new RegExp(`${regexp}`)).test(value)) {
+                    validator.fieldError(fieldName, abText.$('abData.errors_WrongFormat',
+                        { format: this.args['regexp'][1] }));
+                }
+            }
 
-//         //                 if (!in_array(match[0], not_allowed_chars_arr))
-//         //                     not_allowed_chars_arr[] = match[0];
-//         //             }
-//         //             not_allowed_chars = implode(', ', not_allowed_chars_arr);
+            if (this.args['chars'] !== null) {
+                let chars_Escaped =  this.args['chars']; //abStrings.escapeRegExpChars(this.args['chars']);
+                // value = ' hello ';
+                // echo '#' . chars . '#' . value . '#';
 
-//         //             not_allowed_chars = str_replace('\\\\', '&#92;', not_allowed_chars);
-//         //             not_allowed_chars = str_replace('\\', '', not_allowed_chars);
-//         //             not_allowed_chars = str_replace('&#92;', '\\', not_allowed_chars);
+                if (!(new RegExp(`^[${chars_Escaped}]*$`)).test(value)) {
+                    let notAllowedChars = [];
+                    let re = new RegExp(`[${chars_Escaped}]`, 'g');
 
-//         //             this.error(this.texts.get('text_NotAllowedCharacters',
-//         //                 [ not_allowed_chars ]));
-//         //         }
-//         //     }
-//         // }
-//     }
+                    while (true) {
+                        let match = re.exec(value);
+                        if (!match)
+                            break;
 
-// }
+                        notAllowedChars.push(match[0]);
+                    }
+
+                    let notAllowedChars_Str = notAllowedChars.join(', ');
+
+                    // not_allowed_chars = str_replace('\\\\', '&#92;', not_allowed_chars);
+                    // not_allowed_chars = str_replace('\\', '', not_allowed_chars);
+                    // not_allowed_chars = str_replace('&#92;', '\\', not_allowed_chars);
+
+                    validator.fieldError(fieldName, abText.$(
+                            'abData.errors_NotAllowedCharacters',
+                            { notAllowedChars: notAllowedChars_Str }));
+                }
+            }
+        }
+    }
+
+}
+module.exports = ABDStringValidator;

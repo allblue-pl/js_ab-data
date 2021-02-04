@@ -3,7 +3,9 @@
 const 
     js0 = require('js0'),
 
-    ABDField = require('./ABDField')
+    ABDField = require('./ABDField'),
+
+    ABDIntValidator = require('../validators/ABDIntValidator')
 ;
 
 
@@ -22,15 +24,13 @@ class ABDInt extends ABDField
     }
 
 
-    __getValidatorType()
+    __getFieldValidator(fieldValidatorInfo)
     {
-        return 'int';
+        return new ABDIntValidator(fieldValidatorInfo);
     }
 
     __escape(value)
     {
-        js0.args(arguments, js0.Int);
-
         if (value === null)
             return 'NULL';
 

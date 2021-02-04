@@ -1,66 +1,41 @@
-// 'use strict';
+'use strict';
 
-// const
-//     js0 = require('js0')
-// ;
+const
+    js0 = require('js0')
+;
 
-// class ABDValidator
-// {
+class ABDFieldValidator
+{
 
-//     constructor(args)
-//     {
-//         js0.args(arguments, js0.RawObject);
-
-//         this._args = args;
-//     }
-
-//     __error($message = null)
-//     {
-//         $this->validator->fieldError($this->name, $message);
-//     }
-
-//     getArgs()
-//     {
-//         return $this->args;
-//     }
-
-//     public function getInfo()
-//     {
-//         return $this->info;
-//     }
-
-//     public function success($message = null)
-//     {
-//         $this->validator->fieldSuccess($this->name, $message);
-//     }
-
-//     public function validate(CValidator $validator, $name, $value)
-//     {
-//         $this->validator = $validator;
-//         $this->name = $name;
-
-//         if ($value === null) {
-//             if ($this->args['notNull']) {
-//                 if ($this->args['required'])
-//                     $this->error(EC\HText::_('Forms:fields.notSet'));
-//                 else
-//                     $this->error(EC\HText::_('Forms:fields.notNull'));
-//             }
+    get args() {
+        return this._args;
+    }
 
 
-//         } else
-//             $this->_validate($value);
+    constructor(args)
+    {
+        js0.args(arguments, js0.RawObject);
 
-//         $this->name = null;
-//         $this->validator = null;
-//     }
+        this._args = args;
+    }
 
-//     __warning($message = null)
-//     {
-//         $this->validator->fieldWarning($this->name, $message);
-//     }
+    validate(validator, fieldName, value)
+    {
+        js0.args(arguments, require('../Validator'), 'string', null);
 
-//     __validate(&$value);
+        if (value === null) {
+            if (this.args['notNull']) {
+                if (this.args['required'])
+                    validator.fieldError(fieldName, abText.$('Forms:fields.notSet'));
+                else
+                    validator.fieldError(fieldName, abText.$('Forms:fields.notNull'));
+            }
+        } else
+            this.__validate(validator, fieldName, value);
+    }
 
-// }
-// module.exports = ABDValidator;
+
+    __validate(value) { js0.virtual(this); }
+
+}
+module.exports = ABDFieldValidator;

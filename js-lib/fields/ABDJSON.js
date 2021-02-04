@@ -5,6 +5,8 @@ const
     
     ABDField = require('./ABDField'),
 
+    ABDJSONValidator = require('../validators/ABDJSONValidator'),
+
     helper = require('../helper')
 ;
 
@@ -27,15 +29,13 @@ class ABDJSON extends ABDField
     }
 
 
-    __getValidatorType()
+    __getFieldValidator(fieldValidatorInfo)
     {
-        return 'json';
+        return new ABDJSONValidator(fieldValidatorInfo);
     }
 
     __escape(value)
     {
-        js0.args(arguments, [ js0.Null, js0.RawObject ]);
-
         if (value === null)
             return 'NULL';
 
@@ -46,8 +46,6 @@ class ABDJSON extends ABDField
     {
         if (value === null)
             return null;
-
-        console.log(value);
 
         return JSON.parse(helper.unescapeString(value)).value;
     }

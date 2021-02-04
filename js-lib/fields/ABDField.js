@@ -25,17 +25,6 @@ class ABDField
     {
         js0.virtual(this);
     }
-
-    getValidatorInfo(validatorArgs)
-    {
-        let validatorType = this.__getValidatorType();
-        validatorArgs.notNull = this._properties.notNull;
-
-        return {
-            type: validatorType,
-            args: validatorArgs,
-        };
-    }
         
     escape(value)
     {
@@ -58,6 +47,17 @@ class ABDField
         return '(' + arr_Escaped.join(',') + ')';
     }
 
+    getFieldValidator(fieldValidatorInfo)
+    {
+        js0.args(arguments, js0.RawObject);
+
+        if (!('notNull' in fieldValidatorInfo))
+            fieldValidatorInfo['notNull'] = this.properties['notNull'];
+
+        return js0.rtn(require('../validators/ABDFieldValidator'),
+                this.__getFieldValidator(fieldValidatorInfo));
+    }
+
     unescape(value)
     {
         if (value === null)
@@ -72,7 +72,7 @@ class ABDField
         return value;
     }
 
-    __getValidatorType() { js0.virtual(this); }
+    __getFieldValidator(fieldValidatorInfo) { js0.virtual(this); }
     __escape(value) { js0.virtual(this); }
 
 }

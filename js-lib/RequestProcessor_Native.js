@@ -5,6 +5,7 @@ const
     webABApi = require('web-ab-api'),
 
     abData = require('.'),
+    NativeDataStore = require('./native/NativeDataStore'),
     RequestProcessor = require('./RequestProcessor')
 ;
 
@@ -15,12 +16,27 @@ class RequestProcessor_Native extends RequestProcessor
     {
         js0.args(arguments, require('./scheme/DataScheme'), require('./Device'),
                 'string', require('./native/Database'));
+
         super(dataScheme, device);
 
         this._scheme = dataScheme;
+        this._device = device;
         this._apiUri = apiUri;
         this._db = db;
         this._requests = {};
+        this._listeners_OnDBSync = [];
+    }
+
+    addListener_OnDBSync(listener)
+    {
+        js0.args(arguments, 'function');
+
+        this._listeners_OnDBSync.push(listener);
+    }
+
+    async clearData_Async()
+    {
+        
     }
 
     async getDeviceInfo_Async()
@@ -48,9 +64,9 @@ class RequestProcessor_Native extends RequestProcessor
         return requestName in this._requests;
     }
 
-    async processRequestBatch_Async(requests)
+    async processRequestBatch_Async(requests, args)
     {
-        js0.args(arguments, Array)
+        js0.args(arguments, Array, js0.RawObject);
 
         let response = {
             success: false,
@@ -68,22 +84,36 @@ class RequestProcessor_Native extends RequestProcessor
             let actionName = request[2];
             let actionArgs = request[3];
 
-            let result = await this.getRequest(requestName)
-                    .executeAction_Async(actionName, actionArgs);
-            response[requestId] = result;
+            let result = null;
+            try {
+                result = await this.getRequest(requestName)
+                        .executeAction_Async(this._device, actionName, actionArgs);
 
-            if (!result.success) {
-                if (response.error === null)
-                    response.error = result.error;
-                else {
-                    response.error += ' ' + `[Request '${requestId}':` + 
-                            result.error + `']`;
+                this._scheme.validateResult(request, result);
+            } catch (e) {
+                result = {
+                    success: false,
+                    error: `Request Action Error: ` + e.toString(),
                 }
 
+                console.error(`Request Action Error: '${requestName}:${actionName}'`);
+                console.error(e);
+            }
+
+            response[requestId] = result;
+
+            if (!result.success)
+                success = false;
+
+            if (result.error !== null) {
+                // response.errors.push([ `${requestName}:${actionName}:${requestId}`, 
+                //         result.error]);
+                response.error = `Action error: ${requestName}:${actionName}:${requestId}`;
+
                 if (abData.debug) {
-                    console.error(`Cannot process action '${requestName}:${actionName}'`, 
+                    console.error(`Error processing action '${requestName}:${actionName}:${requestId}'`, 
                             actionArgs);
-                    console.error('Action error:', result.error);
+                    console.error('Action Error:', result.error);
                 }
             }
 
@@ -99,37 +129,34 @@ class RequestProcessor_Native extends RequestProcessor
         if (success && requests_W.length > 0)
             success = await this._db.addDBRequests_Async(requests_W);
 
-        if (!(await this._db.transaction_Finish_Async(success))) {
-            success = false;
-            if (abData.debug)
-                console.error('Cannot commit.');
-        }
+        if (success)
+            await this._updateDeviceInfo_Async();
+
+        await this._db.transaction_Finish_Async(success);
 
         response.success = success;
 
         return response;
     }
 
-    async register_Async()
-    {
-        let result = await webABApi.json_Async(this._apiUri + 'register-device', {});
+    // async register_Async()
+    // {
+    //     let result = await webABApi.json_Async(this._apiUri + 'register-device', {});
 
-        console.log(result);
-
-        if (!result.isSuccess()) {
-            if (abData.debug)
-                console.error(result.data.data);
+    //     if (!result.isSuccess()) {
+    //         if (abData.debug)
+    //             console.error(result.data.data);
          
-            throw new Error('Cannot register device: ' + result.message);
-        }
+    //         throw new Error('Cannot register device: ' + result.message);
+    //     }
 
-        if (!await this._db.nativeActions.callNative_Async('SetDeviceInfo', { 
-            deviceId: result.data.deviceInfo.deviceId,
-            deviceHash: result.data.deviceInfo.deviceHash,
-            lastUpdate: null,
-                }))
-            throw new Error('Cannot set device info.');
-    }
+    //     if (!await this._db.nativeActions.callNative_Async('SetDeviceInfo', { 
+    //         deviceId: result.data.deviceInfo.deviceId,
+    //         deviceHash: result.data.deviceInfo.deviceHash,
+    //         lastUpdate: null,
+    //             }))
+    //         throw new Error('Cannot set device info.');
+    // }
 
     setR(requestName, request)
     {
@@ -146,21 +173,36 @@ class RequestProcessor_Native extends RequestProcessor
         this._requests[requestName] = request;
     }
 
-    async syncDB_Async()
+    async syncDB_Async(args)
     {
+        js0.args(arguments, js0.RawObject);
+
+        let deviceInfo = await NativeDataStore.GetDeviceInfo_Async(
+                this._scheme, this._db);
         let rDBRequests = await this._db.getDBRequests_Async();
-        
+
         let result = await webABApi.json_Async(this._apiUri + 'sync-db', { 
+            args: args,
             deviceInfo: {
-                deviceId: this.device.id,
-                deviceHash: this.device.hash,
-                lastUpdate: this.device.lastUpdate,
+                deviceId: deviceInfo.deviceId,
+                deviceHash: deviceInfo.deviceHash,
+                lastUpdate: deviceInfo.lastUpdate, //this.device.lastUpdate,
+                declaredItemIds: deviceInfo.declaredItemIds,
             },
             rDBRequests: rDBRequests 
         });
-        
-        if (!result.isSuccess())
+
+        if (!result.isSuccess()) {
             console.warn(result.data.data);
+
+            return {
+                success: false,
+                error: result.message,
+            };
+        }
+
+        for (let listener of this._listeners_OnDBSync)
+            await listener(result.data);
 
         let response = result.data.response;
 
@@ -171,58 +213,43 @@ class RequestProcessor_Native extends RequestProcessor
 
         await this._db.transaction_Start_Async();
 
-        console.log(result.data);
-
-        let result_DeviceInfo = await this.updateDeviceInfo(result.data.deviceInfo.lastId,
-                    result.data.deviceInfo.lastUpdate);
-        console.log(result_DeviceInfo);
-        if (!result_DeviceInfo.success) {
-            success = false;
-            console.error('Cannot update device info.', result_DeviceInfo.error);
-        }
+        // let result_DeviceInfo = await this.updateDeviceInfo(result.data.deviceInfo.lastId,
+        //             result.data.deviceInfo.lastUpdate);
+        // if (!result_DeviceInfo.success) {
+        //     success = false;
+        //     console.error('Cannot update device info.', result_DeviceInfo.error);
+        // }
 
         for (let tableName in response.updateData.update) {
             if (!this._scheme.hasTable(tableName))
                 continue;
 
-            let result = await this._scheme.getTable(tableName).update_Async(this._db,
+            await this._scheme.getTable(tableName).update_Async(this._db,
                     response.updateData.update[tableName]);
-            
-            if (!result.success) {
-                success = false;
-                console.warn(result.error);
-            }
         }
 
-        for (let tableName in response.updateData.delete) {
-            if (!this._scheme.hasTable(tableName))
+        for (let tableId in response.updateData.delete) {
+            if (!this._scheme.hasTable_ById(parseInt(tableId)))
                 continue;
 
-            let result = await this._scheme.getTable(tableName).delete_Async(this._db, {
+            await this._scheme.getTable_ById(parseInt(tableId)).delete_Async(this._db, {
                 where: [
-                    [ '_Id', 'IN', response.updateData.delete[tableName] ],
+                    [ '_Id', 'IN', response.updateData.delete[tableId] ],
                 ],
             });
-
-            if (!result.success) {
-                success = false;
-                console.warn(result.error);
-            }
         }
 
-        let result_Transaction = await this._db.transaction_Finish_Async(success);
-        if (!result_Transaction.success) {
-            console.warn('Transaction: ' + result_Transaction.error);
-            return {
-                success: false,
-                error: 'Cannot commit.',
-            };
+        if (success) {
+            // this.device.update(result.data.deviceInfo.lastUpdate,
+            //         result.data.deviceInfo.lastItemId);
+
+            // await NativeDataStore.SetDeviceInfo_Async(this._scheme, this._db, 
+            //         this.device.id, this.device.hash, 
+            //         this.device.lastItemId, this.device.lastUpdate,
+            //         []);
         }
 
-        this.device.update(result.data.deviceInfo.lastId, 
-                result.data.deviceInfo.lastUpdate);
-
-        console.log('Device', this.device);
+        await this._db.transaction_Finish_Async(success);
 
         return {
             success: true,
@@ -230,20 +257,36 @@ class RequestProcessor_Native extends RequestProcessor
         };
     }
 
-    async updateDeviceInfo(lastId, lastUpdate)
+
+    async _updateDeviceInfo_Async()
     {
-        let tSettings = this._scheme.getTable('_Native_Settings');
-        return tSettings.update_Async(this._db, [
-            {
-                Name: 'deviceInfo',
-                Data: {
-                    deviceId: this.device.id,
-                    deviceHash: this.device.hash,
-                    lastId: lastId,
-                    lastUpdate: lastUpdate,
-                }
-            },
-        ]);
+        js0.args(arguments);
+
+        let localTransaction = false;
+        if (this._db.transaction_IsAutocommit()) {
+            localTransaction = true;
+            await this._db.transaction_Start_Async();
+        }
+
+        let lastDeclaredItemId = this.device.lastItemId;
+        // for (let itemId_Declared of this.device.declaredItemIds) {
+        //     if (itemId_Declared > lastDeclaredItemId)
+        //         lastDeclaredItemId = itemId_Declared;
+        // }
+
+        let deviceInfo = await NativeDataStore.GetDeviceInfo_Async(this._scheme, this._db);
+        let declaredItemIds = deviceInfo.declaredItemIds;
+        for (let itemId of this.device.declaredItemIds) {
+            if (!declaredItemIds.includes(itemId))
+                declaredItemIds.push(itemId);
+        }
+
+        await NativeDataStore.SetDeviceInfo_Async(this._scheme, this._db, 
+                this.device.id, this.device.hash, lastDeclaredItemId, 
+                this.device.lastUpdate, declaredItemIds);
+
+        if (localTransaction)
+            await this._db.transaction_Finish_Async(true);
     }
 
 }

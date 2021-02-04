@@ -25,6 +25,10 @@ class abData_Class
         return require('./scheme');
     }
 
+    get validators() {
+        return require('./validators');
+    }
+
     get Device() {
         return require('./Device');
     }
@@ -63,6 +67,10 @@ class abData_Class
 
     get TableInfo() {
         return require('./TableInfo');
+    }
+
+    get Validator() {
+        return require('./Validator');
     }
 
 

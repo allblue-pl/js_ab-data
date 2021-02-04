@@ -5,6 +5,8 @@ const
     
     ABDField = require('./ABDField'),
 
+    ABDStringValidator = require('../validators/ABDStringValidator'),
+
     helper = require('../helper')
 ;
 
@@ -30,9 +32,12 @@ class ABDString extends ABDField
     }
 
 
-    __getValidatorType()
+    __getFieldValidator(fieldValidatorInfo)
     {
-        return 'text';
+        if (!('maxLength' in fieldValidatorInfo))
+            fieldValidatorInfo['maxLength'] = this.size;
+
+        return new ABDStringValidator(fieldValidatorInfo);
     }
 
     __escape(value)

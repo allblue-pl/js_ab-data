@@ -3,7 +3,9 @@
 const 
     js0 = require('js0'),
     
-    ABDField = require('./ABDField')
+    ABDField = require('./ABDField'),
+
+    ABDDateTimeValidator = require('../validators/ABDDateTimeValidator')
 ;
 
 class ABDDateTime extends ABDField
@@ -21,9 +23,9 @@ class ABDDateTime extends ABDField
     }
 
 
-    __getValidatorType()
+    __getFieldValidator(fieldValidatorInfo)
     {
-        return 'long';
+        return new ABDDateTimeValidator(fieldValidatorInfo);
     }
 
     __escape(value)

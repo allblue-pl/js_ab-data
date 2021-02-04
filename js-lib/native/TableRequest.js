@@ -125,6 +125,9 @@ class TableRequest extends Request
                 };
             }
 
+            if (this._table._columns.has('_Modified_DateTime'))
+                row._Modified_DateTime = null;
+
             rows.push(row);
         }
 

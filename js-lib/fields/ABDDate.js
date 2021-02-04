@@ -1,9 +1,12 @@
 'use strict';
 
 const 
+    abDate = require('ab-date'),
     js0 = require('js0'),
     
-    ABDField = require('./ABDField')
+    ABDField = require('./ABDField'),
+
+    ABDDateTimeValidator = require('../validators/ABDDateTimeValidator')
 ;
 
 class ABDDate extends ABDField
@@ -21,16 +24,15 @@ class ABDDate extends ABDField
     }
 
 
-    __getValidatorType()
+    __getFieldValidator(fieldValidatorInfo)
     {
-        return 'long';
+        return new ABDDateTimeValidator(fieldValidatorInfo);
     }
 
     __escape(value)
     {
-        js0.args(arguments, 'number');
-
-        return String(value);
+        return '\'' + abDate.format_DateTime_UTC(Number(value), 
+                'YYYY-MM-DD HH:mm:ss') + '\'';
     }
 
     __unescape(value)

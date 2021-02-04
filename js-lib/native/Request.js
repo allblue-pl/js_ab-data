@@ -12,9 +12,9 @@ class Request
         this._actions = {};
     }
 
-    async executeAction_Async(actionName, actionArgs)
+    async executeAction_Async(device, actionName, actionArgs)
     {
-        js0.args(arguments, 'string', js0.RawObject);
+        js0.args(arguments, require('../Device'), 'string', js0.RawObject);
 
         if (!(actionName in this._actions))
             throw new Error(`Action '${actionName}' does not exists.`);
@@ -24,7 +24,7 @@ class Request
             throw new Error('Test');
         }
 
-        return await this._actions[actionName]['fn'](actionArgs);
+        return await this._actions[actionName]['fn'](device, actionArgs);
     }
 
     setA(actionName, actionFn)
