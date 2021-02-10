@@ -1,49 +1,43 @@
 'use strict';
 
 const
-    js0 = require('js0')
+    js0 = require('js0'),
+
+    Device = require('../Device')
 ;
 
-class NativeDevice
+class NativeDevice extends Device
 {
 
-    static get Devices_Offset() {
-        return 100000000;
-    }
-
-
-    GetIdInfo(id)
+    constructor(deviceId, deviceHash, lastUpdate, lastItemId, declaredItemIds = [])
     {
-        js0.args(arguments, Number);
+        super(deviceId, deviceHash, lastUpdate, lastItemId, declaredItemIds);
 
-        let deviceId = Math.floor(id / NativeDevice.Devices_Offset);
-
-        return {
-            id: id,
-            deviceId: deviceId,
-            itemId: id - deviceId * NativeDevice.Devices_Offset,
-        };
-    }
-
-
-    constructor()
-    {
-        
+        this._itemIds_Used = [];
     }
 
     isNewId(id)
     {
-        js0.args(arguments, Number);
+        js0.args(arguments, 'number');
 
-        let idInfo = NativeDevice.GetIdInfo(id);
-
-        if (this._isNewId_Device(idInfo))
-            return true;
-
-        // if (this._isNewId_SystemDevice(idInfo))
-        //     return true;
+        if (super.isNewId(id)) {
+            let idInfo = Device.GetIdInfo(id);
+            return !this._itemIds_Used.includes(idInfo['itemId']);
+        }
 
         return false;
+    }
+
+    useId(id)
+    {
+        js0.args(arguments, js0.Long);
+
+        let idInfo = Device.GetIdInfo(id);
+
+        if (!this._isNewId_Device(idInfo))
+            throw new Error(`'_Id' '${id}' is not a new id.`);
+
+        this._itemIds_Used.push(idInfo['itemId']);
     }
 
 }

@@ -14,7 +14,7 @@ class RequestProcessor_Native extends RequestProcessor
 
     constructor(dataScheme, device, apiUri, db)
     {
-        js0.args(arguments, require('./scheme/DataScheme'), require('./Device'),
+        js0.args(arguments, require('./scheme/DataScheme'), require('./native/NativeDevice'),
                 'string', require('./native/Database'));
 
         super(dataScheme, device);
@@ -34,18 +34,18 @@ class RequestProcessor_Native extends RequestProcessor
         this._listeners_OnDBSync.push(listener);
     }
 
-    async clearData_Async()
-    {
+    // async clearData_Async()
+    // {
         
-    }
+    // }
 
-    async getDeviceInfo_Async()
-    {
-        let deviceInfo = await this._db.nativeActions.callNative_Async(
-                'GetDeviceInfo', {});
-        if (deviceInfo.deviceId !== null)
-            return deviceInfo;
-    }
+    // async getDeviceInfo_Async()
+    // {
+    //     let deviceInfo = await this._db.nativeActions.callNative_Async(
+    //             'GetDeviceInfo', {});
+    //     if (deviceInfo.deviceId !== null)
+    //         return deviceInfo;
+    // }
 
     getRequest(requestName)
     {
@@ -181,6 +181,9 @@ class RequestProcessor_Native extends RequestProcessor
                 this._scheme, this._db);
         let rDBRequests = await this._db.getDBRequests_Async();
 
+        console.log('Last Update', deviceInfo.lastUpdate);
+        console.log('DB Requests', rDBRequests);
+
         let result = await webABApi.json_Async(this._apiUri + 'sync-db', { 
             args: args,
             deviceInfo: {
@@ -191,9 +194,16 @@ class RequestProcessor_Native extends RequestProcessor
             },
             rDBRequests: rDBRequests 
         });
-
-        if (!result.isSuccess()) {
+        
+        if (result.isError()) {
             console.warn(result.data.data);
+
+            return {
+                success: false,
+                error: result.message,
+            };
+        } else if (result.isFailure()) {
+            console.warn(result.data.response);
 
             return {
                 success: false,
@@ -220,6 +230,8 @@ class RequestProcessor_Native extends RequestProcessor
         //     console.error('Cannot update device info.', result_DeviceInfo.error);
         // }
 
+        console.log('Update Data', response.updateData);
+
         for (let tableName in response.updateData.update) {
             if (!this._scheme.hasTable(tableName))
                 continue;
@@ -238,15 +250,22 @@ class RequestProcessor_Native extends RequestProcessor
                 ],
             });
         }
-
+        
         if (success) {
+            let dbRequestIds = [];
+            for (let rDBRequest of rDBRequests)
+                dbRequestIds.push(rDBRequest[0]);
+
+            await this._db.clearDBRequests_Async(dbRequestIds);
+
+            this.device.setLastUpdate(result.data.deviceInfo.lastUpdate);
             // this.device.update(result.data.deviceInfo.lastUpdate,
             //         result.data.deviceInfo.lastItemId);
 
-            // await NativeDataStore.SetDeviceInfo_Async(this._scheme, this._db, 
-            //         this.device.id, this.device.hash, 
-            //         this.device.lastItemId, this.device.lastUpdate,
-            //         []);
+            await NativeDataStore.SetDeviceInfo_Async(this._scheme, this._db, 
+                    this.device.id, this.device.hash, 
+                    this.device.lastItemId, this.device.lastUpdate,
+                    []);
         }
 
         await this._db.transaction_Finish_Async(success);
@@ -274,7 +293,8 @@ class RequestProcessor_Native extends RequestProcessor
         //         lastDeclaredItemId = itemId_Declared;
         // }
 
-        let deviceInfo = await NativeDataStore.GetDeviceInfo_Async(this._scheme, this._db);
+        let deviceInfo = await NativeDataStore.GetDeviceInfo_Async(this._scheme, 
+                this._db);
         let declaredItemIds = deviceInfo.declaredItemIds;
         for (let itemId of this.device.declaredItemIds) {
             if (!declaredItemIds.includes(itemId))

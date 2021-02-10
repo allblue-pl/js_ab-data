@@ -58,6 +58,9 @@ class Device
         this._lastUpdate = lastUpdate;
 
         this._itemIds_Declared = declaredItemIds;
+
+        this._locks = [];
+        this._locks_Next = 0;
     }
 
     isNewId(id)
@@ -75,6 +78,11 @@ class Device
         return false;
     }
 
+    lock()
+    {
+        this._locks.push(this._locks_Next++);
+    }
+
     nextId()
     {
         let nextId = this._id * Device.Devices_Offset + (++this._lastItemId);
@@ -83,18 +91,32 @@ class Device
         return nextId;
     }
 
-    setDeclaredItemIds(declaredItemIds)
-    {
-        js0.args(arguments, Array);
+    // setDeclaredItemIds(declaredItemIds)
+    // {
+    //     js0.args(arguments, Array);
 
-        this._itemIds_Declared = declaredItemIds;
-    }
+    //     this._itemIds_Declared = declaredItemIds;
+    // }
 
     setLastUpdate(lastUpdate)
     {
         js0.args(arguments, js0.Long);
 
         this._lastUpdate = lastUpdate;
+    }
+
+    unlock(lock)
+    {
+        js0.args(arguments, 'int');
+
+        for (let i = 0; i < this._locks.length; i++) {
+            if (this._locks[i] === lock) {
+                this._locks.splice(i, 1);
+                return;
+            }
+        }
+
+        throw new Error(`Lock '${lock}' does not exist.`);
     }
 
     update(lastUpdate, lastItemId)
@@ -106,6 +128,12 @@ class Device
     }
 
     
+    _checkLock()
+    {
+        if (this._locks.length > 0) 
+            throw new Error('Device locked.');
+    }
+
     _isNewId_Device(idInfo)
     {
         if (idInfo['deviceId'] !== this._id)
@@ -114,10 +142,8 @@ class Device
         if (idInfo['itemId'] <= this._itemIds_Last)
             return false;
 
-        for (let itemId_Declared of this._itemIds_Declared) {
-            if (idInfo['itemId'] === itemId_Declared)
-                return true;
-        }
+        if (this._itemIds_Declared.includes(idInfo['itemId']))
+            return true;
 
         return false;
     }

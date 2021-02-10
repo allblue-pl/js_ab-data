@@ -28,7 +28,7 @@ class ABDLongValidator extends ABDFieldValidator
     {
         if (value === '') {
             if (this.args['required'])
-                this.fieldError(validator, fieldName, abText.$('abData.notSet'));
+                validator.fieldError(fieldName, abText.$('abData.notSet'));
 
             return;
         }

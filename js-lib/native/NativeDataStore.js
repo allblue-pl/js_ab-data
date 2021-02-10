@@ -35,7 +35,9 @@ class NativeDataStore extends DataStore
         js0.args(arguments, abData.scheme.DataScheme, abData.native.Database);
 
         let tSettings = scheme.getTable('_ABData_Settings');
-        return (await tSettings.row_Async(db, { where: [ 'Name', '=', 'deviceInfo' ] })).Data;
+        let rDeviceInfo = (await tSettings.row_Async(db, { where: [ 'Name', '=', 'deviceInfo' ] }))
+
+        return rDeviceInfo === null ? null : rDeviceInfo.Data;
     }
 
     static async SetDeviceInfo_Async(scheme, db, deviceId, deviceHash, lastItemId, lastUpdate,
@@ -57,6 +59,21 @@ class NativeDataStore extends DataStore
                 },
             },
         ]);
+    }
+
+    static async InitDeviceInfo_Async(scheme, db)
+    {
+        js0.args(arguments, abData.scheme.DataScheme, abData.native.Database);
+
+        let tSettings = scheme.getTable('_ABData_Settings');
+        let rDeviceInfo = (await tSettings.row_Async(db, { where: [ 'Name', '=', 'deviceInfo' ] }));
+        if (rDeviceInfo === null)
+            return null;
+
+        rDeviceInfo.Data.declaredItemIds = [];
+        rDeviceInfo.Data.usedItemIds = [];
+        
+        return rDeviceInfo === null ? null : rDeviceInfo.Data;
     }
 
     static async UpdateDeviceInfo_Async(scheme, db, device)

@@ -194,8 +194,6 @@ class Table
             }
 
             query += ' ORDER BY ' + orderBy_Arr.join(', ');
-
-            console.log('order by', query);
         }
 
         if (args.limit !== null)
@@ -494,6 +492,22 @@ class Table
         this.validateRow(validator, row, columns);
     }
 
+    validateRow_Default_Columns(validator, row, columnNames = [])
+    {
+        js0.args(arguments, require('./Validator'), js0.RawObject,
+                [ Array, js0.Default() ]);
+
+        let columns = {};
+        for (let columnName of columnNames) {
+            if (!this.hasColumn(columnName))
+                throw new Error(`Column '${columnName}' does not exist.`);
+
+            columns[columnName] = columnName;
+        }
+
+        this.validateRow(validator, row, columns);
+    }
+
 
     _getQuery_Conditions_Helper(columnValues, logicOperator, tableOnly = false)
     {
@@ -591,8 +605,6 @@ class Table
     {
         js0.args(arguments, require('../native/Database'), Array, 
                 TableRequestDef.Args_Select().join);
-
-        console.log(rows);
 
         let rows_Joined = [];
         for (let row of rows)

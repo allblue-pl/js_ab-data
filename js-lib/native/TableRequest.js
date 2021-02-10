@@ -12,6 +12,24 @@ const
 class TableRequest extends Request
 {
 
+    static async Update_Async(device, db, table, rows)
+    {
+        js0.args(arguments, require('./NativeDevice'), require('./Database'), 
+                require('../Table'), Array);
+
+        await table.update_Async(db, rows);
+        for (let row of rows) {
+            if (!('_Id' in row))
+                continue;
+
+            row['_Modified_DateTime'] = null;
+
+            if (device.isNewId(row._Id))
+                device.useId(row._Id);
+        }
+    }
+
+
     constructor(db, table)
     {
         js0.args(arguments, require('./Database'), require('../Table'));

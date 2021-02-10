@@ -20,7 +20,7 @@ class ABDDate extends ABDField
 
     getType()
     {
-        return 'Long';
+        return 'String';
     }
 
 
@@ -37,7 +37,7 @@ class ABDDate extends ABDField
 
     __unescape(value)
     {
-        return Number(value);
+        return abDate.strToTime_UTC(value, 'YYYY-MM-DD HH:mm:ss');
     }
 
 }

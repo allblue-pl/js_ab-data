@@ -161,11 +161,18 @@ class Database
         if (localTransaction)
             await this.transaction_Finish_Async(true);
 
-        console.log('Test', localTransaction, new Error());
-
         // return (await this.nativeActions.callNative_Async('AddDBRequests', {
         //     requests: requests,
         //         })).success;
+    }
+
+    async clearDBRequests_Async(requestIds)
+    {
+        js0.args(arguments, Array);
+
+        await this.query_Execute_Async(
+                `DELETE FROM _ABData_DBRequests ` +
+                ` WHERE Id IN (` + requestIds.join(',') + `)`);
     }
 
     async getDBRequests_Async(requests)
@@ -228,8 +235,6 @@ class Database
         if (nextId_Result.nextId === null)
             throw new Error('Cannot get next id.');
 
-        console.log(nextId_Result);
-
         return nextId_Result.nextId;
     }
 
@@ -278,7 +283,7 @@ class Database
             let query = `DROP TABLE ${tableName}`;
             
             console.log(query);
-            console.log(await this.query_Execute_Async(query));
+            await this.query_Execute_Async(query);
         }
 
         for (let tableName of actions.tables.create) {
