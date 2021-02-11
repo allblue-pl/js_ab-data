@@ -34,7 +34,7 @@ class ABDStringValidator extends ABDFieldValidator
 
         if (value === '') {
             if (this.args['required'])
-                validator.fieldError(fieldName, abText.$('abData.errors_NotSet'));
+                validator.fieldError(fieldName, abText.$('abData.notSet'));
 
             return;
         } else {
