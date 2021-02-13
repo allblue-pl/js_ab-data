@@ -20,8 +20,10 @@ class NativeDataStore extends DataStore
             await db.transaction_Start_Async();
         }
 
-        device.setLastUpdate(null);
-        await NativeDataStore.UpdateDeviceInfo_Async(scheme, db, device);
+        if (device !== null) {
+            device.setLastUpdate(null);
+            await NativeDataStore.UpdateDeviceInfo_Async(scheme, db, device);
+        }
 
         await scheme.getT('_ABData_DBRequests').delete_Async(
                 db, {});

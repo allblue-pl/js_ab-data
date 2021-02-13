@@ -242,6 +242,8 @@ class Database
     {
         js0.args(arguments, 'boolean');
 
+        console.log('Transaction Finish', new Error());
+
         let result = await this.nativeActions.callNative_Async('Transaction_Finish', 
                 { commit: commit });
 

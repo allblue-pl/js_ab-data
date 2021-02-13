@@ -404,19 +404,20 @@ class Table
         }
 
         let localTransaction = false;
+        console.log('Test 2', db.transaction_IsAutocommit());
         if (db.transaction_IsAutocommit()) {
             localTransaction = true;
             await db.transaction_Start_Async();
         }
         
         if (query_Insert !== null) {
-            console.log('INSERT', query_Insert);
+            // console.log('INSERT', query_Insert);
             await db.query_Execute_Async(query_Insert);
             // let affectedRows = db.getAffectedRows_Async();
         }
 
         if (query_Update !== null) {
-            console.log('UPDATE', query_Update);
+            // console.log('UPDATE', query_Update);
             await db.query_Execute_Async(query_Update);
             // let affectedRows = db.getAffectedRows_Async();
         }

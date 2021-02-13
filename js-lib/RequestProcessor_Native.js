@@ -221,7 +221,11 @@ class RequestProcessor_Native extends RequestProcessor
 
         let success = true;
 
-        await this._db.transaction_Start_Async();
+        let localTransaction = false;
+        if (this._db.transaction_IsAutocommit()) {
+            localTransaction = true;
+            await this._db.transaction_Start_Async();
+        }
 
         // let result_DeviceInfo = await this.updateDeviceInfo(result.data.deviceInfo.lastId,
         //             result.data.deviceInfo.lastUpdate);
@@ -268,7 +272,8 @@ class RequestProcessor_Native extends RequestProcessor
                     []);
         }
 
-        await this._db.transaction_Finish_Async(success);
+        if (localTransaction)
+            await this._db.transaction_Finish_Async(success);
 
         return {
             success: true,
