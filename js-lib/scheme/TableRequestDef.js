@@ -9,6 +9,12 @@ const
 class TableRequestDef extends RequestDef
 {
 
+    static Args_Delete() {
+        return {
+            where: [ Array, js0.Default([]) ],
+        };
+    }
+
     static Args_Select() {
         return {
             columns: [ js0.Iterable('string'), js0.Null, js0.Default(null) ],

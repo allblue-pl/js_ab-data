@@ -84,9 +84,8 @@ class Table
 
     async delete_Async(db, args = {})
     {
-        js0.args(arguments, null, js0.Preset({
-            where: [ Array, js0.Default([]) ],
-        }, args));
+        js0.args(arguments, require('./native/Database'), 
+                js0.Preset(TableRequestDef.Args_Select()));
 
         let tableName_DB = helper.quote(this.name);
         let query = `DELETE FROM ${tableName_DB}`;
@@ -404,7 +403,6 @@ class Table
         }
 
         let localTransaction = false;
-        console.log('Test 2', db.transaction_IsAutocommit());
         if (db.transaction_IsAutocommit()) {
             localTransaction = true;
             await db.transaction_Start_Async();

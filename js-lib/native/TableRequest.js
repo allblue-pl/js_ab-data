@@ -12,12 +12,19 @@ const
 class TableRequest extends Request
 {
 
+    static async Delete_Async(device, db, table, args)
+    {
+        js0.args(arguments, require('./NativeDevice'), require('./Database'), 
+                require('../Table'), js0.Preset(TableRequestDef.Args_Select()));
+
+        await table.delete_Async(db, args);
+    }
+
     static async Update_Async(device, db, table, rows)
     {
         js0.args(arguments, require('./NativeDevice'), require('./Database'), 
                 require('../Table'), Array);
 
-        await table.update_Async(db, rows);
         for (let row of rows) {
             if (!('_Id' in row))
                 continue;
@@ -27,6 +34,8 @@ class TableRequest extends Request
             if (device.isNewId(row._Id))
                 device.useId(row._Id);
         }
+
+        await table.update_Async(db, rows);
     }
 
 
