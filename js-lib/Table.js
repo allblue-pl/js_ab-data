@@ -85,7 +85,7 @@ class Table
     async delete_Async(db, args = {})
     {
         js0.args(arguments, require('./native/Database'), 
-                js0.Preset(TableRequestDef.Args_Select()));
+                js0.Preset(TableRequestDef.Args_Select(), args));
 
         let tableName_DB = helper.quote(this.name);
         let query = `DELETE FROM ${tableName_DB}`;

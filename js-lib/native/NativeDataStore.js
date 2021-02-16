@@ -95,6 +95,13 @@ class NativeDataStore extends DataStore
         // }
 
         let deviceInfo = await NativeDataStore.GetDeviceInfo_Async(scheme, db);
+        if (deviceInfo === null) {
+            if (localTransaction)
+                await db.transaction_Finish_Async(false);
+                
+            return;
+        }
+
         let declaredItemIds = deviceInfo.declaredItemIds;
         for (let itemId of device.declaredItemIds) {
             if (!declaredItemIds.includes(itemId))
