@@ -181,9 +181,6 @@ class RequestProcessor_Native extends RequestProcessor
                 this._scheme, this._db);
         let rDBRequests = await this._db.getDBRequests_Async();
 
-        console.log('Last Update', deviceInfo.lastUpdate);
-        console.log('DB Requests', rDBRequests);
-
         let result = await webABApi.json_Async(this._apiUri + 'sync-db', { 
             args: args,
             deviceInfo: {

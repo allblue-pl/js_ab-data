@@ -429,6 +429,11 @@ class Table
         };
     }
 
+    updateWhere()
+    {
+        throw new Error('Not implemented yet.');
+    }
+
     // async updateRequests_Async(db, action, rows)
     // {
     //     js0.args(arguments, null, Array);

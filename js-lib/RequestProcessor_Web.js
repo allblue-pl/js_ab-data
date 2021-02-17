@@ -33,6 +33,7 @@ class RequestProcessor_Web extends RequestProcessor
                     declaredItemIds: this.device.declaredItemIds,
                 },
                 requests: requests,
+                args: {},
                     }, (result) => {
                 if (!result.isSuccess()) {
                     console.error('Request error: ' + result.message);
