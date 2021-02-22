@@ -23,6 +23,11 @@ class ABDIntValidator extends ABDFieldValidator
         super(args);
     }
 
+    getType()
+    {
+        return 'Int';
+    }
+
 
     __validate(validator, fieldName, value)
     {

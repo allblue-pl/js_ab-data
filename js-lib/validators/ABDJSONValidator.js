@@ -20,6 +20,11 @@ class ABDJSONValidator extends ABDFieldValidator
         super(args);
     }
 
+    getType()
+    {
+        return 'JSON';
+    }
+
 
     __validate(validator, fieldName, value)
     {

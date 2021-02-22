@@ -18,6 +18,11 @@ class ABDStringValidator extends ABDFieldValidator
         super(args);
     }
 
+    getType()
+    {
+        return 'Email';
+    }
+
 
     __validate(validator, fieldName, value)
     {

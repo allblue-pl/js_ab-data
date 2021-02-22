@@ -23,7 +23,7 @@ class ABDObject extends ABDField
 
     constructor(properties = {})
     {
-        super(properties);
+        super([], properties);
 
         this._initialized = false;
         this._name = null;

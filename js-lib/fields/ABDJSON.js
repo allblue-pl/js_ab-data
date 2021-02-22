@@ -20,7 +20,7 @@ class ABDJSON extends ABDField
     constructor(properties = {})
     {
         js0.args(arguments, [ js0.RawObject, js0.Default ]);
-        super(properties);
+        super([], properties);
     }
 
     getType()

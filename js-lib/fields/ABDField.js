@@ -7,17 +7,22 @@ const
 class ABDField
 {
 
+    get args() {
+        return this._args;
+    }
+
     get properties() {
         return this._properties;
     }
 
 
-    constructor(properties)
+    constructor(args, properties)
     {
-        js0.args(arguments, js0.Preset({
+        js0.args(arguments, Array, js0.Preset({
             notNull: [ 'boolean', js0.Default(false) ],
         }));    
 
+        this._args = args;
         this._properties = properties;
     }
 

@@ -2,10 +2,11 @@
 
 const 
     js0 = require('js0'),
+    
+    ABDField = require('./ABDField'),
 
-    ABDField = require('./ABDField')
+    ABDTimeValidator = require('../validators/ABDTimeValidator')
 ;
-
 
 class ABDTime extends ABDField
 {
@@ -13,33 +14,30 @@ class ABDTime extends ABDField
     constructor(properties = {})
     {
         js0.args(arguments, [ js0.RawObject, js0.Default ]);
-        super(properties);
+        super([], properties);
     }
 
     getType()
     {
-        return 'Int';
+        return 'Time';
     }
 
 
-    __getValidatorType()
+    __getFieldValidator(fieldValidatorInfo)
     {
-        return 'int';
+        return new ABDTimeValidator(fieldValidatorInfo);
     }
 
     __escape(value)
     {
-        js0.args(arguments, js0.Int);
-
-        if (value === null)
-            return 'NULL';
+        js0.args(arguments, 'number');
 
         return String(value);
     }
 
     __unescape(value)
     {
-        return parseInt(value);
+        return Number(value);
     }
 
 }

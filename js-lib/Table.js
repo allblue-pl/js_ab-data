@@ -132,11 +132,27 @@ class Table
         return this._name;
     }
 
-    getValidatorInfo()
+    getValidatorInfos()
     {
         let validatorInfo = {};
-        for (let [ columnName, column ] of this._columns)
-            validatorInfo[columnName] = column.validatorInfos;
+        for (let [ columnName, column ] of this._columns) {
+            validatorInfo[columnName] = {
+                field: {
+                    type: column.fieldValidator.getType(),
+                    args: column.fieldValidator.args,
+                },
+                validators: [],
+            };
+
+            if (columnName in this._columnValidators) {
+                for (let columnValidator of this._columnValidators[columnName]) {
+                    validatorInfo[columnName].validators.push({
+                        type: columnValidator.getType(),
+                        args: columnValidator.args,
+                    });
+                }
+            }
+        }
 
         return validatorInfo;
     }

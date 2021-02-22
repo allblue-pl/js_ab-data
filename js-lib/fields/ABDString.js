@@ -21,7 +21,7 @@ class ABDString extends ABDField
     {
         js0.args(arguments, js0.Int, [ js0.RawObject, js0.Default ]);
 
-        super(properties);
+        super([ size ], properties);
 
         this._size = size;
     }

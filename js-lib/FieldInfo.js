@@ -13,10 +13,6 @@ class FieldInfo
 
         if (field instanceof require('./fields/ABDBool'))
             return 'tinyint(1)';
-        else if (field instanceof require('./fields/ABDDate'))
-            return `bigint(20)`;
-        else if (field instanceof require('./fields/ABDDateTime'))
-            return `bigint(20)`;
         else if (field instanceof require('./fields/ABDDouble'))
             return `double`;
         else if (field instanceof require('./fields/ABDFloat'))
@@ -32,15 +28,16 @@ class FieldInfo
         else if (field instanceof require('./fields/ABDString'))
             return `varchar(` + field.size + `)`;
         else if (field instanceof require('./fields/ABDTime'))
-            return `int(11)`;
+            return `bigint(20)`;
 
         throw new Error(`Unknown FieldInfo type of field '${field.constructor.name}'.`);
     }
 
 
-    constructor(name, type, key, notNull)
+    constructor(name, field, type, key, notNull)
     {
         this.name = name;
+        this.field = field;
         this.type = type;
         this.key = '';
         this.notNull = notNull;

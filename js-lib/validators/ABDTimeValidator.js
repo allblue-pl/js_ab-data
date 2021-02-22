@@ -8,19 +8,26 @@ const
     ABDFieldValidator = require('./ABDFieldValidator')
 ;
 
-class ABDDateTimeValidator extends ABDFieldValidator
+class ABDTimeValidator extends ABDFieldValidator
 {
 
     constructor(args)
     {
         js0.args(arguments, js0.Preset({
             'notNull': [ 'boolean', js0.Default(true) ],
+            'type': [ js0.Enum([ 'dateTime', 'date', 'time' ]), 
+                    js0.Default('dateTime') ],
             'required': [ 'boolean', js0.Default(true) ],
-            'minDate': [ js0.Long, js0.Null, js0.Default(null) ],
-            'maxDate': [ js0.Long, js0.Null, js0.Default(null) ],
+            'minTime': [ js0.Long, js0.Null, js0.Default(null) ],
+            'maxTime': [ js0.Long, js0.Null, js0.Default(null) ],
         }));
 
         super(args);
+    }
+
+    getType()
+    {
+        return 'Time';
     }
 
 
@@ -59,4 +66,4 @@ class ABDDateTimeValidator extends ABDFieldValidator
     }
 
 }
-module.exports = ABDDateTimeValidator;
+module.exports = ABDTimeValidator;

@@ -23,6 +23,11 @@ class ABDLongValidator extends ABDFieldValidator
         super(args);
     }
 
+    getType()
+    {
+        return 'Long';
+    }
+
 
     __validate(validator, fieldName, value)
     {

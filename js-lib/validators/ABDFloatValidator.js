@@ -23,6 +23,11 @@ class ABDFloatValidator extends ABDFieldValidator
         super(args);
     }
 
+    getType()
+    {
+        return 'Float';
+    }
+
 
     __validate(validator, fieldName, value)
     {

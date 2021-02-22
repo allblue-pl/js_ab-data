@@ -26,6 +26,11 @@ class ABDStringValidator extends ABDFieldValidator
         super(args);
     }
 
+    getType()
+    {
+        return 'String';
+    }
+
 
     __validate(validator, fieldName, value)
     {

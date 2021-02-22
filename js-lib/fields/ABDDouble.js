@@ -8,7 +8,7 @@ class ABDDouble extends ABDField
 
     constructor(properties)
     {
-        super(properties);
+        super([], properties);
     }
 
 

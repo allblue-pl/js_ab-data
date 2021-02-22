@@ -8,7 +8,7 @@ class ABDArray extends ABDField
 
     constructor(properties)
     {
-        super(properties);
+        super([], properties);
     }
 
 }

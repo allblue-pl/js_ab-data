@@ -19,6 +19,11 @@ class ABDFieldValidator
         this._args = args;
     }
 
+    getType()
+    {
+        js0.virtual(this);
+    }
+
     validate(validator, fieldName, value)
     {
         js0.args(arguments, require('../Validator'), 'string', null);

@@ -36,6 +36,7 @@ class DataScheme
                 let field = column.field;
                 let fieldInfo = new FieldInfo(
                     fieldName,
+                    field,
                     FieldInfo.GetType_FromField(field),
                     '',
                     field.properties.notNull,

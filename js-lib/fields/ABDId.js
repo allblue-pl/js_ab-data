@@ -14,7 +14,7 @@ class ABDId extends ABDField
     constructor(properties)
     {
         js0.args(arguments);
-        super(properties);
+        super([], properties);
     }
 
     getType()
