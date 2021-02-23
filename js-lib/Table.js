@@ -695,7 +695,7 @@ class Table
             });
 
             let rows_Joined_New = [];
-            for (let row of rows) {
+            for (let row of rows_Joined) {
                 let join_Row_Matched = null;
                 for (let join_Row of join_Rows) {
                     let joinFound = true;
@@ -712,9 +712,9 @@ class Table
                     }
                 }
 
-                if (joinArgs.type === 'inner' && join_Row_Matched === null)
+                if (join.type === 'inner' && join_Row_Matched === null)
                     continue;
-            
+
                 rows_Joined_New.push(row);
 
                 for (let columnName of columnNames) {

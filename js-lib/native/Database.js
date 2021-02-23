@@ -203,6 +203,7 @@ class Database
             for (let column of result.columns) {
                 tableInfo.addFieldInfo(new FieldInfo(
                     column[0],
+                    null,
                     column[1],
                     '',
                     column[2] === 1,

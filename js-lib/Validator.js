@@ -34,6 +34,16 @@ class Validator
         fieldValidator.validate(this, fieldName, this._info.fields[fieldName].value);
     }
 
+    getFieldInfo(fieldName)
+    {
+        js0.args(arguments, 'string');
+
+        if (!fieldName in this._info['fields'])
+            throw new Error(`Field '${fieldName}' does not exist.`);
+
+        return this._info['fields'][fieldName];
+    }
+
     getInfo()
     {
         return this._info;
@@ -65,6 +75,13 @@ class Validator
         js0.args(arguments, 'string');
 
         return fieldName in this._info['fields'];
+    }
+
+    isFieldValid(fieldName)
+    {
+        js0.args(arguments, 'string');
+
+        return this.getFieldInfo(fieldName).valid;
     }
 
     isValid()
