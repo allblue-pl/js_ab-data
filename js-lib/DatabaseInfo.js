@@ -30,7 +30,6 @@ class DatabaseInfo
         for (let tableInfo_Scheme of dbInfo_Scheme.tableInfos) {
             let tableInfo = dbInfo_DB.getTableInfo_ByName(tableInfo_Scheme.name);
             if (tableInfo === null) {
-                console.log('CREATE', tableInfo_Scheme.name);
                 actions.tables.create.push(tableInfo_Scheme.name);
                 continue;
             }
@@ -48,6 +47,10 @@ class DatabaseInfo
 
     static Compare_Fields(fieldInfo_DB, fieldInfo_Conf)
     {
+        // console.log(fieldInfo_DB);
+        // console.log(fieldInfo_Conf);
+        // console.log('###');
+
         if (fieldInfo_DB.name !== fieldInfo_Conf.name ||
                 fieldInfo_DB.type !== fieldInfo_Conf.type || 
                 fieldInfo_DB.key !== fieldInfo_Conf.key ||
