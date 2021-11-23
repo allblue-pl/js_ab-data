@@ -14,11 +14,7 @@ class NativeDataStore extends DataStore
     {
         js0.args(arguments, abData.scheme.DataScheme, abData.native.Database);
 
-        let localTransaction = false;
-        if (db.transaction_IsAutocommit()) {
-            localTransaction = true;
-            await db.transaction_Start_Async();
-        }
+        let localTransaction = await db.transaction_StartLocal_Async();
 
         if (device !== null) {
             device.setLastUpdate(null);
@@ -82,11 +78,7 @@ class NativeDataStore extends DataStore
     {
         js0.args(arguments);
 
-        let localTransaction = false;
-        if (db.transaction_IsAutocommit()) {
-            localTransaction = true;
-            await db.transaction_Start_Async();
-        }
+        let localTransaction = await db.transaction_StartLocal_Async();
 
         let lastDeclaredItemId = device.lastItemId;
         // for (let itemId_Declared of this.device.declaredItemIds) {

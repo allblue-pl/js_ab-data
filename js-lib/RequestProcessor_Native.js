@@ -1,6 +1,7 @@
 'use strict';
 
 const
+    abLock = require('ab-lock'),
     js0 = require('js0'),
     webABApi = require('web-ab-api'),
 
@@ -75,7 +76,7 @@ class RequestProcessor_Native extends RequestProcessor
 
         let success = true;
 
-        await this._db.transaction_Start_Async();
+        let localTransaction = await this._db.transaction_StartLocal_Async();
 
         let requests_W = [];
         for (let request of requests) {
@@ -132,7 +133,8 @@ class RequestProcessor_Native extends RequestProcessor
         if (success)
             await this._updateDeviceInfo_Async();
 
-        await this._db.transaction_Finish_Async(success);
+        if (localTransaction)
+            await this._db.transaction_Finish_Async(success);
 
         response.success = success;
 
@@ -218,11 +220,7 @@ class RequestProcessor_Native extends RequestProcessor
 
         let success = true;
 
-        let localTransaction = false;
-        if (this._db.transaction_IsAutocommit()) {
-            localTransaction = true;
-            await this._db.transaction_Start_Async();
-        }
+        let localTransaction = await this._db.transaction_StartLocal_Async();
 
         // let result_DeviceInfo = await this.updateDeviceInfo(result.data.deviceInfo.lastId,
         //             result.data.deviceInfo.lastUpdate);
@@ -230,8 +228,6 @@ class RequestProcessor_Native extends RequestProcessor
         //     success = false;
         //     console.error('Cannot update device info.', result_DeviceInfo.error);
         // }
-
-        console.log('Update Data', response.updateData);
 
         for (let tableName in response.updateData.update) {
             if (!this._scheme.hasTable(tableName))
@@ -283,11 +279,7 @@ class RequestProcessor_Native extends RequestProcessor
     {
         js0.args(arguments);
 
-        let localTransaction = false;
-        if (this._db.transaction_IsAutocommit()) {
-            localTransaction = true;
-            await this._db.transaction_Start_Async();
-        }
+        let localTransaction = await this._db.transaction_StartLocal_Async();
 
         let lastDeclaredItemId = this.device.lastItemId;
         // for (let itemId_Declared of this.device.declaredItemIds) {

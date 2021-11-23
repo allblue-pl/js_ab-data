@@ -1,6 +1,7 @@
 'use strict';
 
 const
+    abLock = require('ab-lock'),
     abNative = require('ab-native'),
     js0 = require('js0'),
 
@@ -35,7 +36,6 @@ class Database
 
     constructor()
     {
-        this._autocommit = true;
         this._lastError = null;
 
         let nad = new abNative.ActionsSetDef()
@@ -72,6 +72,7 @@ class Database
 
             }, {
                 tableNames: js0.Iterable('string'),
+                error: [ 'string', js0.Null ],
             })
             .addNative('GetTableColumns', {
                 tableName: [ 'string' ],
@@ -92,6 +93,12 @@ class Database
                 success: 'boolean',
                 error: [ 'string', js0.Null ],
             })
+            .addNative('Transaction_IsAutocommit', {
+             
+            }, {
+                result: 'boolean',
+                error: [ 'string', js0.Null ],
+            })
             .addNative('Transaction_Start', {}, {
                 success: 'boolean',
                 error: [ 'string', js0.Null ],
@@ -106,7 +113,6 @@ class Database
                 query: 'string',
                 columnTypes: js0.Iterable('string'),
             }, {
-                success: 'boolean',
                 rows: Array,
                 error: [ 'string', js0.Null ],
             });
@@ -117,11 +123,7 @@ class Database
     {
         js0.args(arguments, );
 
-        let localTransaction = false;
-        if (this.transaction_IsAutocommit()) {
-            localTransaction = true;
-            await this.transaction_Start_Async();
-        }
+        let localTransaction = await this.transaction_StartLocal_Async();
 
         let nextRequestId = 1;
         let nextRequestId_Rows = await this.query_Select_Async(
@@ -243,19 +245,19 @@ class Database
     {
         js0.args(arguments, 'boolean');
 
+        // console.log('End', new Error());
+
         let result = await this.nativeActions.callNative_Async('Transaction_Finish', 
                 { commit: commit });
 
         if (!result.success)
             throw new ABDDatabaseError(result.error);
-
-        this._autocommit = true;
-        // return result.success;
     }   
 
-    transaction_IsAutocommit()
+    async transaction_IsAutocommit_Async()
     {
-        return this._autocommit;
+        let result = await this.nativeActions.callNative_Async('Transaction_IsAutocommit', {});
+        return result.result;
     }
 
     async transaction_Start_Async()
@@ -263,10 +265,20 @@ class Database
         let result = await this.nativeActions.callNative_Async('Transaction_Start', {});
         if (!result.success)
             throw new ABDDatabaseError(result.error);
-
-        this._autocommit = false;
-        // return result.success;
     }   
+
+    async transaction_StartLocal_Async()
+    {
+        let localTransaction = false;
+        await abLock.sync(this._db, async () => {
+            if (await this.transaction_IsAutocommit_Async()) {
+                localTransaction = true;
+                await this.transaction_Start_Async();
+            }
+        });
+
+        return localTransaction;
+    }
 
     async updateScheme_Async(scheme)
     {
@@ -310,7 +322,7 @@ class Database
         let result = await this.nativeActions.callNative_Async('Query_Select', 
                 { query: query, columnTypes: columnTypes });
 
-        if (!result.success)
+        if (result.rows === null)
             throw new ABDDatabaseError(result.error);
 
         return result.rows;

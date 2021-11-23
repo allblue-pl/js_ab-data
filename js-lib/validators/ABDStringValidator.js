@@ -13,12 +13,15 @@ class ABDStringValidator extends ABDFieldValidator
 
     constructor(args)
     {
+        console.log(args);
+
         js0.args(arguments, js0.Preset({
             'notNull': [ 'boolean', js0.Default(true) ],
             'required': [ 'boolean', js0.Default(true) ],
             'minLength': [ js0.Int, js0.Null, js0.Default(null) ],
             'maxLength': [ js0.Int, js0.Null, js0.Default(null) ],
-            'regexp': [ 'string', js0.Null, js0.Default(null) ],
+            'regexp': [ js0.PresetArray([ 'string', 'string' ]), js0.Null, 
+                    js0.Default(null) ],
             'trim': [ 'boolean', js0.Default(false) ],
             'chars': [ 'string', js0.Default(abStrings.getCharsRegExp_Basic()) ],
         }));

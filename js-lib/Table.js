@@ -418,11 +418,7 @@ class Table
             query_Update += ` WHERE ${pk} IN (` + ids_DB.join(',') + ')';
         }
 
-        let localTransaction = false;
-        if (db.transaction_IsAutocommit()) {
-            localTransaction = true;
-            await db.transaction_Start_Async();
-        }
+        let localTransaction = await db.transaction_StartLocal_Async();
         
         if (query_Insert !== null) {
             // console.log('INSERT', query_Insert);

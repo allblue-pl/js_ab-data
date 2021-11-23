@@ -5,6 +5,7 @@
         "ab-fs": "",
         "ab-fs-matcher": "",
         "ab-fs-watcher": "",
+        "ab-lock": "",
         "ab-log": "",
         "ab-mysql": "",
         "ab-strings": "",

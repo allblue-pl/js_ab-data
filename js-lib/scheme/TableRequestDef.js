@@ -27,7 +27,7 @@ class TableRequestDef extends RequestDef
             join: [ js0.Iterable(js0.Preset({
                 type: [ js0.Enum([ 'left', 'inner' ]), js0.Default('left') ],
                 prefix: 'string',
-                table: 'string',
+                table: require('../Table'),
                 on: js0.Iterable(js0.PresetArray([ 'string', 'string' ])),
                 where: [ Array, js0.Default([]) ],
                 columns: [ js0.Iterable('string'), js0.Null, js0.Default(null) ],
