@@ -13,8 +13,6 @@ class ABDStringValidator extends ABDFieldValidator
 
     constructor(args)
     {
-        console.log(args);
-
         js0.args(arguments, js0.Preset({
             'notNull': [ 'boolean', js0.Default(true) ],
             'required': [ 'boolean', js0.Default(true) ],
