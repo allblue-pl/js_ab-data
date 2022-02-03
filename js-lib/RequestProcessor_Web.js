@@ -36,11 +36,13 @@ class RequestProcessor_Web extends RequestProcessor
                 args: {},
                     }, (result) => {
                 if (!result.isSuccess()) {
-                    console.error('Request error: ' + result.message);
-                    if (abData.debug)
+                    if (abData.debug) {
+                        console.error('Request error: ' + result.message);
                         console.warn(result.data.data);
-                    
+                    }
+ 
                     reject(result.message);
+                    
                     return;
                 }
     

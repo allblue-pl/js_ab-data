@@ -15,6 +15,10 @@ class TableInfo
         return this._name;
     }
 
+    get pks() {
+        return this._primaryKeys;
+    }
+
 
     constructor(name)
     {
@@ -22,7 +26,7 @@ class TableInfo
 
         this._name = name;
         this._fieldInfos = [];
-        this._primaryKey = null;
+        this._primaryKeys = [];
     }
 
     addFieldInfo(fieldInfo)
@@ -54,16 +58,20 @@ class TableInfo
 
         query += fields.join(', ');
 
-        query += `, PRIMARY KEY (` + this._primaryKey + `)`;
+        query += `, PRIMARY KEY (` + this._primaryKeys.join(',') + `)`;
         
         query += `)`;
 
         return query;
     }
 
-    setPrimaryKey(primaryKey)
+    setPKs(primaryKeys)
     {
-        this._primaryKey = primaryKey;
+        js0.args(arguments, Array);
+
+        this._primaryKeys = primaryKeys;
+
+        return this;
     }
 
 }

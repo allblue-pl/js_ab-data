@@ -24,8 +24,8 @@ class Table
         return this._name;
     }
 
-    get primaryKey() {
-        return this._primaryKey;
+    get pks() {
+        return this._primaryKeys;
     }
 
     get properties() {
@@ -39,7 +39,7 @@ class Table
         this._id = id;
         this._name = name;
         this._alias = alias;
-        this._primaryKey = null;
+        this._primaryKeys = [];
         this._columns = null;
         this._rowParser = null;
         this._columnValidators = {};
@@ -51,7 +51,7 @@ class Table
                 // [ '_Modified_DeviceId', fields.Long({}) ],
             ].concat(columns);
 
-            this.setPrimaryKey('_Id');
+            this.setPKs([ '_Id' ]);
         }
 
         this._columns = new js0.List();
@@ -236,9 +236,11 @@ class Table
         return rows;
     }
 
-    setPrimaryKey(primaryKey)
+    setPKs(primaryKeys)
     {
-        this._primaryKey = primaryKey;
+        js0.args(arguments, Array);
+
+        this._primaryKeys = primaryKeys;
 
         return this;
     }
@@ -262,7 +264,7 @@ class Table
             };
         };
 
-        let pk = this.primaryKey;
+        let pks = this.primaryKeys;
 
         let rows_Insert = [];
         let rows_Update = [];
@@ -272,8 +274,10 @@ class Table
         for (let i = 0; i < rows.length; i++) {
             let row = rows[i];
 
-            if (!(pk in row))
-                throw new Error(`No Primary Key '${pk}' set in row '${i}'.`);
+            for (let pk of pks) {
+                if (!(pk in row))
+                    throw new Error(`No Primary Key '${pk}' set in row '${i}'.`);
+            }
 
             rows_Left.push(row);
             ids_ExistCheck.push(row[pk]);

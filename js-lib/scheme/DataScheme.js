@@ -44,7 +44,7 @@ class DataScheme
                 tableInfo.addFieldInfo(fieldInfo);
             }
 
-            tableInfo.setPrimaryKey(table.primaryKey);
+            tableInfo.setPKs(table.pks);
 
             databaseInfo.addTableInfo(tableInfo);
         }
