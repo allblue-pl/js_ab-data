@@ -15,7 +15,8 @@ class TableRequest extends Request
     static async Delete_Async(device, db, table, args)
     {
         js0.args(arguments, require('./NativeDevice'), require('./Database'), 
-                require('../Table'), js0.Preset(TableRequestDef.Args_Select()));
+                require('../Table'), js0.RawObject);
+        js0.typeE(args, js0.Preset(TableRequestDef.Args_Select()));
 
         await table.delete_Async(db, args);
     }

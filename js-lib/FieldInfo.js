@@ -13,8 +13,8 @@ class FieldInfo
 
         if (field instanceof require('./fields/ABDBool'))
             return 'tinyint(1)';
-        else if (field instanceof require('./fields/ABDDouble'))
-            return `double`;
+        // else if (field instanceof require('./fields/ABDDouble'))
+        //     return `double`;
         else if (field instanceof require('./fields/ABDFloat'))
             return `float`;
         else if (field instanceof require('./fields/ABDId'))

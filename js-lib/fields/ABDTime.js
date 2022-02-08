@@ -35,6 +35,13 @@ class ABDTime extends ABDField
         return String(value);
     }
 
+    __parse(value)
+    {
+        js0.args(arguments, 'number');
+
+        return value;
+    }
+
     __unescape(value)
     {
         return Number(value);

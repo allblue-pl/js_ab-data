@@ -42,12 +42,16 @@ class ABDString extends ABDField
 
     __escape(value)
     {
-        js0.args(arguments, [ js0.Null, 'string' ]);
-
-        if (value === null)
-            return 'NULL';
+        js0.args(arguments, 'string');
 
         return `'` + helper.escapeString(value) + `'`;
+    }
+
+    __parse(value)
+    {
+        js0.args(arguments, 'string');
+
+        return helper.escapeString(value);
     }
 
     __unescape(value)

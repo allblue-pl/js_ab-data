@@ -29,7 +29,7 @@ class RequestProcessor
 
         let response = await this.processRequestBatch_Async([
             [ 'request', requestName, actionName, actionArgs ],
-        ], {});
+        ]);
 
         if (response === null)
             return null;

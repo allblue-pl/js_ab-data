@@ -85,7 +85,7 @@ class DataStore
         return await this.requestBatch_Async(requests);
     }
 
-    async requestBatch_Async(requests, requestArgs = {})
+    async requestBatch_Async(requests)
     {
         js0.args(arguments, js0.ArrayItems(js0.PresetArray([ 'string', 'string', 
                 'string', js0.RawObject ])));
@@ -94,7 +94,7 @@ class DataStore
             this.scheme.validateRequest(request)
 
         let response = await this._requestProcessor.processRequestBatch_Async(
-                requests, requestArgs);
+                requests);
 
         for (let request of requests)
             this.scheme.validateResponse(response, request);

@@ -35,6 +35,13 @@ class ABDLong extends ABDField
         return String(value);
     }
 
+    __parse(value)
+    {
+        js0.args(arguments, js0.Long);
+
+        return value;
+    }
+
     __unescape(value)
     {
         return Number(value);

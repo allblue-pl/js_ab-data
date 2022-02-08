@@ -6,13 +6,13 @@ const
     ABDData = require('./ABDData'),
     // ABDDate = require('./ABDDate'),
     // ABDDateTime = require('./ABDDateTime'),
-    ABDDouble = require('./ABDDouble'),
+    // ABDDouble = require('./ABDDouble'),
     ABDFloat = require('./ABDFloat'),
     ABDId = require('./ABDId'),
     ABDInt = require('./ABDInt'),
     ABDJSON = require('./ABDJSON'),
     ABDLong = require('./ABDLong'),
-    ABDObject = require('./ABDObject'),
+    // ABDObject = require('./ABDObject'),
     ABDString = require('./ABDString'),
     ABDTime = require('./ABDTime')
 ;

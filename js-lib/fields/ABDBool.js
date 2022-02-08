@@ -36,6 +36,16 @@ class ABDBool extends ABDField
         return '0';
     }
 
+    __parse(value)
+    {
+        js0.args(arguments, 'boolean');
+
+        if (value)
+            return true;
+
+        return false;
+    }
+
     __unescape(value)
     {
         js0.args(arguments, 'string');

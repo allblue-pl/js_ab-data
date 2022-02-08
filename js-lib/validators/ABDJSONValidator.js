@@ -13,7 +13,8 @@ class ABDJSONValidator extends ABDFieldValidator
 
     constructor(args)
     {
-        js0.args(arguments, js0.Preset({
+        js0.args(arguments, args);
+        js0.typeE(args, js0.Preset({
             'notNull': [ 'boolean', js0.Default(true) ],
         }));
 

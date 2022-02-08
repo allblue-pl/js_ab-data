@@ -31,15 +31,21 @@ class ABDInt extends ABDField
 
     __escape(value)
     {
-        if (value === null)
-            return 'NULL';
+        js0.args(arguments, 'number');
 
-        return String(value);
+        return String(Math.round(value));
+    }
+
+    __parse(value)
+    {
+        js0.args(arguments, 'number');
+
+        return Math.round(value);
     }
 
     __unescape(value)
     {
-        js0.args(arguments);
+        js0.args(arguments, null);
             
         return parseInt(value);
     }

@@ -13,7 +13,8 @@ class ABDStringValidator extends ABDFieldValidator
 
     constructor(args)
     {
-        js0.args(arguments, js0.Preset({ }));
+        js0.args(arguments, js0.RawObject);
+        js0.typeE(args, js0.Preset({ }));
 
         super(args);
     }

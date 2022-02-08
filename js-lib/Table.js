@@ -84,8 +84,9 @@ class Table
 
     async delete_Async(db, args = {})
     {
-        js0.args(arguments, require('./native/Database'), 
-                js0.Preset(TableRequestDef.Args_Select(), args));
+        js0.args(arguments, require('./native/Database'), [ js0.RawObject,
+                js0.Default ]);
+        js0.typeE(args, js0.Preset(TableRequestDef.Args_Select()));
 
         let tableName_DB = helper.quote(this.name);
         let query = `DELETE FROM ${tableName_DB}`;
@@ -172,8 +173,9 @@ class Table
 
     async row_Async(db, args = {})
     {
-        js0.args(arguments, require('./native/Database'), 
-                js0.Preset(TableRequestDef.Args_Select()));
+        js0.args(arguments, require('./native/Database'), [ js0.RawObject,
+                js0.Default ]);
+        js0.typeE(args, js0.Preset(TableRequestDef.Args_Select()));
 
         args.limit = [ 0, 1 ];
 
@@ -236,6 +238,30 @@ class Table
         return rows;
     }
 
+    async select_ByPKs_Async(db, keySets, args = {})
+    {
+        js0.args(arguments, require('./native/Database'), 
+                js0.ArrayItems(Array), [ js0.RawObject, js0.Default ]);
+
+        js0.typeE(args, js0.Preset(TableRequestDef.Args_Select()));
+
+        args.where = [ 'OR', [] ];
+        for (let keys of keySets) {
+            if (keys.length !== this.pks.length) {
+                throw new Error('Keys do not match primary keys: ' + 
+                        keys.join(', ') + ` != ` + this.pks.join(', '));
+            }
+
+            let keyPair_Where = [ 'AND', [] ];
+            for (let i = 0; i < keys.length; i++)
+                keyPair_Where[1].push([ this.pks[i], '=', keys[i] ]);
+                
+            args.where[1].push(keyPair_Where);
+        }
+
+        return await this.select_Async(db, args);
+    }
+
     setPKs(primaryKeys)
     {
         js0.args(arguments, Array);
@@ -252,10 +278,10 @@ class Table
         this._rowParser = parserFn;
     }
 
-    async update_Async(db, rows)
+    async update_Async(db, rows, ignoreNotExistingColumns = false)
     {
         js0.args(arguments, require('./native/Database'), 
-                js0.ArrayItems(js0.RawObject));
+                js0.ArrayItems(js0.RawObject), [ 'boolean', js0.Default ]);
 
         if (rows.length === 0) {
             return {
@@ -264,178 +290,174 @@ class Table
             };
         };
 
-        let pks = this.primaryKeys;
+        let pks = this.pks;
+        for (let pk of pks) {
+            if (!(pk in rows[0]))
+                throw new Error(`Primary Key '${pk}' doesn not exist in row.`);
+        }
+
+        let columns = {};
+        for (let columnName in rows[0]) {
+            if (!ignoreNotExistingColumns) {
+                columns[columnName] = this.getColumn(columnName, true);
+            } else {
+                if (this.columnExists(columnName, true))
+                    columns[columnName] = this.getColumn(columnName, true);
+            }
+        }
+
+        let rows_WithNullPKs = [];
+        let rows_WithPKs = [];
+
+        for (let i = 0; i < rows.length; i++) {
+            let row = rows[i];
+
+            if (Object.keys(columns).length !== Object.keys(row).length) {
+                throw new Error(`Wrong columns number ` +
+                        `(inconsistency with first row).`);
+            }
+
+            for (let columnName in columns) {
+                if (!(columnName in row)) {
+                    throw new Error(`Inconsistent/unknown column ` +
+                            `'${columnName}' in rows.`);
+                }
+            }
+
+            let isNew = true;
+            for (let pk in pks) {
+                if (row[pk] !== null) {
+                    isNew = false;
+                    break;
+                }
+            }
+
+            if (isNew)
+                rows_WithNullPKs.push(row);
+            else
+                rows_WithPKs.push(row);
+        }
+
+        let rows_PKs_ToCheck = [];
+        for (let row of rows_WithPKs) {
+            let row_PKs = [];
+            for (let pk of pks)
+                row_PKs.push(row[pk]);
+            rows_PKs_ToCheck.push(row_PKs);
+        }
 
         let rows_Insert = [];
         let rows_Update = [];
 
-        let ids_ExistCheck = [];
-        let rows_Left = [];
-        for (let i = 0; i < rows.length; i++) {
-            let row = rows[i];
+        let rows_Existing = await this.select_ByPKs_Async(db,
+                rows_PKs_ToCheck);
+        for (let row_WithPKs of rows_WithPKs) {
+            let match = false;
+            for (let row_Existing of rows_Existing) {
+                match = true;
+                for (let pk of pks) {
+                    if (columns[pk].field.parse(row_WithPKs[pk]) !== 
+                            row_Existing[pk]) {
+                        match = false;
+                        break;
+                    }
+                }
 
-            for (let pk of pks) {
-                if (!(pk in row))
-                    throw new Error(`No Primary Key '${pk}' set in row '${i}'.`);
+                if (match)
+                    break;
             }
 
-            rows_Left.push(row);
-            ids_ExistCheck.push(row[pk]);
-
-            // console.log(row[pk], this.getColumn_Field(pk).unescape(row[pk]));
-
-            // if (this._columns.has('_Modified_DateTime'))
-            //     row._Modified_DateTime = null; // (new Date()).getTime();
-        }
-
-        let rows_Existing = [];
-        if (ids_ExistCheck.length > 0) {
-            let rows_DB = await this.select_Async(db, {
-                columns: [ pk ],
-                where: [
-                    [ pk, 'IN', ids_ExistCheck ],
-                ],
-            });
-
-            rows_Existing = rows_DB;
-        }
-
-        let ids_Existing = [];
-        for (let row of rows_Existing)
-            ids_Existing.push(row[pk]);
-
-        for (let row of rows_Left) {
-            if (ids_Existing.includes(row[pk]))
-                rows_Update.push(row);
+            if (match)
+                rows_Update.push(row_WithPKs);
             else
-                rows_Insert.push(row);
+                rows_Insert.push(row_WithPKs);
         }
 
-        let columns = new Map();
-        // if (this._columns.has('_Modified_DateTime'))
-        //     columns.set('_Modified_DateTime', fields.Time({ notNull: true }));
+        for (let row_WithNullPKs of rows_WithNullPKs)
+            rows_Insert.push(row_WithNullPKs);
 
-        let row_0 = rows[0];
-        if (!(pk in row_0))
-            throw new Error(`No pk set in rows.`);
-        for (let columnName in rows[0])
-            columns.set(columnName, this.getColumn_Field(columnName));
-        // foreach ($rows[$first_key] as $col_name => $col_val) {
-        //     if (!$ignore_not_existing) {
-        //         columns[$col_name] = $this->getColumn($col_name, true);
-        //     } else {
-        //         if ($this->columnExists($col_name, true))
-        //             columns[$col_name] = $this->getColumn($col_name, true);
-        //     }
-        // }
-
-        // for (let i = 0; i < rows.length; i++) {
-        //     let row = rows[i];
-
-        //     if (row._Id === null) {
-        //         row._Id = await db.getNextId_Async(this.getTableName());
-        //         rows_Insert.push(row);
-        //     } else
-        //         rows_Update.push(row);
-
-        //     row._Modified_DateTime = (new Date()).getTime();
-        // }
-
+        /* DB */
         let tableName_DB = helper.quote(this.name);
 
-        let query_Insert = null;
+        let localTransaction = false;
+        if (await db.transaction_IsAutocommit_Async()) {
+            await db.transaction_Start_Async();
+            localTransaction = true;
+        }
+
+        /* Update */
+        if (rows_Update.length > 0 && (Object.keys(rows[0]).length > pks.length)) {
+            let update_ColumnQueries_Arr = [];
+            for (let columnName in columns) {
+                if (pks.includes(columnName))
+                    continue;
+
+                let columnName_DB = helper.quote(columnName);
+                let update_ColumnQuery = `${columnName_DB}=(CASE`;
+                for (let row of rows_Update) {
+                    update_ColumnQuery += " WHEN ";
+                    let pks_Match_Arr = [];
+                    for (let pk of pks) {
+                        pks_Match_Arr.push(helper.quote(pk) + '=' + 
+                                columns[pk].field.escape(row[pk]));
+                    }
+                    update_ColumnQuery += '(' + pks_Match_Arr.join(' AND ') + ')';
+                    update_ColumnQuery += ' THEN ' +  columns[columnName].field.escape(row[columnName]);
+                }
+                update_ColumnQuery += ' END)';
+                update_ColumnQueries_Arr.push(update_ColumnQuery);
+            }
+
+            let update_Where_Arr = [];
+            for (let row of rows_Update) {
+                let pks_Match_Arr = [];
+                for (let pk of pks) {
+                    pks_Match_Arr.push(helper.quote(pk) + '=' + 
+                            columns[pk].field.escape(row[pk]));
+                }
+                update_Where_Arr.push('(' + pks_Match_Arr.join(' AND ') + ')');
+            }
+
+            let update_Query = `UPDATE ${tableName_DB} SET ` +  
+                    update_ColumnQueries_Arr.join(',') + ` WHERE ` + 
+                    update_Where_Arr.join(' OR ');
+
+            // console.log(update_Query);
+
+            await db.query_Execute_Async(update_Query);
+        }
+
+        /* Insert */
         if (rows_Insert.length > 0) {
+            let valuesArr_DB = [];
+            for (let row of rows_Insert) {
+                let row_DB = [];
+                for (let columnName in columns) {
+                    let column = columns[columnName];
+                    row_DB.push(column.field.escape(row[columnName]));
+                }
+
+                valuesArr_DB.push('(' + row_DB.join(',') + ')');
+            }
+
             /* Column Names */
             let columnNames_DB = [];
-            for (let [ columnName, column ] of columns)
+            for (let columnName in columns)
                 columnNames_DB.push(helper.quote(columnName));
             let columnNames_DB_Str = columnNames_DB.join(',');
-        
-            let values_DB_Arr = [];
-            let ids = [];
-            for (let i = 0; i < rows_Insert.length; i++) {
-                let row = rows_Insert[i];
-                let row_DB = [];
 
-                for (let [ columnName, column ] of columns) {
-                    if (!(columnName in row))
-                        throw new Error(`Columns inconsistency in row '${i}'.`);
-                    let column_Value = row[columnName];
+            /* Values */
+            let values_DB = valuesArr_DB.join(',');
 
-                    row_DB.push(column.escape(column_Value));
-                }
+            let insert_Query = `INSERT INTO ${tableName_DB} (${columnNames_DB_Str})` +
+                    ` VALUES ${values_DB}`;
 
-                values_DB_Arr.push('(' + row_DB.join(',') + ')');
-            }
-            let values_DB_Str = values_DB_Arr.join(',');
+            // console.log(insert_Query);
 
-            query_Insert = `INSERT INTO ${tableName_DB} (${columnNames_DB_Str})` +
-                ` VALUES ${values_DB_Str}`;
+            await db.query_Execute_Async(insert_Query);
         }
 
-        let query_Update = null;
-        let id_Column = columns.get(pk);
-        if (rows_Update.length > 0) {
-            query_Update = `UPDATE ${tableName_DB} SET`;
-
-            let ids_DB = [];
-            let values_Arr = [];
-            for (let [ columnName, column ] of columns) {
-                let cases_DB_Arr = [];
-
-                /* pk */
-                if (columnName === pk) {
-                    for (let i = 0; i < rows_Update.length; i++) {
-                        let row = rows_Update[i];
-                        if (!(columnName in row))
-                            throw new Error(`Columns inconsistency in row '${i}'.`);
-                        ids_DB.push(id_Column.escape(row[pk]));
-                    }
-                    continue;
-                }
-
-                /* Not pk */
-                let columnName_DB = helper.quote(columnName);
-                let query_Update_Values = ` ${columnName_DB}=CASE `;
-                for (let i = 0; i < rows_Update.length; i++) {
-                    let row = rows_Update[i];
-                    if (!(columnName in row))
-                        throw new Error(`Columns inconsistency in row '${i}'.`);
-                    let id_DB = id_Column.escape(row[pk]);
-                    
-                    let value_DB = null;
-                    try {
-                        value_DB = column.escape(row[columnName]);
-                    } catch (e) {
-                        console.error(e);
-                        throw new Error(`Cannot escape column '${columnName}'.`);
-                    }
-
-                    cases_DB_Arr.push(`WHEN ${pk}=${id_DB} THEN ${value_DB}`);
-                }
-                query_Update_Values += cases_DB_Arr.join(' ');
-                query_Update_Values += ' END';
-
-                values_Arr.push(query_Update_Values);
-            }
-            query_Update += values_Arr.join(',');
-            query_Update += ` WHERE ${pk} IN (` + ids_DB.join(',') + ')';
-        }
-
-        let localTransaction = await db.transaction_StartLocal_Async();
-        
-        if (query_Insert !== null) {
-            // console.log('INSERT', query_Insert);
-            await db.query_Execute_Async(query_Insert);
-            // let affectedRows = db.getAffectedRows_Async();
-        }
-
-        if (query_Update !== null) {
-            // console.log('UPDATE', query_Update);
-            await db.query_Execute_Async(query_Update);
-            // let affectedRows = db.getAffectedRows_Async();
-        }
-
+        /* Commit */
         if (localTransaction)
             await db.transaction_Finish_Async(true);
 

@@ -13,7 +13,8 @@ class ABDTimeValidator extends ABDFieldValidator
 
     constructor(args)
     {
-        js0.args(arguments, js0.Preset({
+        js0.args(arguments, js0.RawObject);
+        js0.typeE(args, js0.Preset({
             'notNull': [ 'boolean', js0.Default(true) ],
             'type': [ js0.Enum([ 'dateTime', 'date', 'time' ]), 
                     js0.Default('dateTime') ],

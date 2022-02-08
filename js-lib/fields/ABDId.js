@@ -11,9 +11,9 @@ const
 class ABDId extends ABDField
 {
 
-    constructor(properties)
+    constructor(properties = {})
     {
-        js0.args(arguments);
+        js0.args(arguments, [ js0.RawObject, js0.Default ]);
         super([], properties);
     }
 
@@ -33,6 +33,13 @@ class ABDId extends ABDField
         js0.args(arguments, js0.Long);
 
         return String(value);
+    }
+
+    __parse(value)
+    {
+        js0.args(arguments, js0.Long);
+
+        return value;
     }
 
     __unescape(value)

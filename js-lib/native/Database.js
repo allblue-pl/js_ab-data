@@ -121,7 +121,7 @@ class Database
 
     async addDBRequests_Async(requests)
     {
-        js0.args(arguments, );
+        js0.args(arguments, Array);
 
         let localTransaction = await this.transaction_StartLocal_Async();
 

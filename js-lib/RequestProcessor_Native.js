@@ -65,9 +65,9 @@ class RequestProcessor_Native extends RequestProcessor
         return requestName in this._requests;
     }
 
-    async processRequestBatch_Async(requests, args)
+    async processRequestBatch_Async(requests)
     {
-        js0.args(arguments, Array, js0.RawObject);
+        js0.args(arguments, Array);
 
         let response = {
             success: false,

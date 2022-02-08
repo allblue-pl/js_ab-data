@@ -18,9 +18,10 @@ class ABDField
 
     constructor(args, properties)
     {
-        js0.args(arguments, Array, js0.Preset({
+        js0.args(arguments, Array, js0.RawObject);
+        js0.typeE(properties, js0.Preset({
             notNull: [ 'boolean', js0.Default(false) ],
-        }));    
+        }));
 
         this._args = args;
         this._properties = properties;
@@ -63,6 +64,14 @@ class ABDField
                 this.__getFieldValidator(fieldValidatorInfo));
     }
 
+    parse(value)
+    {
+        if (value === null)
+            return null;
+
+        return this.__parse(value);
+    }
+
     unescape(value)
     {
         if (value === null)
@@ -79,6 +88,7 @@ class ABDField
 
     __getFieldValidator(fieldValidatorInfo) { js0.virtual(this); }
     __escape(value) { js0.virtual(this); }
+    __parse(value) { js0.virtual(this); }
 
 }
 module.exports = ABDField;

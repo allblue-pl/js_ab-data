@@ -13,7 +13,8 @@ class ABDFloatValidator extends ABDFieldValidator
 
     constructor(args)
     {
-        js0.args(arguments, js0.Preset({
+        js0.args(arguments, js0.RawObject);
+        js0.typeE(args, js0.Preset({
             'notNull': [ 'boolean', js0.Default(true) ],
             'required': [ 'boolean', js0.Default(true) ],
             'minValue': [ 'number', js0.Null, js0.Default(null) ],

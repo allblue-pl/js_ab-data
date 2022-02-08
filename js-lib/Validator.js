@@ -59,7 +59,7 @@ class Validator
 
     fieldError(fieldName, message)
     {
-        js0.args(arguments, 'string');
+        js0.args(arguments, 'string', 'string');
 
         let field = this._fields_Get(fieldName);
 

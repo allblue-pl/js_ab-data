@@ -36,10 +36,12 @@ class ABDJSON extends ABDField
 
     __escape(value)
     {
-        if (value === null)
-            return 'NULL';
-
         return `'` + helper.escapeString(JSON.stringify({ value: value })) + `'`;
+    }
+
+    __parse(value)
+    {
+        return helper.escapeString(JSON.stringify({ value: value }));
     }
 
     __unescape(value)
