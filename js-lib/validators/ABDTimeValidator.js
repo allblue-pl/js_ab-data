@@ -36,12 +36,12 @@ class ABDTimeValidator extends ABDFieldValidator
     {
         if (value === null) {
             if (this.args['required'])
-                validator.fieldError(fieldName, abText.$('abData.notSet'));
+                validator.fieldError(fieldName, abText.$('abData.NotSet'));
             else
                 return;
         } else {
             if (isNaN(value)) {
-                validator.fieldError(fieldName, abText.$('abData.date_WrongFormat'));
+                validator.fieldError(fieldName, abText.$('abData.Date_WrongFormat'));
                 return;
             }
 
@@ -49,17 +49,17 @@ class ABDTimeValidator extends ABDFieldValidator
 
             if (this.args['minDate'] !== null) {
                 if (value < this.args['minDate']) {
-                    validator.fieldError(fieldName, abText.$('abData.date_BelowMinDate',
-                            abDate.format_DateTime(abText.$('abData.date_Format'), 
+                    validator.fieldError(fieldName, abText.$('abData.Date_BelowMinDate',
+                            abDate.format_DateTime(abText.$('abData.Date_Format'), 
                             this.args['minDate'])));
                 }
             }
 
             if (this.args['maxDate'] !== null) {
                 if (value > this.args['maxDate']) {
-                    validator.fieldError(fieldName, abText.$('abData.date_AboveMaxDate', { 
+                    validator.fieldError(fieldName, abText.$('abData.Date_AboveMaxDate', { 
                         maxDate: abDate.format_DateTime(abText.$(
-                                'abDate.format_DateTime'), this.args['maxDate']),
+                                'abData.Format_DateTime'), this.args['maxDate']),
                     }));
                 }
             }

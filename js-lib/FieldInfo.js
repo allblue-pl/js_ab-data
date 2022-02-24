@@ -12,35 +12,43 @@ class FieldInfo
         js0.args(arguments, require('./fields/ABDField'));
 
         if (field instanceof require('./fields/ABDBool'))
-            return 'tinyint(1)';
+            return [ 'tinyint(1)' ];
         // else if (field instanceof require('./fields/ABDDouble'))
         //     return `double`;
         else if (field instanceof require('./fields/ABDFloat'))
-            return `float`;
+            return [ `float` ];
         else if (field instanceof require('./fields/ABDId'))
-            return `bigint(20)`;
+            return [ `bigint`, `bigint(20)` ];
         else if (field instanceof require('./fields/ABDInt'))
-            return `int(11)`;
+            return [ `int`, `int(11)` ];
         else if (field instanceof require('./fields/ABDJSON'))
-            return `mediumtext`;
+            return [ `mediumtext` ];
         else if (field instanceof require('./fields/ABDLong'))
-            return `bigint(20)`;
+            return [ `bigint` ];
         else if (field instanceof require('./fields/ABDString'))
-            return `varchar(` + field.size + `)`;
+            return [ `varchar(` + field.size + `)` ];
         else if (field instanceof require('./fields/ABDTime'))
-            return `bigint(20)`;
+            return [ `bigint` ];
 
         throw new Error(`Unknown FieldInfo type of field '${field.constructor.name}'.`);
     }
 
 
-    constructor(name, field, type, key, notNull)
+    constructor(name, field, types, key, notNull)
     {
+        js0.args(arguments, 'string', [ require('./fields/ABDField'), js0.Null ], 
+                js0.ArrayItems('string'), 'string', 'boolean');
+
         this.name = name;
         this.field = field;
-        this.type = type;
+        this.types = types;
         this.key = '';
         this.notNull = notNull;
+    }
+
+    getQuery_Column()
+    {
+        return `${this.name} ${this.types[0]} ` + (this.notNull ? 'NOT NULL' : 'NULL');
     }
 
 }

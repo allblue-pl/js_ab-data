@@ -31,7 +31,7 @@ class ABDField
     {
         js0.virtual(this);
     }
-        
+
     escape(value)
     {
         js0.args(arguments, null);

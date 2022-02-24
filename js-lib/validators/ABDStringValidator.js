@@ -41,14 +41,14 @@ class ABDStringValidator extends ABDFieldValidator
 
         if (value === '') {
             if (this.args['required'])
-                validator.fieldError(fieldName, abText.$('abData.notSet'));
+                validator.fieldError(fieldName, abText.$('abData.NotSet'));
 
             return;
         } else {
             if (this.args['minLength'] !== null) {
                 if (value.length < this.args['minLength']) {
                     validator.fieldError(fieldName, abText.$(
-                            'abData.errors_BelowMinLength', 
+                            'abData.Errors_BelowMinLength', 
                             [this.args['minLength']]));
                 }
             }
@@ -57,7 +57,7 @@ class ABDStringValidator extends ABDFieldValidator
                 if (this.args['maxLength'] > 0) {
                     if (value.length > this.args['maxLength']) {
                         validator.fieldError(fieldName, abText.$(
-                                'abData.errors_AboveMaxLength', 
+                                'abData.Errors_AboveMaxLength', 
                                 { maxLength: this.args['maxLength'] }));
                     }
                 }
@@ -68,7 +68,7 @@ class ABDStringValidator extends ABDFieldValidator
                 let regexp = this.args['regexp'][0];
 
                 if (!(new RegExp(`${regexp}`)).test(value)) {
-                    validator.fieldError(fieldName, abText.$('abData.errors_WrongFormat',
+                    validator.fieldError(fieldName, abText.$('abData.Errors_WrongFormat',
                         { format: this.args['regexp'][1] }));
                 }
             }
@@ -97,7 +97,7 @@ class ABDStringValidator extends ABDFieldValidator
                     // not_allowed_chars = str_replace('&#92;', '\\', not_allowed_chars);
 
                     validator.fieldError(fieldName, abText.$(
-                            'abData.errors_NotAllowedCharacters',
+                            'abData.Errors_NotAllowedCharacters',
                             { notAllowedChars: notAllowedChars_Str }));
                 }
             }

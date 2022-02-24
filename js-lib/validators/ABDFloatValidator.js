@@ -34,7 +34,7 @@ class ABDFloatValidator extends ABDFieldValidator
     {
         if (value === '') {
             if (this.args['required'])
-                this.fieldError(validator, fieldName, abText.$('abData.notSet'));
+                this.fieldError(validator, fieldName, abText.$('abData.NotSet'));
 
             return;
         }
@@ -43,20 +43,20 @@ class ABDFloatValidator extends ABDFieldValidator
             return;
 
         if (isNaN(value))
-            validator.fieldError(fieldName, abText.$('abData.int_NotANumber'));
+            validator.fieldError(fieldName, abText.$('abData.Int_NotANumber'));
         else {
             let number = Number(value);
             if (this.args['minValue'] !== null) {
                 if (number < this.args['minValue']) {
                     validator.fieldError(fieldName, abText.$(
-                            'abData.int_BelowMin',  { minValue: this.args['minValue'] }));
+                            'abData.Int_BelowMin',  { minValue: this.args['minValue'] }));
                 }
             }
 
             if (this.args['maxValue']) {
                 if (number > this.args['maxValue']) {
                     validator.fieldError(fieldName, abText.$(
-                            'abData.int_AboveMax', { maxValue: this.args['maxValue'] }));
+                            'abData.Int_AboveMax', { maxValue: this.args['maxValue'] }));
                 }
             }
         }

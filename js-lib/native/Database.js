@@ -206,7 +206,7 @@ class Database
                 tableInfo.addFieldInfo(new FieldInfo(
                     column[0],
                     null,
-                    column[1],
+                    [ column[1] ],
                     '',
                     column[2] === 1,
                 ));
@@ -290,21 +290,38 @@ class Database
         let queries = {
             create: [],
         };
-        let actions = DatabaseInfo.Compare(dbInfo_Scheme, dbInfo_DB);
+        let actions = DatabaseInfo.Compare(scheme, dbInfo_Scheme, dbInfo_DB);
 
-        for (let tableName of actions.tables.delete) {
-            let query = `DROP TABLE ${tableName}`;
+        for (let tableInfo of actions.tables.delete) {
+            let query = `DROP TABLE ${tableInfo.name}`;
             
             console.log(query);
             await this.query_Execute_Async(query);
         }
 
-        for (let tableName of actions.tables.create) {
-            let tableInfo = dbInfo_Scheme.getTableInfo_ByName(tableName);
+        for (let tableInfo of actions.tables.create) {
             let query = tableInfo.getQuery_Create();
 
             console.log(query);
             await this.query_Execute_Async(query);
+        }
+
+        for (let alterInfo of actions.tables.alter) {
+            let query_Alter = `ALTER TABLE ${alterInfo.tableInfo.name}`;
+
+            let query_Fields_Arr = [];
+            for (let fieldInfo of alterInfo.create)
+                query_Fields_Arr.push(` ADD COLUMN ` + fieldInfo.getQuery_Column());
+            query_Alter += query_Fields_Arr.join(',');
+
+            let result = await db.query_Execute_Async(query_Alter);
+
+            abLog.success(`Altered: alterInfo.tableInfo.name`);
+            if (alterInfo.create.length > 0) {
+                abLog.success('  created:');
+                for (let fieldInfo of alterInfo.create)
+                    abLog.success(`    - ${fieldInfo.name}`);
+            }
         }
     }
 

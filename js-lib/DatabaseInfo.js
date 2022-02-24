@@ -2,6 +2,7 @@
 
 const
     // abMysql = require('ab-mysql'),
+    js0 = require('js0'),
 
     FieldInfo = require('./FieldInfo'),
     TableInfo = require('./TableInfo')
@@ -10,35 +11,44 @@ const
 class DatabaseInfo
 {
 
-    static Compare(dbInfo_Scheme, dbInfo_DB)
+    static Compare(scheme, dbInfo_Scheme, dbInfo_DB)
     {
+        js0.args(arguments, require('./scheme/DataScheme'), DatabaseInfo,
+                DatabaseInfo);
+
+        let ignored_TableNames = scheme.getIgnored_TableNames();
+
         let actions = {
             tables: {
                 delete: [],
                 create: [],
+                alter: [],
             },
         };
 
-        for (let tableInfo of dbInfo_DB.tableInfos) {
-            let tableInfo_Scheme = dbInfo_Scheme.getTableInfo_ByName(tableInfo.name);
+        for (let tableInfo_DB of dbInfo_DB.tableInfos) {
+            if (ignored_TableNames.includes(tableInfo_DB.name))
+                continue;
+
+            let tableInfo_Scheme = dbInfo_Scheme.getTableInfo_ByName(tableInfo_DB.name);
             if (tableInfo_Scheme === null) {
-                actions.tables.delete.push(tableInfo.name);
+                actions.tables.delete.push(tableInfo_DB);
                 continue;
             }
         }
 
         for (let tableInfo_Scheme of dbInfo_Scheme.tableInfos) {
-            let tableInfo = dbInfo_DB.getTableInfo_ByName(tableInfo_Scheme.name);
-            if (tableInfo === null) {
-                actions.tables.create.push(tableInfo_Scheme.name);
+            let tableInfo_DB = dbInfo_DB.getTableInfo_ByName(tableInfo_Scheme.name);
+            if (tableInfo_DB === null) {
+                actions.tables.create.push(tableInfo_Scheme);
                 continue;
             }
 
-            let actions_Tables = DatabaseInfo.Compare_Tables(tableInfo, 
+            let actions_Alter = DatabaseInfo.Compare_Tables(tableInfo_DB, 
                     tableInfo_Scheme);
-            if (actions_Tables) {
-                actions.tables.delete.push(tableInfo_Scheme.name);
-                actions.tables.create.push(tableInfo_Scheme.name);
+            if (actions_Alter.delete.length > 0 || actions_Alter.create.length > 0 ||
+                    actions_Alter.change.length > 0) {
+                actions.tables.alter.push(actions_Alter);
             }
         }
 
@@ -47,15 +57,19 @@ class DatabaseInfo
 
     static Compare_Fields(fieldInfo_DB, fieldInfo_Conf)
     {
-        // console.log(fieldInfo_DB);
-        // console.log(fieldInfo_Conf);
+        // console.log('DB', fieldInfo_DB);
+        // console.log('Info', fieldInfo_Conf);
         // console.log('###');
 
         if (fieldInfo_DB.name !== fieldInfo_Conf.name ||
-                fieldInfo_DB.type !== fieldInfo_Conf.type || 
+                !fieldInfo_Conf.types.includes(fieldInfo_DB.types[0]) || 
                 fieldInfo_DB.key !== fieldInfo_Conf.key ||
                 fieldInfo_DB.notNull !== fieldInfo_Conf.notNull) {
             
+            console.log('#');
+            console.log('DB', fieldInfo_DB);
+            console.log('Conf', fieldInfo_Conf);
+
             return true;
         }    
 
@@ -64,13 +78,17 @@ class DatabaseInfo
 
     static Compare_Tables(tableInfo_DB, tableInfo_Scheme)
     {
-        let actions = false;
+        let actions = {
+            tableInfo: tableInfo_Scheme,
+            delete: [],
+            create: [],
+            change: [],
+        };
 
         for (let fieldInfo_DB of tableInfo_DB.fieldInfos) {
             let fieldInfo_Conf = tableInfo_Scheme.getFieldInfo_ByName(fieldInfo_DB.name);
             if (fieldInfo_Conf === null) {
-                // console.log('Field', fieldInfo_DB.name, 'DELETE');
-                actions = true;
+                actions.delete.push(fieldInfo_DB);
                 continue;
             }
         }
@@ -78,15 +96,16 @@ class DatabaseInfo
         for (let fieldInfo_Conf of tableInfo_Scheme.fieldInfos) {
             let fieldInfo_DB = tableInfo_DB.getFieldInfo_ByName(fieldInfo_Conf.name);
             if (fieldInfo_DB === null) {
-                // console.log('Field', fieldInfo_Conf.name, 'CREATE');
-                actions = true;
+                actions.create.push(fieldInfo_Conf);
                 continue;
             }
 
             let actions_Fields = DatabaseInfo.Compare_Fields(fieldInfo_DB, 
                     fieldInfo_Conf);
-            if (actions_Fields)
-                actions = true;
+            if (actions_Fields) {
+                // actions = true;
+                throw new Error('Modyfing columns not implemented.');
+            }
         }
 
         return actions;

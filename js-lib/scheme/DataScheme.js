@@ -146,7 +146,6 @@ class DataScheme
         js0.args(arguments, 'int');
 
         for (let [ tableName, table ] of this._tables) {
-            console.log(tableId, table.getTableId());
             if (table.getTableId() === tableId)
                 return true;
         }

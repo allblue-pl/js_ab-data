@@ -52,7 +52,7 @@ class TableInfo
         let fields = [];
 
         for (let fieldInfo of this.fieldInfos) {
-            fields.push(`${fieldInfo.name} ${fieldInfo.type} ` + 
+            fields.push(`${fieldInfo.name} ${fieldInfo.types[0]} ` + 
                     (fieldInfo.notNull ? 'NOT NULL' : 'NULL'));
         }
 
@@ -65,11 +65,11 @@ class TableInfo
         return query;
     }
 
-    setPKs(primaryKeys)
+    setPKs(pks)
     {
         js0.args(arguments, Array);
 
-        this._primaryKeys = primaryKeys;
+        this._primaryKeys = pks;
 
         return this;
     }

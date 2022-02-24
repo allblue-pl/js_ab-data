@@ -12,7 +12,8 @@ class NativeDataStore extends DataStore
 
     static async ClearData_Async(scheme, db, device)
     {
-        js0.args(arguments, abData.scheme.DataScheme, abData.native.Database);
+        js0.args(arguments, abData.scheme.DataScheme, abData.native.Database,
+                abData.Device);
 
         let localTransaction = await db.transaction_StartLocal_Async();
 
@@ -76,7 +77,8 @@ class NativeDataStore extends DataStore
 
     static async UpdateDeviceInfo_Async(scheme, db, device)
     {
-        js0.args(arguments);
+        js0.args(arguments, abData.scheme.DataScheme, abData.native.Database,
+                abData.Device);
 
         let localTransaction = await db.transaction_StartLocal_Async();
 
