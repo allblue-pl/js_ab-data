@@ -44,6 +44,9 @@ class DatabaseInfo
                 continue;
             }
 
+            if (ignored_TableNames.includes(tableInfo_DB.name))
+                continue;
+
             let actions_Alter = DatabaseInfo.Compare_Tables(tableInfo_DB, 
                     tableInfo_Scheme);
             if (actions_Alter.delete.length > 0 || actions_Alter.create.length > 0 ||

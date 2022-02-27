@@ -310,17 +310,24 @@ class Database
             let query_Alter = `ALTER TABLE ${alterInfo.tableInfo.name}`;
 
             let query_Fields_Arr = [];
+            for (let fieldInfo of alterInfo.delete)
+                query_Fields_Arr.push(`DROP COLUMN \`${fieldInfo.name}\``);
             for (let fieldInfo of alterInfo.create)
-                query_Fields_Arr.push(` ADD COLUMN ` + fieldInfo.getQuery_Column());
-            query_Alter += query_Fields_Arr.join(',');
+                query_Fields_Arr.push(`ADD COLUMN ` + fieldInfo.getQuery_Column());
+            query_Alter += ' ' + query_Fields_Arr.join(', ');
 
-            let result = await db.query_Execute_Async(query_Alter);
+            let result = await this.query_Execute_Async(query_Alter);
 
-            abLog.success(`Altered: alterInfo.tableInfo.name`);
+           console.log(`Altered: alterInfo.tableInfo.name`);
+            if (alterInfo.delete.length > 0) {
+               console.log('  deleted:');
+                for (let fieldInfo of alterInfo.delete)
+                   console.log(`    - ${fieldInfo.name}`);
+            }
             if (alterInfo.create.length > 0) {
-                abLog.success('  created:');
+               console.log('  created:');
                 for (let fieldInfo of alterInfo.create)
-                    abLog.success(`    - ${fieldInfo.name}`);
+                   console.log(`    - ${fieldInfo.name}`);
             }
         }
     }
