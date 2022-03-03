@@ -23,6 +23,11 @@ class ABDTime extends ABDField
     }
 
 
+    __getDefaultValue()
+    {
+        return 0;
+    }
+
     __getFieldValidator(fieldValidatorInfo)
     {
         return new ABDTimeValidator(fieldValidatorInfo);

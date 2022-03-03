@@ -29,6 +29,11 @@ class ABDJSON extends ABDField
     }
 
 
+    __getDefaultValue()
+    {
+        return null;
+    }
+
     __getFieldValidator(fieldValidatorInfo)
     {
         return new ABDJSONValidator(fieldValidatorInfo);

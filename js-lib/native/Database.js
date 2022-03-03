@@ -270,7 +270,7 @@ class Database
     async transaction_StartLocal_Async()
     {
         let localTransaction = false;
-        await abLock.sync(this._db, async () => {
+        await abLock.sync(this, async () => {
             if (await this.transaction_IsAutocommit_Async()) {
                 localTransaction = true;
                 await this.transaction_Start_Async();
@@ -307,16 +307,32 @@ class Database
         }
 
         for (let alterInfo of actions.tables.alter) {
-            let query_Alter = `ALTER TABLE ${alterInfo.tableInfo.name}`;
+            for (let fieldInfo of alterInfo.delete) {
+                let query_Alter = `ALTER TABLE ${alterInfo.tableInfo.name}` +
+                        ` DROP COLUMN \`${fieldInfo.name}\``;
+                let result = await this.query_Execute_Async(query_Alter);
+            }
+            
+            for (let fieldInfo of alterInfo.create) {
+                let query_Alter = `ALTER TABLE ${alterInfo.tableInfo.name}` +
+                        ` ADD COLUMN ` + fieldInfo.getQuery_Column();
+                // let query_Clean = null;
 
-            let query_Fields_Arr = [];
-            for (let fieldInfo of alterInfo.delete)
-                query_Fields_Arr.push(`DROP COLUMN \`${fieldInfo.name}\``);
-            for (let fieldInfo of alterInfo.create)
-                query_Fields_Arr.push(`ADD COLUMN ` + fieldInfo.getQuery_Column());
-            query_Alter += ' ' + query_Fields_Arr.join(', ');
+                if (fieldInfo.notNull) {
+                    query_Alter += ' DEFAULT ' + fieldInfo.field.escape(
+                            fieldInfo.field.defaultValue);
+                    // query_Clean = `ALTER TABLE ${alterInfo.tableInfo.name}` +
+                    //         ` ALTER COLUMN ` + fieldInfo.name + 
+                    //         ` DROP DEFAULT`;
+                }
+                
+                console.log(query_Alter);
+                // console.log(query_Clean);
 
-            let result = await this.query_Execute_Async(query_Alter);
+                let result = await this.query_Execute_Async(query_Alter);
+                // if (query_Clean !== null)
+                //     result = await this.query_Execute_Async(query_Clean);
+            }
 
            console.log(`Altered: alterInfo.tableInfo.name`);
             if (alterInfo.delete.length > 0) {

@@ -48,6 +48,9 @@ class FieldInfo
 
     getQuery_Column()
     {
+        let hasDefault = false;
+
+
         return `${this.name} ${this.types[0]} ` + (this.notNull ? 'NOT NULL' : 'NULL');
     }
 

@@ -23,6 +23,11 @@ class ABDLong extends ABDField
     }
 
 
+    __getDefaultValue()
+    {
+        return 0;
+    }
+
     __getFieldValidator(fieldValidatorInfo)
     {
         return new ABDLongValidator(fieldValidatorInfo);

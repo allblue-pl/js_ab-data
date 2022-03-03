@@ -32,6 +32,11 @@ class ABDString extends ABDField
     }
 
 
+    __getDefaultValue()
+    {
+        return '';
+    }
+
     __getFieldValidator(fieldValidatorInfo)
     {
         if (!('maxLength' in fieldValidatorInfo))

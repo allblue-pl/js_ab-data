@@ -11,6 +11,12 @@ class ABDField
         return this._args;
     }
 
+    get defaultValue() {
+        return this._properties.defaultValue === js0.NotSet ? 
+                (this._properties.notNull ? this.__getDefaultValue() : null) :
+                this._properties.defaultValue;
+    }
+
     get properties() {
         return this._properties;
     }
@@ -21,6 +27,7 @@ class ABDField
         js0.args(arguments, Array, js0.RawObject);
         js0.typeE(properties, js0.Preset({
             notNull: [ 'boolean', js0.Default(false) ],
+            defaultValue: [ null, js0.Default(js0.NotSet) ],
         }));
 
         this._args = args;
@@ -86,6 +93,8 @@ class ABDField
         return value;
     }
 
+
+    __getDefaultValue() { js0.virtual(this); }
     __getFieldValidator(fieldValidatorInfo) { js0.virtual(this); }
     __escape(value) { js0.virtual(this); }
     __parse(value) { js0.virtual(this); }

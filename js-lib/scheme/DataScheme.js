@@ -39,7 +39,7 @@ class DataScheme
                     field,
                     FieldInfo.GetType_FromField(field),
                     '',
-                    field.properties.notNull,
+                    field.properties.notNull
                 );
                 tableInfo.addFieldInfo(fieldInfo);
             }
