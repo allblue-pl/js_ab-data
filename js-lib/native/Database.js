@@ -177,11 +177,37 @@ class Database
                 ` WHERE Id IN (` + requestIds.join(',') + `)`);
     }
 
-    async getDBRequests_Async(requests)
+    async deleteDBRequests_ByIds_Async(ids)
+    {
+        js0.args(arguments, js0.ArrayItems('number'));
+
+        await this.query_Execute_Async(
+                `DELETE FROM _ABData_DBRequests` +
+                ` WHERE Id IN (` + ids.join(',') + `)`);
+    }
+
+    async getDBRequests_ByType_Async(requestName, actionName)
+    {
+        js0.args(arguments, 'string', 'string');
+
+        let rows = await this.query_Select_Async(
+                `SELECT Id, RequestName, ActionName, ActionArgs` +
+                ` FROM _ABData_DBRequests` +
+                ` WHERE RequestName = '${requestName}' AND ActionName = '${actionName}'` +
+                ` ORDER BY Id`,
+                [ 'Long', 'String', 'String', 'String' ]);
+
+        for (let row of rows)
+            row[3] = JSON.parse(row[3]);
+
+        return rows;
+    }
+
+    async getDBRequests_ForSync_Async()
     {
         let rows = await this.query_Select_Async(
                 `SELECT Id, RequestName, ActionName, ActionArgs` +
-                ` FROM _ABData_DBRequests`, 
+                ` FROM _ABData_DBRequests ORDER BY Id`, 
                 [ 'Long', 'String', 'String', 'String' ]);
 
         for (let row of rows)

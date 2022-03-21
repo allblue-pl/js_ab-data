@@ -7,6 +7,7 @@
 class validators_Class
 {
 
+    get ABDBoolValidator() { return require('./ABDBoolValidator'); }
     get ABDEmailValidator() { return require('./ABDEmailValidator'); };
     get ABDIntValidator() { return require('./ABDIntValidator'); };    
     get ABDJSONValidator() { return require('./ABDJSONValidator'); };
@@ -14,6 +15,11 @@ class validators_Class
     get ABDLongValidator() { return require('./ABDLongValidator'); };
     get ABDStringValidator() { return require('./ABDStringValidator'); };
 
+
+    Bool(args = {})
+    {
+        return new this.ABDBoolValidator(args);
+    }
 
     Email(args = {})
     {

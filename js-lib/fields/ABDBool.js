@@ -3,7 +3,9 @@
 const 
     js0 = require('js0'),
     
-    ABDField = require('./ABDField')
+    ABDField = require('./ABDField'),
+
+    ABDBoolValidator = require('../validators/ABDBoolValidator')
 ;
 
 
@@ -20,7 +22,17 @@ class ABDBool extends ABDField
         return 'Bool';
     }
 
-    
+
+    __getDefaultValue()
+    {
+        return false;
+    }
+
+    __getFieldValidator(fieldValidatorInfo)
+    {
+        return new ABDBoolValidator(fieldValidatorInfo);
+    }
+
     __getValidatorType()
     {
         return 'bool';
@@ -48,9 +60,9 @@ class ABDBool extends ABDField
 
     __unescape(value)
     {
-        js0.args(arguments, 'string');
+        js0.args(arguments, 'boolean');
 
-        return value === '1' ? true : false;
+        return value ? true : false;
     }
 
 }

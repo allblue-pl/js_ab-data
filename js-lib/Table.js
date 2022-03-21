@@ -195,7 +195,8 @@ class Table
         js0.typeE(args, js0.Preset(TableRequestDef.Args_Select()));
 
         let tableName_DB = helper.quote(this.name);
-        let query = `SELECT * FROM ${tableName_DB}`;
+        let query = `SELECT ` + this.columns.getKeys().join(',') + 
+                ` FROM ${tableName_DB}`;
 
         if (args.where !== null) {
             let where_Str = this.getQuery_Conditions(args.where);
@@ -421,8 +422,6 @@ class Table
             let update_Query = `UPDATE ${tableName_DB} SET ` +  
                     update_ColumnQueries_Arr.join(',') + ` WHERE ` + 
                     update_Where_Arr.join(' OR ');
-
-            // console.log(update_Query);
 
             await db.query_Execute_Async(update_Query);
         }

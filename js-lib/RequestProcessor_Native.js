@@ -181,7 +181,7 @@ class RequestProcessor_Native extends RequestProcessor
 
         let deviceInfo = await NativeDataStore.GetDeviceInfo_Async(
                 this._scheme, this._db);
-        let rDBRequests = await this._db.getDBRequests_Async();
+        let rDBRequests = await this._db.getDBRequests_ForSync_Async();
 
         let result = await webABApi.json_Async(this._apiUri + 'sync-db', { 
             args: args,
