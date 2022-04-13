@@ -53,6 +53,15 @@ class DatabaseInfo
                     actions_Alter.change.length > 0) {
                 actions.tables.alter.push(actions_Alter);
             }
+
+            if (actions_Alter.change.length > 0) {
+                actions.tables.delete.push(tableInfo_DB);
+                actions.tables.create.push(tableInfo_Scheme);
+
+                actions_Alter.delete = [];
+                actions_Alter.create = [];
+                actions_Alter.change = [];
+            }
         }
 
         return actions;
@@ -106,8 +115,8 @@ class DatabaseInfo
             let actions_Fields = DatabaseInfo.Compare_Fields(fieldInfo_DB, 
                     fieldInfo_Conf);
             if (actions_Fields) {
-                // actions = true;
-                throw new Error('Modyfing columns not implemented.');
+                console.warn('Modyfing columns not implemented. Rebuilding table.');
+                actions.change.push(fieldInfo_Conf);
             }
         }
 

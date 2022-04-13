@@ -11,15 +11,20 @@ const
 class DataScheme
 {
 
-    get tables() {
-        return this._tables;
+    get tableNames() {
+        return this._tables.keys();
+    }
+
+    get version() {
+        return this._version;
     }
 
 
-    constructor()
+    constructor(version)
     {
-        js0.args(arguments);
+        js0.args(arguments, 'int');
 
+        this._version = version;
         this._requests = new Map();
         this._tables = new Map();
 

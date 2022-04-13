@@ -28,7 +28,7 @@ class RequestProcessor
         js0.args(arguments, 'string', 'string', js0.RawObject);
 
         let response = await this.processRequestBatch_Async([
-            [ 'request', requestName, actionName, actionArgs ],
+            [ 'request', requestName, actionName, actionArgs, this.scheme.version ],
         ]);
 
         if (response === null)

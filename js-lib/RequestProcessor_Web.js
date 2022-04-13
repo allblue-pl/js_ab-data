@@ -51,10 +51,5 @@ class RequestProcessor_Web extends RequestProcessor
         });
     }
 
-    updateDB_Async()
-    {
-        // Do nothing.
-    }
-
 }
 module.exports = RequestProcessor_Web;

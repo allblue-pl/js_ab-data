@@ -307,153 +307,158 @@ class Table
             }
         }
 
-        let rows_WithNullPKs = [];
-        let rows_WithPKs = [];
-
-        for (let i = 0; i < rows.length; i++) {
-            let row = rows[i];
-
-            if (Object.keys(columns).length !== Object.keys(row).length) {
-                throw new Error(`Wrong columns number ` +
-                        `(inconsistency with first row).`);
-            }
-
-            for (let columnName in columns) {
-                if (!(columnName in row)) {
-                    throw new Error(`Inconsistent/unknown column ` +
-                            `'${columnName}' in rows.`);
-                }
-            }
-
-            let isNew = true;
-            for (let pk in pks) {
-                if (row[pk] !== null) {
-                    isNew = false;
-                    break;
-                }
-            }
-
-            if (isNew)
-                rows_WithNullPKs.push(row);
-            else
-                rows_WithPKs.push(row);
-        }
-
-        let rows_PKs_ToCheck = [];
-        for (let row of rows_WithPKs) {
-            let row_PKs = [];
-            for (let pk of pks)
-                row_PKs.push(row[pk]);
-            rows_PKs_ToCheck.push(row_PKs);
-        }
-
-        let rows_Insert = [];
-        let rows_Update = [];
-
-        let rows_Existing = await this.select_ByPKs_Async(db,
-                rows_PKs_ToCheck);
-        for (let row_WithPKs of rows_WithPKs) {
-            let match = false;
-            for (let row_Existing of rows_Existing) {
-                match = true;
-                for (let pk of pks) {
-                    if (columns[pk].field.parse(row_WithPKs[pk]) !== 
-                            row_Existing[pk]) {
-                        match = false;
-                        break;
-                    }
-                }
-
-                if (match)
-                    break;
-            }
-
-            if (match)
-                rows_Update.push(row_WithPKs);
-            else
-                rows_Insert.push(row_WithPKs);
-        }
-
-        for (let row_WithNullPKs of rows_WithNullPKs)
-            rows_Insert.push(row_WithNullPKs);
-
-        /* DB */
-        let tableName_DB = helper.quote(this.name);
-
         let localTransaction = false;
         if (await db.transaction_IsAutocommit_Async()) {
             await db.transaction_Start_Async();
             localTransaction = true;
         }
 
-        /* Update */
-        if (rows_Update.length > 0 && (Object.keys(rows[0]).length > pks.length)) {
-            let update_ColumnQueries_Arr = [];
-            for (let columnName in columns) {
-                if (pks.includes(columnName))
-                    continue;
+        let rows_All = rows;
+        for (let i = 0; i < rows_All.length; i += 100) {
+            let rows = rows_All.slice(i, Math.min(i + 100, rows_All.length));
 
-                let columnName_DB = helper.quote(columnName);
-                let update_ColumnQuery = `${columnName_DB}=(CASE`;
+            let rows_WithNullPKs = [];
+            let rows_WithPKs = [];
+
+            for (let i = 0; i < rows.length; i++) {
+                let row = rows[i];
+
+                if (Object.keys(columns).length !== Object.keys(row).length) {
+                    throw new Error(`Wrong columns number ` +
+                            `(inconsistency with first row).`);
+                }
+
+                for (let columnName in columns) {
+                    if (!(columnName in row)) {
+                        throw new Error(`Inconsistent/unknown column ` +
+                                `'${columnName}' in rows.`);
+                    }
+                }
+
+                let isNew = true;
+                for (let pk in pks) {
+                    if (row[pk] !== null) {
+                        isNew = false;
+                        break;
+                    }
+                }
+
+                if (isNew)
+                    rows_WithNullPKs.push(row);
+                else
+                    rows_WithPKs.push(row);
+            }
+
+            let rows_PKs_ToCheck = [];
+            for (let row of rows_WithPKs) {
+                let row_PKs = [];
+                for (let pk of pks)
+                    row_PKs.push(row[pk]);
+                rows_PKs_ToCheck.push(row_PKs);
+            }
+
+            let rows_Insert = [];
+            let rows_Update = [];
+
+            let rows_Existing = await this.select_ByPKs_Async(db,
+                    rows_PKs_ToCheck);
+            for (let row_WithPKs of rows_WithPKs) {
+                let match = false;
+                for (let row_Existing of rows_Existing) {
+                    match = true;
+                    for (let pk of pks) {
+                        if (columns[pk].field.parse(row_WithPKs[pk]) !== 
+                                row_Existing[pk]) {
+                            match = false;
+                            break;
+                        }
+                    }
+
+                    if (match)
+                        break;
+                }
+
+                if (match)
+                    rows_Update.push(row_WithPKs);
+                else
+                    rows_Insert.push(row_WithPKs);
+            }
+
+            for (let row_WithNullPKs of rows_WithNullPKs)
+                rows_Insert.push(row_WithNullPKs);
+
+            /* DB */
+            let tableName_DB = helper.quote(this.name);
+
+            /* Update */
+            if (rows_Update.length > 0 && (Object.keys(rows[0]).length > pks.length)) {
+                let update_ColumnQueries_Arr = [];
+                for (let columnName in columns) {
+                    if (pks.includes(columnName))
+                        continue;
+
+                    let columnName_DB = helper.quote(columnName);
+                    let update_ColumnQuery = `${columnName_DB}=(CASE`;
+                    for (let row of rows_Update) {
+                        update_ColumnQuery += " WHEN ";
+                        let pks_Match_Arr = [];
+                        for (let pk of pks) {
+                            pks_Match_Arr.push(helper.quote(pk) + '=' + 
+                                    columns[pk].field.escape(row[pk]));
+                        }
+                        update_ColumnQuery += '(' + pks_Match_Arr.join(' AND ') + ')';
+                        update_ColumnQuery += ' THEN ' +  columns[columnName].field.escape(row[columnName]);
+                    }
+                    update_ColumnQuery += ' END)';
+                    update_ColumnQueries_Arr.push(update_ColumnQuery);
+                }
+
+                let update_Where_Arr = [];
                 for (let row of rows_Update) {
-                    update_ColumnQuery += " WHEN ";
                     let pks_Match_Arr = [];
                     for (let pk of pks) {
                         pks_Match_Arr.push(helper.quote(pk) + '=' + 
                                 columns[pk].field.escape(row[pk]));
                     }
-                    update_ColumnQuery += '(' + pks_Match_Arr.join(' AND ') + ')';
-                    update_ColumnQuery += ' THEN ' +  columns[columnName].field.escape(row[columnName]);
-                }
-                update_ColumnQuery += ' END)';
-                update_ColumnQueries_Arr.push(update_ColumnQuery);
-            }
-
-            let update_Where_Arr = [];
-            for (let row of rows_Update) {
-                let pks_Match_Arr = [];
-                for (let pk of pks) {
-                    pks_Match_Arr.push(helper.quote(pk) + '=' + 
-                            columns[pk].field.escape(row[pk]));
-                }
-                update_Where_Arr.push('(' + pks_Match_Arr.join(' AND ') + ')');
-            }
-
-            let update_Query = `UPDATE ${tableName_DB} SET ` +  
-                    update_ColumnQueries_Arr.join(',') + ` WHERE ` + 
-                    update_Where_Arr.join(' OR ');
-
-            await db.query_Execute_Async(update_Query);
-        }
-
-        /* Insert */
-        if (rows_Insert.length > 0) {
-            let valuesArr_DB = [];
-            for (let row of rows_Insert) {
-                let row_DB = [];
-                for (let columnName in columns) {
-                    let column = columns[columnName];
-                    row_DB.push(column.field.escape(row[columnName]));
+                    update_Where_Arr.push('(' + pks_Match_Arr.join(' AND ') + ')');
                 }
 
-                valuesArr_DB.push('(' + row_DB.join(',') + ')');
+                let update_Query = `UPDATE ${tableName_DB} SET ` +  
+                        update_ColumnQueries_Arr.join(',') + ` WHERE ` + 
+                        update_Where_Arr.join(' OR ');
+
+                await db.query_Execute_Async(update_Query);
             }
 
-            /* Column Names */
-            let columnNames_DB = [];
-            for (let columnName in columns)
-                columnNames_DB.push(helper.quote(columnName));
-            let columnNames_DB_Str = columnNames_DB.join(',');
+            /* Insert */
+            if (rows_Insert.length > 0) {
+                let valuesArr_DB = [];
+                for (let row of rows_Insert) {
+                    let row_DB = [];
+                    for (let columnName in columns) {
+                        let column = columns[columnName];
+                        row_DB.push(column.field.escape(row[columnName]));
+                    }
 
-            /* Values */
-            let values_DB = valuesArr_DB.join(',');
+                    valuesArr_DB.push('(' + row_DB.join(',') + ')');
+                }
 
-            let insert_Query = `INSERT INTO ${tableName_DB} (${columnNames_DB_Str})` +
-                    ` VALUES ${values_DB}`;
+                /* Column Names */
+                let columnNames_DB = [];
+                for (let columnName in columns)
+                    columnNames_DB.push(helper.quote(columnName));
+                let columnNames_DB_Str = columnNames_DB.join(',');
 
-            // console.log(insert_Query);
+                /* Values */
+                let values_DB = valuesArr_DB.join(',');
 
-            await db.query_Execute_Async(insert_Query);
+                let insert_Query = `INSERT INTO ${tableName_DB} (${columnNames_DB_Str})` +
+                        ` VALUES ${values_DB}`;
+
+                // console.log(insert_Query);
+
+                await db.query_Execute_Async(insert_Query);
+            }
         }
 
         /* Commit */

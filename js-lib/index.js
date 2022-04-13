@@ -93,43 +93,5 @@ class abData_Class
         this._debug = debug;
     }
 
-    // async execAsync(fsPath)
-    // {
-    //     let dbInfo_Config = DatabaseInfo.CreateFrom_Config(require(path.resolve(fsPath))());
-
-    //     let db = abMysql.connect({
-    //         host: 'localhost',
-    //         database: 'alta-associations',
-    //         user: 'root',
-    //         password: '',
-    //     });
-
-    //     let dbInfo_MySQL = await DatabaseInfo.CreateFrom_DB_Async(db);
-
-    //     let queries = {
-    //         create: [],
-    //     };
-
-    //     dbInfo_MySQL.compare(dbInfo_Config, queries);
-
-    //     for (let query of queries.create) {
-    //         console.log(query);
-    //         console.log(await db.query_ExecuteAsync(query));
-    //     }
-
-    //     db.disconnect();
-
-    //     // let dbInfo_MySQL = await DatabaseInfo.CreateFrom_DB_Async({
-    //     //     connection: {
-    //     //         host: 'localhost',
-    //     //         database: 'alta-associations',
-    //     //         user: 'root',
-    //     //         password: '',
-    //     //     },
-    //     // });
-
-    //     return;
-    // }
-
 }
 module.exports = new abData_Class();
