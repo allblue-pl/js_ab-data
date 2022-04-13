@@ -278,13 +278,13 @@ class NativeDataStore extends DataStore
     {
         js0.args(arguments);
 
-        let localTransaction = await db.transaction_StartLocal_Async();
+        let localTransaction = await this.db.transaction_StartLocal_Async();
 
-        await this.resetDeviceLastUpdate_Async();
+        await NativeDataStore.ResetDeviceLastUpdate_Async(this.db);
         await this.clearDBRequests_Async();
 
         if (localTransaction)
-            await db.transaction_Finish_Async(true);
+            await this.db.transaction_Finish_Async(true);
     }
 
     async clearDBRequests_Async()
