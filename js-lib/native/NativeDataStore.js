@@ -41,7 +41,7 @@ class NativeDataStore extends DataStore
             if (version_Rows.length !== 0)
                 version = JSON.parse(version_Rows[0][1])['value'];
         } catch (e) {
-            if (e instanceof require('../ABDDatabaseError')) {
+            if (e instanceof require('./ABDDatabaseError')) {
                 // Table or database does not exist.
             } else 
                 throw e;
