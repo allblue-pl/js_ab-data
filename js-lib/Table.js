@@ -208,7 +208,8 @@ class Table
             let orderBy_Arr = [];
             for (let orderBy of args.orderBy) {
                 let column_Field = this.getColumn_Field(orderBy[0]);
-                orderBy_Arr.push(column_Field.expr + orderBy[1] ? ' DESC' : '');
+                let columnName = helper.quote(orderBy[0]);
+                orderBy_Arr.push(columnName + (orderBy[1] ? ' DESC' : ''));
             }
 
             query += ' ORDER BY ' + orderBy_Arr.join(', ');
