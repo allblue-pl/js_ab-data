@@ -34,6 +34,10 @@ class Database
     }
 
 
+    get initialized() {
+        return this._initialized;
+    }
+
     constructor()
     {
         this._initialized = false;

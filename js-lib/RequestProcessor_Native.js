@@ -78,10 +78,11 @@ class RequestProcessor_Native extends RequestProcessor
             } catch (e) {
                 result = {
                     success: false,
-                    error: `Request Action Error: ` + e.toString(),
+                    data: null,
+                    error: `Request Action Error -> ` + e.toString(),
                 }
 
-                console.error(`Request Action Error: '${requestName}:${actionName}'`);
+                console.error(`Request Action Error -> '${requestName}:${actionName}'`);
                 console.error(e);
             }
 

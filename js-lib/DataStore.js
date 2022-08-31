@@ -42,10 +42,10 @@ class DataStore
     {
         js0.args(arguments, 'string');
 
-        if (!(this._scheme.tables.has(tableName)))
+        if (!(this._scheme.hasTable(tableName)))
             throw new Error(`Table '${tableName}' does not exist.`);
 
-        return this._scheme.tables.get(tableName);
+        return this._scheme.getTable(tableName);
     }
 
     nextId()

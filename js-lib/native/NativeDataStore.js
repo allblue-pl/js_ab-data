@@ -324,10 +324,17 @@ class NativeDataStore extends DataStore
                 ` ORDER BY Id`,
                 [ 'Long', 'Int', 'String', 'String', 'String' ]);
 
-        for (let row of rows)
-            row[3] = JSON.parse(row[3]);
+        let rows_Parsed = [];
+        for (let row of rows) {
+            rows_Parsed.push({
+                Id: row[0],
+                RequestName: row[1],
+                ActionName: row[2],
+                ActionArgs: JSON.parse(row[3]),
+            });
+        }
 
-        return rows;
+        return rows_Parsed;
     }
 
     async getDBRequests_ForSync_Async()
@@ -367,6 +374,9 @@ class NativeDataStore extends DataStore
         let deviceInfo = await NativeDataStore.GetDeviceInfo_Async(this.db);
         let rDBRequests = await this.getDBRequests_ForSync_Async();
 
+        console.log(deviceInfo);
+        console.log(rDBRequests);
+
         let result = await webABApi.json_Async(this._apiUri + 'sync-db', { 
             args: args,
             deviceInfo: {
@@ -375,7 +385,8 @@ class NativeDataStore extends DataStore
                 lastUpdate: deviceInfo.lastUpdate,
                 declaredItemIds: deviceInfo.declaredItemIds,
             },
-            rDBRequests: rDBRequests 
+            rDBRequests: rDBRequests ,
+            schemeVersion: this.scheme.version,
         });
         
         if (result.isError()) {
@@ -446,6 +457,36 @@ class NativeDataStore extends DataStore
             success: true,
             error: null,
         };
+    }
+
+    async updateDBRequest_Async(requestId, requestName, actionName, actionArgs)
+    {
+        js0.args(arguments, [ 'number', js0.Null ], 'string', 'string', js0.RawObject);
+
+        let localTransaction = await this.db.transaction_StartLocal_Async();
+
+        if (requestId === null) { 
+            await this.addDBRequest_Async(requestName, actionName, actionArgs);
+            return;
+        }
+
+        let rows = await this.db.query_Select_Async('SELECT Id FROM _ABData_DBRequests',
+                [ 'Long' ]);
+        if (rows.length === 0)
+            throw new Error(`DB Request with id '${requestId}' does not exist.`);
+
+        let query = `UPDATE _ABData_DBRequests SET `;
+        query += `RequestName = '${requestName}', `;        
+        query += `ActionName = '${actionName}', `;
+        query += `ActionArgs = '` + Database.EscapeString(JSON.stringify(actionArgs)) + `', `;
+        query += `SchemeVersion = ${this.scheme.version}`;
+
+        query += ` WHERE Id = ${requestId}`;
+
+        await this.db.query_Execute_Async(query);
+
+        if (localTransaction)
+            await this.db.transaction_Finish_Async(true);
     }
 
     // async updateDeviceInfo_Async()
