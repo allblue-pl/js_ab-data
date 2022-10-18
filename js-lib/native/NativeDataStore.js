@@ -38,8 +38,16 @@ class NativeDataStore extends DataStore
             let version_Rows = await db.query_Select_Async(
                     `SELECT Name, Data FROM _ABData_Settings WHERE Name = 'version'`, 
                     [ 'String', 'String' ]);
-            if (version_Rows.length !== 0)
-                version = JSON.parse(version_Rows[0][1])['value'];
+            if (version_Rows.length !== 0) {
+                try {
+                    version = JSON.parse(version_Rows[0][1])['value'];
+                } catch (e) {
+                    if (e.name === 'SyntaxError') {
+                        console.error("Cannot parse DB scheme version.");
+                        return -1;
+                    }
+                }
+            }
         } catch (e) {
             if (e instanceof require('./ABDDatabaseError')) {
                 return -1

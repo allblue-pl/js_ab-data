@@ -7,6 +7,10 @@ const
 class TableInfo
 {
 
+    get autoIncrement() {
+        return this._autoIncrement;
+    }
+
     get fieldInfos() {
         return this._fieldInfos;
     }
@@ -26,7 +30,8 @@ class TableInfo
 
         this._name = name;
         this._fieldInfos = [];
-        this._primaryKeys = [];
+        this._autoIncrement = null;
+        this._primaryKeys = null;
     }
 
     addFieldInfo(fieldInfo)
@@ -58,17 +63,29 @@ class TableInfo
 
         query += fields.join(', ');
 
-        query += `, PRIMARY KEY (` + this._primaryKeys.join(',') + `)`;
+        if (this._primaryKeys !== null)
+            query += `, PRIMARY KEY (` + this._primaryKeys.join(',') + `)`;
         
         query += `)`;
 
         return query;
     }
 
+    setAutoIncrement(columnName)
+    {
+        js0.args(arguments, [ 'string', js0.Null ]);
+
+        this._autoIncrement = columnName;
+        this._primaryKeys = null;
+
+        return this;
+    }
+
     setPKs(pks)
     {
-        js0.args(arguments, Array);
+        js0.args(arguments, [ Array, js0.Null ]);
 
+        this._autoIncrement = null;
         this._primaryKeys = pks;
 
         return this;

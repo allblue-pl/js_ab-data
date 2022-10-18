@@ -55,10 +55,10 @@ class Database
                 tableNames: js0.Iterable('string'),
                 error: [ 'string', js0.Null ],
             })
-            .addNative('GetTableColumns', {
+            .addNative('GetTableColumnInfos', {
                 tableName: [ 'string' ],
             }, {
-                columns: js0.Iterable(null),
+                columnInfos: js0.Iterable(null),
                 error: [ 'string', js0.Null ],
             })
             .addNative('Transaction_Finish', {
@@ -179,16 +179,17 @@ class Database
         for (let tableName of tableNames) {
             let tableInfo = new TableInfo(tableName);
 
-            let result = await this.nativeActions.callNative_Async('GetTableColumns', {
+            let result = await this.nativeActions.callNative_Async(
+                    'GetTableColumnInfos', {
                 tableName: tableName,
             });
-            for (let column of result.columns) {
+            for (let columnInfo of result.columnInfos) {
                 tableInfo.addFieldInfo(new FieldInfo(
-                    column[0],
+                    columnInfo.name,
                     null,
-                    [ column[1] ],
+                    [ columnInfo.type ],
                     '',
-                    column[2] === 1,
+                    columnInfo.notNull,
                 ));
             }
 

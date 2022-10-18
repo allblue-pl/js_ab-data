@@ -2,6 +2,7 @@
 
 const 
     ABDArray = require('./ABDArray'),
+    ABDAutoIncrementId = require('./ABDAutoIncrementId'),
     ABDBool = require('./ABDBool'), 
     ABDData = require('./ABDData'),
     // ABDDate = require('./ABDDate'),
@@ -22,6 +23,7 @@ class fields_Class
 {
 
     // get ABDArray() { return ABDArray; };
+    get ABDAutoIncrementId() { return ABDAutoIncrementId; };
     get ABDBool() { return ABDBool; };
     // get ABDDate() { return ABDDate; }
     // get ABDDateTime() { return ABDDateTime; }
@@ -40,6 +42,11 @@ class fields_Class
     // {
     //     return new ABDArray(properties);
     // }
+
+    AutoIncrementId(properties = {})
+    {
+        return new ABDAutoIncrementId(properties);
+    }
 
     Bool(properties = {}) 
     {

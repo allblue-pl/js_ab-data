@@ -39,20 +39,11 @@ class Table
         this._id = id;
         this._name = name;
         this._alias = alias;
-        this._primaryKeys = [];
+        this._primaryKeys = null;
+        this._autoIncrement = null;
         this._columns = null;
         this._rowParser = null;
         this._columnValidators = {};
-
-        if (name[0] !== '_') {
-            columns = [
-                [ '_Id', fields.Id({ notNull: true, }) ],
-                [ '_Modified_DateTime', fields.Long({ notNull: false, }) ],
-                // [ '_Modified_DeviceId', fields.Long({}) ],
-            ].concat(columns);
-
-            this.setPKs([ '_Id' ]);
-        }
 
         this._columns = new js0.List();
         for (let column of columns) {
@@ -96,6 +87,8 @@ class Table
             if (where_Str !== '')
                 query += ' WHERE ' + where_Str;
         }
+
+        console.log('Test', query);
 
         await db.query_Execute_Async(query);
     }
@@ -264,10 +257,33 @@ class Table
         return await this.select_Async(db, args);
     }
 
+    setAutoIncrement(columnName)
+    {
+        js0.args(arguments, 'string');
+
+        if (!this.hasColumn(columnName))
+            throw new Error(`Auto increment column '${columnName}' does not exist.`);
+        if (!(this.getColumn(columnName).field instanceof fields.ABDAutoIncrementId)) {
+            throw new Error(`Auto increment column '${columnName}'` +
+                    ` must be of type ABDAutoIncrementId.`);
+        }
+
+        this._autoIncrement = columnName;
+        this._primaryKeys = null;
+
+        return this;
+    }
+
     setPKs(primaryKeys)
     {
-        js0.args(arguments, Array);
+        js0.args(arguments, js0.ArrayItems('string'));
 
+        for (let columnName of primaryKeys) {
+            if (!this.hasColumn(columnName))
+                throw new Error(`Primary key column '${columnName}' does not exist.`);
+        }
+
+        this._autoIncrement = null;
         this._primaryKeys = primaryKeys;
 
         return this;
@@ -285,17 +301,18 @@ class Table
         js0.args(arguments, require('./native/Database'), 
                 js0.ArrayItems(js0.RawObject), [ 'boolean', js0.Default ]);
 
-        if (rows.length === 0) {
-            return {
-                success: true,
-                error: null,
-            };
-        };
+        if (rows.length === 0)
+            return;
 
         let pks = this.pks;
-        for (let pk of pks) {
-            if (!(pk in rows[0]))
-                throw new Error(`Primary Key '${pk}' doesn not exist in row.`);
+        let pks_Included = true;
+        if (this._autoIncrement)
+            pks_Included = false;
+        else {
+            for (let pk of pks) {
+                if (!(pk in rows[0]))
+                    throw new Error(`Primary Key '${pk}' doesn not exist in row.`);
+            }
         }
 
         let columns = {};
@@ -303,7 +320,7 @@ class Table
             if (!ignoreNotExistingColumns) {
                 columns[columnName] = this.getColumn(columnName, true);
             } else {
-                if (this.columnExists(columnName, true))
+                if (this.hasColumn(columnName, true))
                     columns[columnName] = this.getColumn(columnName, true);
             }
         }
@@ -361,8 +378,8 @@ class Table
             let rows_Insert = [];
             let rows_Update = [];
 
-            let rows_Existing = await this.select_ByPKs_Async(db,
-                    rows_PKs_ToCheck);
+            let rows_Existing = pks_Included ? await this.select_ByPKs_Async(db,
+                    rows_PKs_ToCheck) : [];
             for (let row_WithPKs of rows_WithPKs) {
                 let match = false;
                 for (let row_Existing of rows_Existing) {
@@ -456,7 +473,7 @@ class Table
                 let insert_Query = `INSERT INTO ${tableName_DB} (${columnNames_DB_Str})` +
                         ` VALUES ${values_DB}`;
 
-                // console.log(insert_Query);
+                console.log(insert_Query);
 
                 await db.query_Execute_Async(insert_Query);
             }
@@ -465,11 +482,6 @@ class Table
         /* Commit */
         if (localTransaction)
             await db.transaction_Finish_Async(true);
-
-        return {
-            success: true,
-            error: null,
-        };
     }
 
     updateWhere()

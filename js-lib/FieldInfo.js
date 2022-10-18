@@ -11,7 +11,9 @@ class FieldInfo
     {
         js0.args(arguments, require('./fields/ABDField'));
 
-        if (field instanceof require('./fields/ABDBool'))
+        if (field instanceof require('./fields/ABDAutoIncrementId'))
+            return [ 'integer primary key', 'integer' ];
+        else if (field instanceof require('./fields/ABDBool'))
             return [ 'tinyint(1)' ];
         // else if (field instanceof require('./fields/ABDDouble'))
         //     return `double`;
@@ -49,7 +51,6 @@ class FieldInfo
     getQuery_Column()
     {
         let hasDefault = false;
-
 
         return `${this.name} ${this.types[0]} ` + (this.notNull ? 'NOT NULL' : 'NULL');
     }

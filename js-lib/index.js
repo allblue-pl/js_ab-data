@@ -61,6 +61,10 @@ class abData_Class
         return require('./RequestProcessor_Web');
     }
 
+    get RTable() {
+        return require('./RTable');
+    }
+
     get Table() {
         return require('./Table');
     }
