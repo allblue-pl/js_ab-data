@@ -29,8 +29,6 @@ export default class Wrapper
                     await table.delete_Async(this.dataStore.db, 
                             { where: args.where });
 
-                    console.log('hm', args.where);
-
                     return {
                         error: null,
                     };
