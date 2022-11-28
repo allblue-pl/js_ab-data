@@ -80,23 +80,23 @@ class DataScheme
         return this;
     }
 
-    defT(tableName, table)
+    defT(table)
     {
-        this.defTable(tableName, table);
+        this.defTable(table);
 
         return this;
     }
 
-    defTable(tableName, table)
+    defTable(table)
     {
-        js0.args(arguments, 'string', require('../Table'));
+        js0.args(arguments, require('../Table'));
 
         this._validateTableId(table.getTableId());
 
-        if (this._tables.has(tableName))
+        if (this._tables.has(table.name))
             throw new Error(`Table '${tableName}' already exists.`);
 
-        this._tables.set(tableName, table);
+        this._tables.set(table.name, table);
 
         return this;
     }
@@ -137,6 +137,28 @@ class DataScheme
         }
 
         throw new Error(`Table with id '${tableId}' does not exist.`);
+    }
+
+    getTableIds()
+    {
+        let tableIds = {};
+        for (let tableName of this.tableNames) {
+            let table = this.getTable(tableName);
+            tableIds[tableName] = table.getTableId();
+        }
+
+        return tableIds;
+    }
+
+    getValidatorInfos()
+    {
+        let validatorInfos = {};
+        for (let tableName of this.tableNames) {
+            let table = this.getTable(tableName);
+            validatorInfos[tableName] = table.getValidatorInfos();
+        }
+
+        return validatorInfos;
     }
     
     hasTable(tableName)

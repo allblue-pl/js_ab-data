@@ -88,8 +88,6 @@ class Table
                 query += ' WHERE ' + where_Str;
         }
 
-        console.log('Test', query);
-
         await db.query_Execute_Async(query);
     }
 
@@ -380,6 +378,7 @@ class Table
 
             let rows_Existing = pks_Included ? await this.select_ByPKs_Async(db,
                     rows_PKs_ToCheck) : [];
+
             for (let row_WithPKs of rows_WithPKs) {
                 let match = false;
                 for (let row_Existing of rows_Existing) {
@@ -472,8 +471,6 @@ class Table
 
                 let insert_Query = `INSERT INTO ${tableName_DB} (${columnNames_DB_Str})` +
                         ` VALUES ${values_DB}`;
-
-                console.log(insert_Query);
 
                 await db.query_Execute_Async(insert_Query);
             }

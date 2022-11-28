@@ -15,6 +15,7 @@ const
     ABDLong = require('./ABDLong'),
     // ABDObject = require('./ABDObject'),
     ABDString = require('./ABDString'),
+    ABDText = require('./ABDText'),
     ABDTime = require('./ABDTime')
 ;
 
@@ -36,6 +37,7 @@ class fields_Class
     // get ABDObject() { return ABDObject; };
     get ABDString() { return ABDString; };
     get ABDTime() { return ABDTime; };
+    get ABDText() { return ABDText; };
 
 
     // Array(properties = {})
@@ -111,6 +113,11 @@ class fields_Class
     Time(properties = {})
     {
         return new ABDTime(properties);
+    }
+
+    Text(type, properties = {})
+    {
+        return new ABDText(type, properties);
     }
 
 }

@@ -28,8 +28,20 @@ class FieldInfo
         else if (field instanceof require('./fields/ABDLong'))
             return [ `bigint` ];
         else if (field instanceof require('./fields/ABDString'))
-            return [ `varchar(` + field.size + `)` ];
-        else if (field instanceof require('./fields/ABDTime'))
+            return [ `varchar(${field.size})` ];
+        else if (field instanceof require('./fields/ABDText')) {
+            let dbType = null;
+            if (field.type === 'tiny')
+                dbType = 'tinytext';
+            else if (field.type === 'regular')
+                dbType = 'text';
+            else if (field.type = 'medium')
+                dbType = 'mediumtext';
+            else
+                throw new Error(`Unknown field type '${field.type}'.`);
+          
+            return [ dbType ];
+        } else if (field instanceof require('./fields/ABDTime'))
             return [ `bigint` ];
 
         throw new Error(`Unknown FieldInfo type of field '${field.constructor.name}'.`);

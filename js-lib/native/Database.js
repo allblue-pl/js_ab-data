@@ -43,6 +43,8 @@ class Database
         this._initialized = false;
         this._lastError = null;
 
+        this._transaction_CurrentId = null;
+
         let nad = new abNative.ActionsSetDef()
             .addNative('GetAffectedRows', {
 
@@ -62,6 +64,7 @@ class Database
                 error: [ 'string', js0.Null ],
             })
             .addNative('Transaction_Finish', {
+                transactionId: 'int',
                 commit: 'boolean',
             }, {
                 success: 'boolean',
@@ -75,10 +78,12 @@ class Database
             })
             .addNative('Transaction_Start', {}, {
                 success: 'boolean',
+                transactionId: [ 'int', js0.Null ],
                 error: [ 'string', js0.Null ],
             })
             .addNative('Query_Execute', {
                 query: 'string',
+                transactionId: [ js0.Null, 'int', ],
             }, {
                 success: 'boolean',
                 error: [ 'string', js0.Null ],
@@ -86,6 +91,7 @@ class Database
             .addNative('Query_Select', {
                 query: 'string',
                 columnTypes: js0.Iterable('string'),
+                transactionId: [ js0.Null, 'int', ],
             }, {
                 rows: [ Array, js0.Null ],
                 error: [ 'string', js0.Null ],
@@ -216,8 +222,6 @@ class Database
             let finish_Result = await this.nativeActions.callNative_Async('Transaction_Finish', 
                     { commit: false });
 
-            console.log(finish_Result);
-
             if (!finish_Result.success)
                 throw new Error('Cannot initialize Database.');
         }
@@ -234,7 +238,9 @@ class Database
         // console.log('End', new Error());
 
         let result = await this.nativeActions.callNative_Async('Transaction_Finish', 
-                { commit: commit });
+                { transactionId: this._transaction_CurrentId, commit: commit });
+
+        this._transaction_CurrentId = null;
 
         if (!result.success)
             throw new ABDDatabaseError(result.error);
@@ -255,6 +261,8 @@ class Database
         let result = await this.nativeActions.callNative_Async('Transaction_Start', {});
         if (!result.success)
             throw new ABDDatabaseError(result.error);
+
+        this._transaction_CurrentId = result.transactionId;
     }   
 
     async transaction_StartLocal_Async()
@@ -277,7 +285,7 @@ class Database
         await this.checkInit_Async();
 
         let result = await this.nativeActions.callNative_Async('Query_Execute', 
-                { query: query });
+                { query: query, transactionId: this._transaction_CurrentId, });
 
         if (!result.success)
             throw new ABDDatabaseError(result.error);
@@ -288,7 +296,8 @@ class Database
         await this.checkInit_Async();
 
         let result = await this.nativeActions.callNative_Async('Query_Select', 
-                { query: query, columnTypes: columnTypes });
+                { query: query, columnTypes: columnTypes, 
+                transactionId: this._transaction_CurrentId, });
 
         if (result.rows === null)
             throw new ABDDatabaseError(result.error);
