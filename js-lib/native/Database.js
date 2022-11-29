@@ -235,8 +235,6 @@ class Database
 
         await this.checkInit_Async();
 
-        // console.log('End', new Error());
-
         let result = await this.nativeActions.callNative_Async('Transaction_Finish', 
                 { transactionId: this._transaction_CurrentId, commit: commit });
 
@@ -259,6 +257,7 @@ class Database
         await this.checkInit_Async();
 
         let result = await this.nativeActions.callNative_Async('Transaction_Start', {});
+
         if (!result.success)
             throw new ABDDatabaseError(result.error);
 
