@@ -53,35 +53,41 @@ class DataStore
         return this.device.nextId();
     }
 
-    async request_Async(requestName, actionName, actionArgs)
+    async request_Async(requestName, actionName, actionArgs, 
+            transactionId = null)
     {
-        js0.args(arguments, 'string', 'string', [ js0.RawObject, js0.Default ]);
+        js0.args(arguments, 'string', 'string', [ js0.RawObject, js0.Default ],
+                [ 'int', js0.Null, js0.Default ]);
 
         this.scheme.validateRequest([ 'request', requestName, actionName, 
                 actionArgs ]);
 
-        return await this._requestProcessor.processRequest_Async(
-                requestName, actionName, actionArgs);
+        let result = await this._requestProcessor.processRequest_Async(
+                requestName, actionName, actionArgs, transactionId);
+
+        // this._validateResults([ result ]);
+
+        return result;
     }
 
-    async requestB_Async(requests)
+    async requestB_Async(requests, transactionId = null)
     {
-        return await this.requestBatch_Async(requests);
+        return await this.requestBatch_Async(requests, transactionId);
     }
 
-    async requestBatch_Async(requests)
+    async requestBatch_Async(requests, transactionId = null)
     {
         js0.args(arguments, js0.ArrayItems(js0.PresetArray([ 'string', 'string', 
-                'string', js0.RawObject ])));
+                'string', js0.RawObject ])), [ 'int', js0.Null, js0.Default ]);
 
         for (let request of requests)
             this.scheme.validateRequest(request)
 
         let response = await this._requestProcessor.processRequestBatch_Async(
-                requests);
+                requests, transactionId);
 
         for (let request of requests)
-            this.scheme.validateResponse(response, request);
+            this.scheme.validateRequestResponse(response, request);
 
         return response;
     }

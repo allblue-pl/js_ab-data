@@ -54,6 +54,7 @@ class Table
             this._columns.set(name, {
                 field: field,
                 fieldValidator: field.getFieldValidator(fieldValidatorInfo),
+                index: this._columns.size,
             });
         }
     }
@@ -73,10 +74,10 @@ class Table
         return this;
     }
 
-    async delete_Async(db, args = {})
+    async delete_Async(db, args = {}, transactionId = null)
     {
         js0.args(arguments, require('./native/Database'), [ js0.RawObject,
-                js0.Default ]);
+                js0.Default ], [ 'int', js0.Null, js0.Default ]);
         js0.typeE(args, js0.Preset(TableRequestDef.Args_Select()));
 
         let tableName_DB = helper.quote(this.name);
@@ -88,7 +89,7 @@ class Table
                 query += ' WHERE ' + where_Str;
         }
 
-        await db.query_Execute_Async(query);
+        await db.query_Execute_Async(query, transactionId);
     }
 
     getColumn(columnName)
@@ -102,6 +103,13 @@ class Table
     getColumn_Field(columnName)
     {
         return this.getColumn(columnName).field;
+    }
+
+    getColumnIndex(columnName)
+    {
+        js0.args(arguments, 'string');
+
+        return this.getColumn(columnName).index;
     }
 
     getColumnNames()
@@ -162,15 +170,15 @@ class Table
         return this._columns.has(columnName);
     }
 
-    async row_Async(db, args = {})
+    async row_Async(db, args = {}, transactionId = null)
     {
         js0.args(arguments, require('./native/Database'), [ js0.RawObject,
-                js0.Default ]);
+                js0.Default ], [ 'int', js0.Null, js0.Default ]);
         js0.typeE(args, js0.Preset(TableRequestDef.Args_Select()));
 
         args.limit = [ 0, 1 ];
 
-        let rows_DB = await this.select_Async(db, args);
+        let rows_DB = await this.select_Async(db, args, transactionId);
 
         if (rows_DB.length === 0)
             return null;
@@ -178,10 +186,10 @@ class Table
         return rows_DB[0];
     }
 
-    async select_Async(db, args = {})
+    async select_Async(db, args = {}, transactionId = null)
     {
-        js0.args(arguments, require('./native/Database'), 
-                [ js0.RawObject, js0.Default ]);
+        js0.args(arguments, require('./native/Database'), [ js0.RawObject, 
+                js0.Default ], [ 'int', js0.Null, js0.Default ]);
 
         js0.typeE(args, js0.Preset(TableRequestDef.Args_Select()));
 
@@ -213,7 +221,8 @@ class Table
         for (let [ columnName, column ] of this.columns)
             columnTypes.push(column.field.getType());
 
-        let rows_DB = await db.query_Select_Async(query, columnTypes);
+        let rows_DB = await db.query_Select_Async(query, columnTypes, 
+                transactionId);
 
         let rows = [];
         for (let result_Row of rows_DB) {
@@ -226,15 +235,16 @@ class Table
         }
 
         if (args.join.length > 0)
-            rows = await this._join_Async(db, rows, args.join);
+            rows = await this._join_Async(db, rows, args.join, transactionId);
 
         return rows;
     }
 
-    async select_ByPKs_Async(db, keySets, args = {})
+    async select_ByPKs_Async(db, keySets, args = {}, transactionId = null)
     {
         js0.args(arguments, require('./native/Database'), 
-                js0.ArrayItems(Array), [ js0.RawObject, js0.Default ]);
+                js0.ArrayItems(Array), [ js0.RawObject, js0.Default ],
+                [ 'int', js0.Null, js0.Default ]);
 
         js0.typeE(args, js0.Preset(TableRequestDef.Args_Select()));
 
@@ -252,7 +262,7 @@ class Table
             args.where[1].push(keyPair_Where);
         }
 
-        return await this.select_Async(db, args);
+        return await this.select_Async(db, args, transactionId);
     }
 
     setAutoIncrement(columnName)
@@ -294,10 +304,12 @@ class Table
         this._rowParser = parserFn;
     }
 
-    async update_Async(db, rows, ignoreNotExistingColumns = false)
+    async update_Async(db, rows, transactionId = null, 
+            ignoreNotExistingColumns = false)
     {
-        js0.args(arguments, require('./native/Database'), 
-                js0.ArrayItems(js0.RawObject), [ 'boolean', js0.Default ]);
+        js0.args(arguments, require('./native/Database'), js0.ArrayItems(
+                js0.RawObject), [ 'int', js0.Null, js0.Default ], [ 'boolean', 
+                js0.Default ]);
 
         if (rows.length === 0)
             return;
@@ -324,8 +336,8 @@ class Table
         }
 
         let localTransaction = false;
-        if (await db.transaction_IsAutocommit_Async()) {
-            await db.transaction_Start_Async();
+        if (transactionId === null) {
+            transactionId = await db.transaction_Start_Async();
             localTransaction = true;
         }
 
@@ -377,7 +389,7 @@ class Table
             let rows_Update = [];
 
             let rows_Existing = pks_Included ? await this.select_ByPKs_Async(db,
-                    rows_PKs_ToCheck) : [];
+                    rows_PKs_ToCheck, {}, transactionId) : [];
 
             for (let row_WithPKs of rows_WithPKs) {
                 let match = false;
@@ -444,7 +456,7 @@ class Table
                         update_ColumnQueries_Arr.join(',') + ` WHERE ` + 
                         update_Where_Arr.join(' OR ');
 
-                await db.query_Execute_Async(update_Query);
+                await db.query_Execute_Async(update_Query, transactionId);
             }
 
             /* Insert */
@@ -472,13 +484,13 @@ class Table
                 let insert_Query = `INSERT INTO ${tableName_DB} (${columnNames_DB_Str})` +
                         ` VALUES ${values_DB}`;
 
-                await db.query_Execute_Async(insert_Query);
+                await db.query_Execute_Async(insert_Query, transactionId);
             }
         }
 
         /* Commit */
         if (localTransaction)
-            await db.transaction_Finish_Async(true);
+            await db.transaction_Finish_Async(true, transactionId);
     }
 
     updateWhere()
@@ -657,10 +669,10 @@ class Table
         throw new Error('Wrong condition format.');
     }
 
-    async _join_Async(db, rows, joinArgs)
+    async _join_Async(db, rows, joinArgs, transactionId)
     {
         js0.args(arguments, require('../native/Database'), Array, 
-                TableRequestDef.Args_Select().join);
+                TableRequestDef.Args_Select().join, [ 'int', js0.Null ]);
 
         let rows_Joined = [];
         for (let row of rows)
@@ -728,7 +740,7 @@ class Table
                 limit: null,
                 groupBy: groupBy_Arr,
                 join: [],
-            });
+            }, transactionId);
 
             let rows_Joined_New = [];
             for (let row of rows_Joined) {

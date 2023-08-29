@@ -18,6 +18,7 @@ export default class Wrapper
             .addWeb('Table_Delete', {
                 tableName: 'string',
                 where: Array,
+                transactionId: [ 'int', js0.Null ],
             }, {
                 error: [ js0.Null, 'string' ],
             }, async (args) => {
@@ -27,7 +28,7 @@ export default class Wrapper
                 try {
                     let table = this.dataStore.getTable(args.tableName);
                     await table.delete_Async(this.dataStore.db, 
-                            { where: args.where });
+                            { where: args.where }, args.transactionId);
 
                     return {
                         error: null,
@@ -43,6 +44,7 @@ export default class Wrapper
             .addWeb('Table_Select', {
                 tableName: 'string',
                 args: js0.RawObject,
+                transactionId: [ 'int', js0.Null ],
             }, {
                 rows: [ js0.Null, Array ],
                 error: [ js0.Null, 'string' ],
@@ -53,7 +55,7 @@ export default class Wrapper
                 try {
                     let table = this.dataStore.getTable(args.tableName);
                     let rows = await table.select_Async(this.dataStore.db,
-                            args.args);
+                            args.args, args.transactionId);
 
                     return {
                         rows: rows,
@@ -71,6 +73,7 @@ export default class Wrapper
             .addWeb('Table_Update', {
                 tableName: 'string',
                 rows: js0.ArrayItems(js0.RawObject),
+                transactionId: [ 'int', js0.Null ],
             }, {
                 error: [ js0.Null, 'string' ],
             }, async (args) => {
@@ -79,7 +82,8 @@ export default class Wrapper
                 
                 try {
                     let table = this.dataStore.getTable(args.tableName);
-                    await table.update_Async(this.dataStore.db, args.rows);
+                    await table.update_Async(this.dataStore.db, args.rows, 
+                            args.transactionId);
 
                     return {
                         error: null,

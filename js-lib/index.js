@@ -49,6 +49,10 @@ class abData_Class
         return require('./FieldInfo');
     }
 
+    get Response() {
+        return require('./Response');
+    }
+
     get RequestProcessor() {
         return require('./RequestProcessor');
     }

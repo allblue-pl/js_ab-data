@@ -40,8 +40,10 @@ class Database
 
     constructor()
     {
-        this._initialized = true;
+        this._initialized = false;
         this._lastError = null;
+
+        this._transaction_CurrentId = null;
 
         let nad = new abNative.ActionsSetDef()
             .addNative('GetAffectedRows', {
@@ -70,7 +72,7 @@ class Database
             .addNative('Transaction_IsAutocommit', {
              
             }, {
-                transactionId: [ 'int', js0.Null ],
+                result: 'boolean',
                 error: [ 'string', js0.Null ],
             })
             .addNative('Transaction_Start', {}, {
@@ -205,32 +207,31 @@ class Database
         return this._lastError;
     }
 
-    // async init_Async()
-    // {
-    //     if (this._initialized)
-    //         throw new Error('Database already initialized.');
-
-    //     let isAutocommit_Result = await this.nativeActions.callNative_Async(
-    //             'Transaction_IsAutocommit', {});
-
-    //     if (isAutocommit_Result.transactionId !== null)
-    //         throw new Error('Transaction in progress. Cannot initialize Database.');
-
-    //     this._initialized = true;
-    // }
-
-    async transaction_Finish_Async(commit, transactionId)
+    async init_Async()
     {
-        js0.args(arguments, 'boolean', 'int');
+        if (this._initialized)
+            throw new Error('Database already initialized.');
 
-        if (abData.debug)
-            console.log('Debug: Transaction Finish', transactionId, new Error());
+        let isAutocommit_Result = await this.nativeActions.callNative_Async(
+                'Transaction_IsAutocommit', {});
+
+        if (!isAutocommit_Result.result)
+            throw new Error('Transaction in progress. Cannot initialize Database.');
+
+        this._initialized = true;
+    }
+
+    async transaction_Finish_Async(commit)
+    {
+        js0.args(arguments, 'boolean');
 
         await this.checkInit_Async();
 
         let result = await this.nativeActions.callNative_Async(
                 'Transaction_Finish', 
-                { transactionId: transactionId, commit: commit });
+                { transactionId: this._transaction_CurrentId, commit: commit });
+
+        this._transaction_CurrentId = null;
 
         if (result.error !== null)
             throw new ABDDatabaseError(result.error);
@@ -238,8 +239,6 @@ class Database
 
     async transaction_IsAutocommit_Async()
     {
-        js0.args(arguments);
-
         await this.checkInit_Async();
 
         let result = await this.nativeActions.callNative_Async(
@@ -249,11 +248,6 @@ class Database
 
     async transaction_Start_Async()
     {
-        js0.args(arguments);
-
-        if (abData.debug)
-            console.log('Debug: Transaction Start', new Error());
-
         await this.checkInit_Async();
 
         let result = await this.nativeActions.callNative_Async(
@@ -262,50 +256,42 @@ class Database
         if (result.error !== null)
             throw new ABDDatabaseError(result.error);
 
-        if (abData.debug)
-            console.log('Debug: Transaction Id', result.transactionId);
-
-        return result.transactionId;
+        this._transaction_CurrentId = result.transactionId;
     }   
 
-    // async transaction_StartLocal_Async()
-    // {
-    //     await this.checkInit_Async();
-
-    //     let localTransaction = false;
-    //     await abLock.sync(this, async () => {
-    //         if (await this.transaction_IsAutocommit_Async()) {
-    //             localTransaction = true;
-    //             await this.transaction_Start_Async();
-    //         }
-    //     });
-
-    //     return localTransaction;
-    // }
-
-    async query_Execute_Async(query, transactionId = null)
+    async transaction_StartLocal_Async()
     {
-        js0.args(arguments, 'string', [ 'int', js0.Null, js0.Default ]);
+        await this.checkInit_Async();
 
+        let localTransaction = false;
+        await abLock.sync(this, async () => {
+            if (await this.transaction_IsAutocommit_Async()) {
+                localTransaction = true;
+                await this.transaction_Start_Async();
+            }
+        });
+
+        return localTransaction;
+    }
+
+    async query_Execute_Async(query)
+    {
         await this.checkInit_Async();
 
         let result = await this.nativeActions.callNative_Async('Query_Execute', 
-                { query: query, transactionId: transactionId, });
+                { query: query, transactionId: this._transaction_CurrentId, });
 
         if (result.error !== null)
             throw new ABDDatabaseError(result.error);
     }   
 
-    async query_Select_Async(query, columnTypes, transactionId = null)
+    async query_Select_Async(query, columnTypes)
     {
-        js0.args(arguments, 'string', js0.Iterable('string'), [ 'int', 
-                js0.Null, js0.Default ]);
-
         await this.checkInit_Async();
 
         let result = await this.nativeActions.callNative_Async('Query_Select', 
                 { query: query, columnTypes: columnTypes, 
-                transactionId: transactionId, });
+                transactionId: this._transaction_CurrentId, });
 
         if (result.rows === null)
             throw new ABDDatabaseError(result.error);

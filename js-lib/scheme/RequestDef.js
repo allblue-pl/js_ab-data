@@ -39,6 +39,9 @@ class RequestDef
         js0.args(arguments, 'string', js0.Enum([ 'r', 'w' ]), 
                 js0.RawObject, js0.RawObject);
 
+        resultDef._type = 'int';
+        resultDef._message = 'string';
+
         // if (actionType === 'w') {
             if (!('success' in resultDef))
                 throw new Error(`No 'success' in action result definition.`);

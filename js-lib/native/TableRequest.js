@@ -12,19 +12,20 @@ const
 class TableRequest extends Request
 {
 
-    static async Delete_Async(device, db, table, args)
+    static async Delete_Async(device, db, table, args, transactionId = null)
     {
         js0.args(arguments, require('./NativeDevice'), require('./Database'), 
-                require('../Table'), js0.RawObject);
+                require('../Table'), js0.RawObject, [ 'int', js0.Null, 
+                js0.Default ]);
         js0.typeE(args, js0.Preset(TableRequestDef.Args_Select()));
 
-        await table.delete_Async(db, args);
+        await table.delete_Async(db, args, transactionId);
     }
 
-    static async Update_Async(device, db, table, rows)
+    static async Update_Async(device, db, table, rows, transactionId = null)
     {
         js0.args(arguments, require('./NativeDevice'), require('./Database'), 
-                require('../Table'), Array);
+                require('../Table'), Array, [ 'int', js0.Null, js0.Default ]);
 
         for (let row of rows) {
             if (!('_Id' in row))
@@ -36,7 +37,7 @@ class TableRequest extends Request
                 device.useId(row._Id);
         }
 
-        await table.update_Async(db, rows);
+        await table.update_Async(db, rows, transactionId);
     }
 
 

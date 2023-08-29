@@ -7,6 +7,7 @@ const
 
     abData = require('.'),
     NativeDataStore = require('./native/NativeDataStore'),
+    Response = require('./Response'),
     RequestProcessor = require('./RequestProcessor')
 ;
 
@@ -49,77 +50,112 @@ class RequestProcessor_Native extends RequestProcessor
         return requestName in this._requests;
     }
 
-    async processRequestBatch_Async(requests)
+    async __processRequestBatch_Async(requests, transactionId)
     {
-        js0.args(arguments, Array);
+        js0.args(arguments, Array, [ 'int', js0.Null ]);
 
-        let response = {
-            success: false,
-            error: null,
-        };
+        let response = new Response();
 
         let success = true;
+        let localTransaction = false;
 
-        let localTransaction = await this._db.transaction_StartLocal_Async();
-
-        let requests_W = [];
-        for (let request of requests) {
-            let requestId = request[0];
-            let requestName = request[1];
-            let actionName = request[2];
-            let actionArgs = request[3];
-
-            let result = null;
-            try {
-                result = await this.getRequest(requestName)
-                        .executeAction_Async(this._device, actionName, actionArgs);
-
-                this._scheme.validateResult(request, result);
-            } catch (e) {
-                result = {
-                    success: false,
-                    data: null,
-                    error: `Request Action Error -> ` + e.toString(),
-                }
-
-                console.error(`Request Action Error -> '${requestName}:${actionName}'`);
-                console.error(e);
+        try {
+            if (transactionId === null) {
+                transactionId = await this._db.transaction_Start_Async();
+                localTransaction = true;
             }
 
-            response[requestId] = result;
+            let requests_W = [];
+            for (let request of requests) {
+                let requestId = request[0];
+                let requestName = request[1];
+                let actionName = request[2];
+                let actionArgs = request[3];
 
-            if (!result.success)
-                success = false;
+                response.results[requestId] = null;
+                response.requestIds.push(requestId);
+                response.actionErrors[requestId] = null;
 
-            if (result.error !== null) {
-                // response.errors.push([ `${requestName}:${actionName}:${requestId}`, 
-                //         result.error]);
-                response.error = `Action error: ${requestName}:${actionName}:${requestId}`;
+                let result = null;
+                try {
+                    result = await this.getRequest(requestName)
+                            .executeAction_Async(this._device, actionName, 
+                            actionArgs, transactionId);
 
-                if (abData.debug) {
-                    console.error(`Error processing action '${requestName}:${actionName}:${requestId}'`, 
-                            actionArgs);
-                    console.error('Action Error:', result.error);
-                }
-            }
+                    this._scheme.validateResult(request, result);
+                } catch (e) {
+                    if (abData.debug)
+                        console.error(e);
 
-            if (this._scheme.getRequestDef(requestName)
-                    .getActionDef(actionName).type === 'w') {
-                if (!result.success)
                     success = false;
-                
-                requests_W.push([ requestName, actionName, actionArgs ]);
+
+                    response.type = abData.Response.Types_ActionError;
+                    response.errorMessage = `Action Error: ` +
+                            `'${requestName}:${actionName}'`;
+                    response.actionErrors[requestId] = e.message;
+
+                    break;
+                }
+
+                if (!('_type' in result)) {
+                    success = false;
+
+                    response.type = Response.Types_ActionError;
+                    response.errorMessage = `No '_type' in action result: ` +
+                            `'${requestName}:${actionName}'`;
+                    response.actionErrors[requestId] = 
+                            `No '_type' in action result.`;
+
+                    break;
+                }
+
+                response.results[requestId] = result;
+
+                if (result._type >= 2) {
+                    success = false;
+
+                    response.type = Response.Types_ResultError;
+                    response.errorMessage = `Result Error: ` +
+                            `'${requestName}:${actionName}'`;
+
+                    break;
+                }
+
+                if (result._type === 1) {
+                    success = false;
+
+                    response.type = Response.Types_ResultFailure;
+                    response.errorMessage = `Result Failure: ` +
+                            `'${requestName}:${actionName}'`;
+
+                    break;
+                }
+
+                if (this._scheme.getRequestDef(requestName)
+                        .getActionDef(actionName).type === 'w') {
+                    requests_W.push([ requestName, actionName, actionArgs ]);
+                }
             }
+
+            if (success && requests_W.length > 0)
+                success = await this._db.addDBRequests_Async(requests_W);
+
+            if (success)
+                await this._updateDeviceInfo_Async(transactionId);
+        } catch (e) {
+            if (abData.debug)
+                console.error(e);
+
+            response.type = Response.Types_Error;
+            response.errorMessage = e.message;
         }
 
-        if (success && requests_W.length > 0)
-            success = await this._db.addDBRequests_Async(requests_W);
-
-        if (success)
-            await this._updateDeviceInfo_Async();
-
-        if (localTransaction)
-            await this._db.transaction_Finish_Async(success);
+        try {
+            if (localTransaction)
+                await this._db.transaction_Finish_Async(success, transactionId);
+        } catch (e) {
+            // Do nothing?
+        }
 
         response.success = success;
 
@@ -143,11 +179,15 @@ class RequestProcessor_Native extends RequestProcessor
         return this;
     }
 
-    async _updateDeviceInfo_Async()
+    async _updateDeviceInfo_Async(transactionId = null)
     {
-        js0.args(arguments);
+        js0.args(arguments, [ 'int', js0.Null, js0.Default ]);
 
-        let localTransaction = await this._db.transaction_StartLocal_Async();
+        let localTransaction = false;
+        if (transactionId === null) {
+            transactionId = await this._db.transaction_StartLocal_Async();
+            localTransaction = true;
+        }
 
         let lastDeclaredItemId = this.device.lastItemId;
         // for (let itemId_Declared of this.device.declaredItemIds) {
@@ -155,7 +195,8 @@ class RequestProcessor_Native extends RequestProcessor
         //         lastDeclaredItemId = itemId_Declared;
         // }
 
-        let deviceInfo = await NativeDataStore.GetDeviceInfo_Async(this._db);
+        let deviceInfo = await NativeDataStore.GetDeviceInfo_Async(this._db, 
+                transactionId);
         let declaredItemIds = deviceInfo.declaredItemIds;
         for (let itemId of this.device.declaredItemIds) {
             if (!declaredItemIds.includes(itemId))
@@ -164,10 +205,10 @@ class RequestProcessor_Native extends RequestProcessor
 
         await NativeDataStore.SetDeviceInfo_Async(this._db, 
                 this.device.id, this.device.hash, lastDeclaredItemId, 
-                this.device.lastUpdate, declaredItemIds);
+                this.device.lastUpdate, declaredItemIds, transactionId);
 
         if (localTransaction)
-            await this._db.transaction_Finish_Async(true);
+            await this._db.transaction_Finish_Async(true, transactionId);
     }
 
 }

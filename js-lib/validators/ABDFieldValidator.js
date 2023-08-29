@@ -1,6 +1,7 @@
 'use strict';
 
 const
+    abText = require('ab-text'),
     js0 = require('js0')
 ;
 
@@ -31,9 +32,9 @@ class ABDFieldValidator
         if (value === null) {
             if (this.args['notNull']) {
                 if (this.args['required'])
-                    validator.fieldError(fieldName, abText.$('Forms:fields.notSet'));
+                    validator.fieldError(fieldName, abText.$('abData.NotSet'));
                 else
-                    validator.fieldError(fieldName, abText.$('Forms:fields.notNull'));
+                    validator.fieldError(fieldName, abText.$('abData.NotNull'));
             }
         } else
             this.__validate(validator, fieldName, value);
