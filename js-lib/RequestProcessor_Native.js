@@ -50,9 +50,9 @@ class RequestProcessor_Native extends RequestProcessor
         return requestName in this._requests;
     }
 
-    async __processRequestBatch_Async(requests, transactionId)
+    async __processRequestBatch_Async(requests, transactionId = null)
     {
-        js0.args(arguments, Array, [ 'int', js0.Null ]);
+        js0.args(arguments, Array, [ 'int', js0.Null, js0.Default ]);
 
         let response = new Response();
 
@@ -91,7 +91,7 @@ class RequestProcessor_Native extends RequestProcessor
 
                     response.type = abData.Response.Types_ActionError;
                     response.errorMessage = `Action Error: ` +
-                            `'${requestName}:${actionName}'`;
+                            `'${requestName}:${actionName}' -> ${e.message}` ;
                     response.actionErrors[requestId] = e.message;
 
                     break;
@@ -154,7 +154,15 @@ class RequestProcessor_Native extends RequestProcessor
             if (localTransaction)
                 await this._db.transaction_Finish_Async(success, transactionId);
         } catch (e) {
-            // Do nothing?
+            if (success) {
+                response.success = false;
+
+                response.type = Response.Types_Error;
+                response.errorMessage = 'Cannot commit request processor transaction: ' +
+                        e.message;
+
+                return response;
+            }
         }
 
         response.success = success;

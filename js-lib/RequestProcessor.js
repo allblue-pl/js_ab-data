@@ -54,8 +54,8 @@ class RequestProcessor
             transactionId: transactionId,
         });
 
-        let response = await this._processRequestBatchHelper_Async(processingId, requests, 
-                transactionId)
+        let response = await this._processRequestBatchHelper_Async(processingId, 
+                requests, transactionId)
 
         // let response = await this.__processRequestBatch_Async(requests, 
         //         transactionId);
