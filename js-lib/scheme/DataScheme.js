@@ -57,25 +57,21 @@ class DataScheme
         return databaseInfo;
     }
 
-    defR(requestName, requestClass)
+    defR(requestName, requestDef)
     {
-        this.defRequest(requestName, requestClass);
+        this.defRequest(requestName, requestDef);
 
         return this;
     }
 
-    defRequest(requestName, requestClass)
+    defRequest(requestName, requestDef)
     {
-        js0.args(arguments, 'string', 'function');
-
-        let request = new requestClass();
-        if (!(request instanceof require('./RequestDef')))
-            throw new Error(`'requestClass' must inherit from 'scheme.Request'.`);
+        js0.args(arguments, 'string', require('./RequestDef'));
 
         if (this._requests.has(requestName))
             throw new Error(`Request '${requestName}' already exists.`);
 
-        this._requests.set(requestName, request);
+        this._requests.set(requestName, requestDef);
 
         return this;
     }
