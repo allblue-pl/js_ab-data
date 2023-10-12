@@ -678,13 +678,29 @@ class Table
         for (let row of rows)
             rows_Joined.push(row);
 
-        for (let join of joinArgs) {
+        for (let joinIndex = 0; joinIndex < joinArgs.length; joinIndex++) {
+            let join = joinArgs[joinIndex];
             let table = join.table;
 
             for (let on of join.on) {
                 if (!this.hasColumn(on[1])) {
-                    throw new Error(`Join column '${on[1]}' from base table ` +
-                            `'${this.getTableName()}' does not exist.`);
+                    /* Check joined tables for column. */
+                    let columnExists = false;
+                    for (let i = 0; i < joinIndex; i++) {
+                        if (on[1].indexOf(joinArgs[i].prefix) !== 0)
+                            continue;
+
+                        if (joinArgs[i].table.hasColumn(on[1].substring(
+                                    joinArgs[i].prefix.length))) {
+                            columnExists = true;
+                            break;
+                        }                       
+                    }
+
+                    if (!columnExists) {
+                        throw new Error(`Join column '${on[1]}' from base table ` +
+                                `'${this.getTableName()}' does not exist.`);
+                    }
                 }
 
                 if (!table.hasColumn(on[0])) {
