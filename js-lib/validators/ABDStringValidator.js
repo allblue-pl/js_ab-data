@@ -80,7 +80,7 @@ class ABDStringValidator extends ABDFieldValidator
 
                 if (!(new RegExp(`^[${chars_Escaped}]*$`)).test(value)) {
                     let notAllowedChars = [];
-                    let re = new RegExp(`[${chars_Escaped}]`, 'g');
+                    let re = new RegExp(`[^${chars_Escaped}]`, 'g');
 
                     while (true) {
                         let match = re.exec(value);
