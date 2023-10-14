@@ -520,7 +520,7 @@ class NativeDataStore extends DataStore
             }
 
             response.type = Response.Types_Error;
-            response.error = result.message;
+            response.errorMessage = result.message;
 
             if (localTransaction)
                 await this.db.transaction_Finish_Async(false, transactionId);

@@ -537,6 +537,8 @@ class Table
         for (let columnName in columns) {
             if (!(columnName in row))
                 throw new Error(`Column '${columnName}' not set in row.`);
+            if (typeof row[columnName] === 'undefined')
+                throw new Error(`Column '${columnName}' is 'undefined' in row.`);
 
             this.validateColumn(validator, columns[columnName], columnName,
                     row[columnName]);

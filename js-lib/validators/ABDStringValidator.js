@@ -49,7 +49,7 @@ class ABDStringValidator extends ABDFieldValidator
                 if (value.length < this.args['minLength']) {
                     validator.fieldError(fieldName, abText.$(
                             'abData.Errors_BelowMinLength', 
-                            [this.args['minLength']]));
+                            { minLength: this.args['minLength'] }));
                 }
             }
 
