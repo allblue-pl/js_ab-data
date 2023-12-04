@@ -90,8 +90,11 @@ class RequestProcessor_Native extends RequestProcessor
                     success = false;
 
                     response.type = abData.Response.Types_ActionError;
-                    response.errorMessage = `Action Error: ` +
-                            `'${requestName}:${actionName}' -> ${e.message}` ;
+                    if (abData.debug) {
+                        response.errorMessage = `Action Error: ` +
+                                `'${requestName}:${actionName}' -> ${e.message}`;
+                    } else
+                        response.errorMessage = e.message;
                     response.actionErrors[requestId] = e.message;
 
                     break;
@@ -116,7 +119,7 @@ class RequestProcessor_Native extends RequestProcessor
 
                     response.type = Response.Types_ResultError;
                     response.errorMessage = `Result Error: ` +
-                            `'${requestName}:${actionName}'`;
+                            `'${requestName}:${actionName}'.`;
 
                     break;
                 }
@@ -126,7 +129,7 @@ class RequestProcessor_Native extends RequestProcessor
 
                     response.type = Response.Types_ResultFailure;
                     response.errorMessage = `Result Failure: ` +
-                            `'${requestName}:${actionName}'`;
+                            `'${requestName}:${actionName}'.`;
 
                     break;
                 }

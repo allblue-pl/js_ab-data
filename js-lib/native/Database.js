@@ -49,16 +49,16 @@ class Database
             }, {
                 affectedRows: [ 'int', js0.Null ],
             })
-            .addNative('GetTableNames', {
-
-            }, {
-                tableNames: js0.Iterable('string'),
-                error: [ 'string', js0.Null ],
-            })
             .addNative('GetTableColumnInfos', {
                 tableName: [ 'string' ],
             }, {
                 columnInfos: js0.Iterable(null),
+                error: [ 'string', js0.Null ],
+            })
+            .addNative('GetTableNames', {
+
+            }, {
+                tableNames: js0.Iterable('string'),
                 error: [ 'string', js0.Null ],
             })
             .addNative('Transaction_Finish', {

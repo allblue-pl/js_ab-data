@@ -53,9 +53,13 @@ class FieldInfo
         js0.args(arguments, 'string', [ require('./fields/ABDField'), js0.Null ], 
                 js0.ArrayItems('string'), 'string', 'boolean');
 
+        let types_Parsed = [];
+        for (let type of types)
+            types_Parsed.push(type.toLowerCase());
+
         this.name = name;
         this.field = field;
-        this.types = types;
+        this.types = types_Parsed;
         this.key = '';
         this.notNull = notNull;
     }
