@@ -28,6 +28,8 @@ class RTable extends Table
         super(id, name, alias, columns);
 
         this.setPKs([ '_Id' ]);
+
+        // this.addIndex('_Modified_DateTime', '_Modified_DateTime DESC');
     }
 
 }

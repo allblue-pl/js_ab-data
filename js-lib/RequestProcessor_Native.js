@@ -196,7 +196,7 @@ class RequestProcessor_Native extends RequestProcessor
 
         let localTransaction = false;
         if (transactionId === null) {
-            transactionId = await this._db.transaction_StartLocal_Async();
+            transactionId = await this._db.transaction_Start_Async();
             localTransaction = true;
         }
 

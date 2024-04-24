@@ -244,7 +244,7 @@ class Database
 
         let result = await this.nativeActions.callNative_Async(
                 'Transaction_IsAutocommit', {});
-        return result.result;
+        return result;
     }
 
     async transaction_Start_Async()

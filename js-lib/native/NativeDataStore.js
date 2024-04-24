@@ -36,7 +36,6 @@ class NativeDataStore extends DataStore
     {
         js0.args(arguments, abData.native.Database, [ 'int', js0.Null,
                 js0.Default ]);
-
         let version = null;
         try {
             let version_Rows = await db.query_Select_Async(
@@ -46,6 +45,9 @@ class NativeDataStore extends DataStore
                 try {
                     version = JSON.parse(version_Rows[0][1])['value'];
                 } catch (e) {
+                    if (abData.debug)
+                        console.log(GetDBSchemeVersion, e);
+                    
                     if (e.name === 'SyntaxError') {
                         console.error("Cannot parse DB scheme version.");
                         return -1;
@@ -53,6 +55,9 @@ class NativeDataStore extends DataStore
                 }
             }
         } catch (e) {
+            if (abData.debug)
+                console.log('GetDBSchemeVersion', e);
+
             if (e instanceof require('./ABDDatabaseError')) {
                 return -1
             } else 
@@ -104,8 +109,8 @@ class NativeDataStore extends DataStore
             await db.transaction_Finish_Async(true, transactionId);
     }
 
-    static async SetDeviceInfo_Async(db, deviceId, deviceHash, lastItemId, lastUpdate,
-            declaredItemIds, transactionId = null)
+    static async SetDeviceInfo_Async(db, deviceId, deviceHash, lastItemId, 
+            lastUpdate, declaredItemIds, transactionId = null)
     {
         js0.args(arguments, abData.native.Database, js0.Long, 'string', js0.Long, 
                 [ js0.Long, js0.Null ], Array, [ 'int', js0.Null, js0.Default ]);
@@ -127,7 +132,7 @@ class NativeDataStore extends DataStore
         };
         let deviceInfo_JSON_Str = abData.native.Database.EscapeString(
                 JSON.stringify({ value: deviceInfo, }));
-
+            
         if (deviceInfo_Old === null) {
             await db.query_Execute_Async(
                 `INSERT INTO _ABData_Settings (Name, Data)` + 
@@ -473,9 +478,9 @@ class NativeDataStore extends DataStore
         return requestName in this._requests;
     }
 
-    async syncDB_Async(args, transactionId = null)
+    async syncDB_Async(args, clearDataFn, transactionId = null)
     {
-        js0.args(arguments, js0.RawObject, [ 'int', js0.Null, js0.Default ]);
+        js0.args(arguments, js0.RawObject, 'function', [ 'int', js0.Null, js0.Default ]);
 
         let localTransaction = false;
         if (transactionId === null) {
@@ -505,7 +510,7 @@ class NativeDataStore extends DataStore
             rDeviceDeletedRows: rDeviceDeletedRows,
             schemeVersion: this.scheme.version,
         });
-        
+
         if (abData.debug)
             console.log('Debug', result);
 
@@ -542,6 +547,11 @@ class NativeDataStore extends DataStore
             return response;
         }
 
+        /* Clear Data If Requested */
+        if (result.data.clearData) {
+            await clearDataFn(transactionId);
+        }
+        
         /* Process Update Data - Updates */
         try {
             for (let tableName in result.data.updateData.update) {
@@ -611,7 +621,8 @@ class NativeDataStore extends DataStore
 
             await this.deleteDBRequests_ByIds_Async(dbRequestIds, transactionId);
 
-            this.device.setLastUpdate(result.data.deviceInfo.lastUpdate);
+            this.device.update(result.data.deviceInfo.lastUpdate,
+                    result.data.deviceInfo.lastItemId);
 
             await NativeDataStore.SetDeviceInfo_Async(this.db, this.device.id, 
                     this.device.hash, this.device.lastItemId, 

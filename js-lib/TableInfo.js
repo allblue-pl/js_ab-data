@@ -41,6 +41,11 @@ class TableInfo
         this._fieldInfos.push(fieldInfo);
     }
 
+    addIndex(indexName, columns)
+    {
+        throw new Error('Not implemented.');
+    }
+
     getFieldInfo_ByName(fieldName)
     {
         for (let fieldInfo of this.fieldInfos) {
