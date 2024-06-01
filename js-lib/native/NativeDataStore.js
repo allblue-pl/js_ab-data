@@ -239,7 +239,7 @@ class NativeDataStore extends DataStore
                 //     result = await this.query_Execute_Async(query_Clean);
             }
 
-            console.log(`Altered: alterInfo.tableInfo.name`);
+            console.log(`Altered: ${alterInfo.tableInfo.name}`);
             if (alterInfo.delete.length > 0) {
                console.log('  deleted:');
                 for (let fieldInfo of alterInfo.delete)
@@ -480,7 +480,7 @@ class NativeDataStore extends DataStore
 
     async syncDB_Async(args, clearDataFn, transactionId = null)
     {
-        js0.args(arguments, js0.RawObject, 'function', [ 'int', js0.Null, js0.Default ]);
+        js0.args(arguments, js0.RawObject, [ 'function', js0.Null ], [ 'int', js0.Null, js0.Default ]);
 
         let localTransaction = false;
         if (transactionId === null) {
@@ -549,30 +549,12 @@ class NativeDataStore extends DataStore
 
         /* Clear Data If Requested */
         if (result.data.clearData) {
-            await clearDataFn(transactionId);
-        }
-        
-        /* Process Update Data - Updates */
-        try {
-            for (let tableName in result.data.updateData.update) {
-                if (!this.scheme.hasTable(tableName))
-                    continue;
-
-                await this.scheme.getTable(tableName).update_Async(this.db,
-                        result.data.updateData.update[tableName], transactionId);
+            if (clearDataFn === null) {
+                throw new Error(
+                        'Clear data requested, but clearDataFn not provided.');
             }
-        } catch (e) {
-            if (abData.debug)
-                console.error(e);
-
-            response.type = Response.Types_Error;
-            response.errorMessage = 'Cannot process update data updates: ' + 
-                    e.message;
-
-            if (localTransaction)
-                await this.db.transaction_Finish_Async(false, transactionId);
-
-            return response;
+            
+            await clearDataFn(transactionId);
         }
 
         /* Process Update Data - Deletes */
@@ -639,6 +621,96 @@ class NativeDataStore extends DataStore
                 await this.db.transaction_Finish_Async(false, transactionId);
 
             return response;
+        }
+
+        /* Process Update Data - Updates */
+        try {
+            for (let tableName in result.data.updateData.update) {
+                if (!this.scheme.hasTable(tableName))
+                    continue;
+
+                console.log(tableName, result.data.updateData.update[tableName]);
+
+                await this.scheme.getTable(tableName).update_Async(this.db,
+                        result.data.updateData.update[tableName], transactionId);
+            }
+        } catch (e) {
+            if (abData.debug)
+                console.error(e);
+
+            response.type = Response.Types_Error;
+            response.errorMessage = 'Cannot process update data updates: ' + 
+                    e.message;
+
+            if (localTransaction)
+                await this.db.transaction_Finish_Async(false, transactionId);
+
+            return response;
+        }
+
+        /* Get update data from data infos */
+        let dataInfos = result.data.dataInfos;
+        while (dataInfos.length > 0) {
+            console.log('Test', dataInfos);
+
+            let result_DataInfos = await webABApi.json_Async(this._apiUri + 
+                    'sync-db_get-update-data', { 
+                args: args,
+                deviceInfo: {
+                    deviceId: deviceInfo.deviceId,
+                    deviceHash: deviceInfo.deviceHash,
+                    lastUpdate: deviceInfo.lastUpdate,
+                    declaredItemIds: deviceInfo.declaredItemIds,
+                },
+                dataInfos: dataInfos,
+                schemeVersion: this.scheme.version,
+            });
+
+            if (abData.debug)
+                console.log('Debug', result_DataInfos);
+
+            if (!result_DataInfos.isSuccess()) {
+                if (abData.debug) {
+                    console.error('Request error: ' + result_DataInfos.message);
+                    console.error(result_DataInfos);
+                }
+    
+                response.type = Response.Types_Error;
+                response.errorMessage = result_DataInfos.message;
+
+                if (localTransaction)
+                    await this.db.transaction_Finish_Async(false, transactionId);
+    
+                return response;
+            }
+
+            try {
+                for (let tableName in result_DataInfos.data.updateData.update) {
+                    if (!this.scheme.hasTable(tableName))
+                        continue;
+    
+                    console.log(tableName, 
+                            result_DataInfos.data.updateData.update[tableName]);
+
+                    await this.scheme.getTable(tableName).update_Async(this.db,
+                            result_DataInfos.data.updateData.update[tableName], 
+                            transactionId);
+                }
+            } catch (e) {
+                if (abData.debug)
+                    console.error(e);
+    
+                response.type = Response.Types_Error;
+                response.errorMessage = 'Cannot process update data updates: ' + 
+                        e.message;
+    
+                if (localTransaction)
+                    await this.db.transaction_Finish_Async(false, transactionId);
+    
+                return response;
+            }
+
+            dataInfos = result_DataInfos.data.dataInfos;
         }
 
         /* Process listeners */
@@ -746,6 +818,12 @@ class NativeDataStore extends DataStore
     //     if (localTransaction)
     //         await this.db.transaction_Finish_Async(true);
     // }
+
+
+    async _syncDB_GetUpdateData_Async(args, transactionId = null)
+    {
+
+    }
 
 }
 module.exports = NativeDataStore;
