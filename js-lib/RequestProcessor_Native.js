@@ -19,8 +19,7 @@ class RequestProcessor_Native extends RequestProcessor
     }
 
 
-    constructor(dataScheme, device, db)
-    {
+    constructor(dataScheme, device, db) {
         js0.args(arguments, require('./scheme/DataScheme'), 
                 require('./native/NativeDevice'), require('./native/Database'));
 
@@ -33,8 +32,7 @@ class RequestProcessor_Native extends RequestProcessor
         this._requests = {};
     }
 
-    getRequest(requestName)
-    {
+    getRequest(requestName) {
         js0.args(arguments, 'string');
 
         if (!this.hasRequest(requestName))
@@ -43,15 +41,13 @@ class RequestProcessor_Native extends RequestProcessor
         return this._requests[requestName];
     }
 
-    hasRequest(requestName)
-    {
+    hasRequest(requestName) {
         js0.args(arguments, 'string');
 
         return requestName in this._requests;
     }
 
-    async __processRequestBatch_Async(requests, transactionId = null)
-    {
+    async __processRequestBatch_Async(requests, transactionId = null) {
         js0.args(arguments, Array, [ 'int', js0.Null, js0.Default ]);
 
         let response = new Response();
@@ -173,13 +169,11 @@ class RequestProcessor_Native extends RequestProcessor
         return response;
     }
 
-    setR(requestName, request)
-    {
+    setR(requestName, request) {
         return this.setRequest(requestName, request);
     }
 
-    setRequest(requestName, request)
-    {
+    setRequest(requestName, request) {
         js0.args(arguments, 'string', require('./native/Request'));
 
         if (requestName in this._requests)
@@ -190,8 +184,7 @@ class RequestProcessor_Native extends RequestProcessor
         return this;
     }
 
-    async _updateDeviceInfo_Async(transactionId = null)
-    {
+    async _updateDeviceInfo_Async(transactionId = null) {
         js0.args(arguments, [ 'int', js0.Null, js0.Default ]);
 
         let localTransaction = false;

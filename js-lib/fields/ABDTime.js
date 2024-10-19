@@ -5,50 +5,47 @@ const
     
     ABDField = require('./ABDField'),
 
-    ABDTimeValidator = require('../validators/ABDTimeValidator')
+    ABDTimeValidator = require('../validators/ABDTimeValidator'),
+    SelectColumnType = require('../SelectColumnType')
 ;
 
-class ABDTime extends ABDField
-{
+class ABDTime extends ABDField {
 
-    constructor(properties = {})
-    {
+    constructor(properties = {}) {
         js0.args(arguments, [ js0.RawObject, js0.Default ]);
         super([], properties);
     }
 
-    getType()
-    {
+    getSelectType() {
+        return SelectColumnType.Long;
+    }
+
+    getType() {
         return 'Time';
     }
 
 
-    __getDefaultValue()
-    {
+    __getDefaultValue() {
         return 0;
     }
 
-    __getFieldValidator(fieldValidatorInfo)
-    {
+    __getFieldValidator(fieldValidatorInfo) {
         return new ABDTimeValidator(fieldValidatorInfo);
     }
 
-    __escape(value)
-    {
+    __escape(value) {
         js0.args(arguments, 'number');
 
         return String(value);
     }
 
-    __parse(value)
-    {
+    __parse(value) {
         js0.args(arguments, 'number');
 
         return value;
     }
 
-    __unescape(value)
-    {
+    __unescape(value) {
         return Number(value);
     }
 

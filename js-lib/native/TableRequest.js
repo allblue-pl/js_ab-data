@@ -12,8 +12,7 @@ const
 class TableRequest extends Request
 {
 
-    static async Delete_Async(device, db, table, args, transactionId = null)
-    {
+    static async Delete_Async(device, db, table, args, transactionId = null) {
         js0.args(arguments, require('./NativeDevice'), require('./Database'), 
                 require('../Table'), js0.RawObject, [ 'int', js0.Null, 
                 js0.Default ]);
@@ -22,8 +21,7 @@ class TableRequest extends Request
         await table.delete_Async(db, args, transactionId);
     }
 
-    static async Update_Async(device, db, table, rows, transactionId = null)
-    {
+    static async Update_Async(device, db, table, rows, transactionId = null) {
         js0.args(arguments, require('./NativeDevice'), require('./Database'), 
                 require('../Table'), Array, [ 'int', js0.Null, js0.Default ]);
 
@@ -41,8 +39,7 @@ class TableRequest extends Request
     }
 
 
-    constructor(db, table)
-    {
+    constructor(db, table) {
         js0.args(arguments, require('./Database'), require('../Table'));
         super();
 
@@ -66,8 +63,7 @@ class TableRequest extends Request
         });
     }
 
-    async _action_Delete_Async(args)
-    {
+    async _action_Delete_Async(args) {
         let result = {
             success: (await this._table.delete_Async(this._db, {
                 where: args.where,
@@ -84,8 +80,7 @@ class TableRequest extends Request
         return result;
     }
 
-    async _action_Row_Async(args)
-    {
+    async _action_Row_Async(args) {
         js0.args(arguments, js0.Preset({
             columns: null,
             limit: [ js0.Null, js0.PresetArray([ 'int', 'int' ]), js0.Default(null) ],
@@ -109,8 +104,7 @@ class TableRequest extends Request
         };
     }
 
-    async _action_Select_Async(args)
-    {
+    async _action_Select_Async(args) {
         js0.args(arguments, js0.Preset(TableRequestDef.Args_Select()));
 
         let result = await this._table.select_Async(this._db, args);
@@ -122,8 +116,7 @@ class TableRequest extends Request
         };
     }
 
-    async _action_Update_Async(args)
-    {
+    async _action_Update_Async(args) {
         if (args.rows.length === 0) {
             return {
                 success: true,

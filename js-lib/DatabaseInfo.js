@@ -11,8 +11,7 @@ const
 class DatabaseInfo
 {
 
-    static Compare(scheme, dbInfo_Scheme, dbInfo_DB)
-    {
+    static Compare(scheme, dbInfo_Scheme, dbInfo_DB) {
         js0.args(arguments, require('./scheme/DataScheme'), DatabaseInfo,
                 DatabaseInfo);
 
@@ -67,8 +66,7 @@ class DatabaseInfo
         return actions;
     }
 
-    static Compare_Fields(fieldInfo_DB, fieldInfo_Conf)
-    {
+    static Compare_Fields(fieldInfo_DB, fieldInfo_Conf) {
         // console.log('DB', fieldInfo_DB);
         // console.log('Info', fieldInfo_Conf);
         // console.log('###');
@@ -88,8 +86,7 @@ class DatabaseInfo
         return false;
     }
 
-    static Compare_Tables(tableInfo_DB, tableInfo_Scheme)
-    {
+    static Compare_Tables(tableInfo_DB, tableInfo_Scheme) {
         let actions = {
             tableInfo: tableInfo_Scheme,
             delete: [],
@@ -180,13 +177,11 @@ class DatabaseInfo
     }
 
 
-    constructor()
-    {
+    constructor() {
         this._tableInfos = [];
     }
 
-    addTableInfo(tableInfo)
-    {
+    addTableInfo(tableInfo) {
         this._tableInfos.push(tableInfo);
     }
 
@@ -252,8 +247,7 @@ class DatabaseInfo
     //     }
     // }
 
-    getTableInfo_ByName(tableName)
-    {
+    getTableInfo_ByName(tableName) {
         for (let tableInfo of this.tableInfos) {
             if (tableInfo.name.toLowerCase() === tableName.toLowerCase())
                 return tableInfo;

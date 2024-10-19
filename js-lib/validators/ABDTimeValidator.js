@@ -11,8 +11,7 @@ const
 class ABDTimeValidator extends ABDFieldValidator
 {
 
-    constructor(args)
-    {
+    constructor(args) {
         js0.args(arguments, js0.RawObject);
         js0.typeE(args, js0.Preset({
             'notNull': [ 'boolean', js0.Default(true) ],
@@ -26,14 +25,12 @@ class ABDTimeValidator extends ABDFieldValidator
         super(args);
     }
 
-    getType()
-    {
+    getType() {
         return 'Time';
     }
 
 
-    __validate(validator, fieldName, value)
-    {
+    __validate(validator, fieldName, value) {
         if (value === null) {
             if (this.args['required'])
                 validator.fieldError(fieldName, abText.$('abData.NotSet'));

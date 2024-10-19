@@ -9,15 +9,13 @@ const
 class NativeDevice extends Device
 {
 
-    constructor(deviceId, deviceHash, lastUpdate, lastItemId, declaredItemIds = [])
-    {
+    constructor(deviceId, deviceHash, lastUpdate, lastItemId, declaredItemIds = []) {
         super(deviceId, deviceHash, lastUpdate, lastItemId, declaredItemIds);
 
         this._itemIds_Used = [];
     }
 
-    isNewId(id)
-    {
+    isNewId(id) {
         js0.args(arguments, 'number');
 
         if (super.isNewId(id)) {
@@ -28,8 +26,7 @@ class NativeDevice extends Device
         return false;
     }
 
-    useId(id)
-    {
+    useId(id) {
         js0.args(arguments, js0.Long);
 
         let idInfo = Device.GetIdInfo(id);

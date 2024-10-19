@@ -6,6 +6,7 @@ const
     ABDField = require('./ABDField'),
 
     ABDStringValidator = require('../validators/ABDStringValidator'),
+    SelectColumnType = require('../SelectColumnType'),
 
     helper = require('../helper')
 ;
@@ -17,8 +18,7 @@ class ABDString extends ABDField
         return this._size;
     }
 
-    constructor(size, properties = {})
-    {
+    constructor(size, properties = {}) {
         js0.args(arguments, js0.Int, [ js0.RawObject, js0.Default ]);
 
         super([ size ], properties);
@@ -26,41 +26,39 @@ class ABDString extends ABDField
         this._size = size;
     }
 
-    getType()
-    {
+    getSelectType() {
+        return SelectColumnType.String;
+    }
+
+    getType() {
         return 'String';
     }
 
 
-    __getDefaultValue()
-    {
+    __getDefaultValue() {
         return '';
     }
 
-    __getFieldValidator(fieldValidatorInfo)
-    {
+    __getFieldValidator(fieldValidatorInfo) {
         if (!('maxLength' in fieldValidatorInfo))
             fieldValidatorInfo['maxLength'] = this.size;
 
         return new ABDStringValidator(fieldValidatorInfo);
     }
 
-    __escape(value)
-    {
+    __escape(value) {
         js0.args(arguments, 'string');
 
         return `'` + helper.escapeString(value) + `'`;
     }
 
-    __parse(value)
-    {
+    __parse(value) {
         js0.args(arguments, 'string');
 
         return helper.escapeString(value);
     }
 
-    __unescape(value)
-    {
+    __unescape(value) {
         return value;
     }
 

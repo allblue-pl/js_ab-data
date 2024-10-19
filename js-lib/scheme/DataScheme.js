@@ -20,8 +20,7 @@ class DataScheme
     }
 
 
-    constructor(version)
-    {
+    constructor(version) {
         js0.args(arguments, 'int');
 
         this._version = version;
@@ -31,8 +30,7 @@ class DataScheme
         this._ignored_TableNames = [];
     }
 
-    createDatabaseInfo()
-    {
+    createDatabaseInfo() {
         let databaseInfo = new DatabaseInfo();
 
         for (let [ tableName, table ] of this._tables) {
@@ -57,15 +55,13 @@ class DataScheme
         return databaseInfo;
     }
 
-    defR(requestName, requestDef)
-    {
+    defR(requestName, requestDef) {
         this.defRequest(requestName, requestDef);
 
         return this;
     }
 
-    defRequest(requestName, requestDef)
-    {
+    defRequest(requestName, requestDef) {
         js0.args(arguments, 'string', require('./RequestDef'));
 
         if (this._requests.has(requestName))
@@ -76,15 +72,13 @@ class DataScheme
         return this;
     }
 
-    defT(table)
-    {
+    defT(table) {
         this.defTable(table);
 
         return this;
     }
 
-    defTable(table)
-    {
+    defTable(table) {
         js0.args(arguments, require('../Table'));
 
         this._validateTableId(table.getTableId());
@@ -97,26 +91,22 @@ class DataScheme
         return this;
     }
 
-    getIgnored_TableNames()
-    {
+    getIgnored_TableNames() {
         return this._ignored_TableNames;
     }
 
-    getRequestDef(requestName)
-    {
+    getRequestDef(requestName) {
         if (!this.hasRequestDef(requestName))
             throw new Error(`RequestDef '${requestName}' does not exist.`);
 
         return this._requests.get(requestName);
     }
 
-    getT(tableName)
-    {
+    getT(tableName) {
         return this.getTable(tableName);
     }
 
-    getTable(tableName)
-    {
+    getTable(tableName) {
         js0.args(arguments, 'string');
 
         if (!(this._tables.has(tableName)))
@@ -125,8 +115,7 @@ class DataScheme
         return this._tables.get(tableName);
     }
 
-    getTable_ById(tableId)
-    {
+    getTable_ById(tableId) {
         for (let [ tableName, table ] of this._tables) {
             if (table.getTableId() === tableId)
                 return table;
@@ -135,8 +124,7 @@ class DataScheme
         throw new Error(`Table with id '${tableId}' does not exist.`);
     }
 
-    getTableIds()
-    {
+    getTableIds() {
         let tableIds = {};
         for (let tableName of this.tableNames) {
             let table = this.getTable(tableName);
@@ -146,8 +134,7 @@ class DataScheme
         return tableIds;
     }
 
-    getValidatorInfos()
-    {
+    getValidatorInfos() {
         let validatorInfos = {};
         for (let tableName of this.tableNames) {
             let table = this.getTable(tableName);
@@ -157,15 +144,13 @@ class DataScheme
         return validatorInfos;
     }
     
-    hasTable(tableName)
-    {
+    hasTable(tableName) {
         js0.args(arguments, 'string');
 
         return this._tables.has(tableName);
     }
 
-    hasTable_ById(tableId)
-    {
+    hasTable_ById(tableId) {
         js0.args(arguments, 'int');
 
         for (let [ tableName, table ] of this._tables) {
@@ -176,13 +161,11 @@ class DataScheme
         return false;
     }
 
-    hasRequestDef(requestName)
-    {
+    hasRequestDef(requestName) {
         return this._requests.has(requestName);
     }
 
-    ignoreT(tableNames)
-    {   
+    ignoreT(tableNames) {   
         js0.args(arguments, js0.Iterable('string'));
 
         this._ignored_TableNames = tableNames;
@@ -190,8 +173,7 @@ class DataScheme
         return this;
     }  
     
-    validateResponse(response, request)
-    {
+    validateResponse(response, request) {
         if (response === null)
             return;
 
@@ -213,8 +195,7 @@ class DataScheme
         }
     }
 
-    validateResult(request, result)
-    {
+    validateResult(request, result) {
         let requestId = request[0];
         let requestName = request[1];
         let actionName = request[2];
@@ -236,8 +217,7 @@ class DataScheme
         }
     }
 
-    validateRequest(request)
-    {
+    validateRequest(request) {
         let requestId = request[0];
         let requestName = request[1];
         let actionName = request[2];
@@ -260,8 +240,7 @@ class DataScheme
     }
 
 
-    _validateTableId(tableId)
-    {
+    _validateTableId(tableId) {
         for (let [ tableName, table ] of this._tables) {
             if (table.getTableId() === tableId)
                 throw new Error(`Table with id '${tableId}' already exists ('${tableName}')`);

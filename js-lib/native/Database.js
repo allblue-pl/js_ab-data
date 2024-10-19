@@ -18,18 +18,15 @@ const
 class Database
 {
 
-    static EscapeString(str)
-    {
+    static EscapeString(str) {
         return helper.escapeString(str);
     }
 
-    static UnescapeString(str)
-    {
+    static UnescapeString(str) {
         return helper.unescapeString(str);
     }
 
-    static Quote(str)
-    {
+    static Quote(str) {
         return helper.quote(str);
     }
 
@@ -38,58 +35,47 @@ class Database
         return this._initialized;
     }
 
-    constructor()
-    {
+    constructor() {
         this._initialized = true;
         this._lastError = null;
 
         let nad = new abNative.ActionsSetDef()
-            .addNative('GetAffectedRows', {
+            // .addNative('GetAffectedRows', {
 
-            }, {
-                affectedRows: [ 'int', js0.Null ],
-            })
+            // }, {
+            //     affectedRows: [ 'int', js0.Null ],
+            // })
             .addNative('GetTableColumnInfos', {
                 tableName: [ 'string' ],
+                transactionId: [ 'int', js0.Null ],
             }, {
                 columnInfos: js0.Iterable(null),
-                error: [ 'string', js0.Null ],
             })
             .addNative('GetTableNames', {
-
+                transactionId: [ 'int', js0.Null ],
             }, {
                 tableNames: js0.Iterable('string'),
-                error: [ 'string', js0.Null ],
             })
             .addNative('Transaction_Finish', {
                 commit: 'boolean',
                 transactionId: 'int',
-            }, {
-                error: [ 'string', js0.Null ],
-            })
-            .addNative('Transaction_IsAutocommit', {
-             
-            }, {
+            }, null)
+            .addNative('Transaction_IsAutocommit', null, {
                 transactionId: [ 'int', js0.Null ],
-                error: [ 'string', js0.Null ],
             })
-            .addNative('Transaction_Start', {}, {
+            .addNative('Transaction_Start', null, {
                 transactionId: [ 'int', js0.Null ],
-                error: [ 'string', js0.Null ],
             })
             .addNative('Query_Execute', {
                 query: 'string',
                 transactionId: [ js0.Null, 'int', ],
-            }, {
-                error: [ 'string', js0.Null ],
-            })
+            }, null)
             .addNative('Query_Select', {
                 query: 'string',
-                columnTypes: js0.Iterable('string'),
+                columnTypes: js0.Iterable('int'),
                 transactionId: [ js0.Null, 'int', ],
             }, {
                 rows: [ Array, js0.Null ],
-                error: [ 'string', js0.Null ],
             });
         this.nativeActions = abNative.addActionsSet('ABDatabase', nad);
     }
@@ -163,25 +149,27 @@ class Database
     //     return version;
     // }
 
-    async checkInit_Async()
-    {
+    async checkInit_Async() {
         if (!this._initialized)
             throw new Error('Database not initialized.');
     }
 
-    async createDatabaseInfo_Async()
-    {
+    async createDatabaseInfo_Async(transactionId = null) {
+        js0.args(arguments, [ 'int', js0.Null, js0.Default ]);
+        
         await this.checkInit_Async();
 
         let databaseInfo = new DatabaseInfo();
 
-        let tableNames = (await this.nativeActions.callNative_Async('GetTableNames'))
+        let tableNames = (await this.nativeActions.callNative_Async(
+                'GetTableNames', { transactionId: transactionId }))
                 .tableNames;
         for (let tableName of tableNames) {
             let tableInfo = new TableInfo(tableName);
 
             let result = await this.nativeActions.callNative_Async(
                     'GetTableColumnInfos', {
+                transactionId: transactionId,
                 tableName: tableName,
             });
             for (let columnInfo of result.columnInfos) {
@@ -200,8 +188,7 @@ class Database
         return databaseInfo;
     }
 
-    getLastError()
-    {
+    getLastError() {
         return this._lastError;
     }
 
@@ -219,8 +206,7 @@ class Database
     //     this._initialized = true;
     // }
 
-    async transaction_Finish_Async(commit, transactionId)
-    {
+    async transaction_Finish_Async(commit, transactionId) {
         js0.args(arguments, 'boolean', 'int');
 
         if (abData.debug)
@@ -228,27 +214,32 @@ class Database
 
         await this.checkInit_Async();
 
-        let result = await this.nativeActions.callNative_Async(
-                'Transaction_Finish', 
-                { transactionId: transactionId, commit: commit });
-
-        if (result.error !== null)
-            throw new ABDDatabaseError(result.error);
+        try {
+            await this.nativeActions.callNative_Async(
+                    'Transaction_Finish', 
+                    { transactionId: transactionId, commit: commit });
+        } catch (e) {
+            throw new ABDDatabaseError(e);
+        }
     }   
 
-    async transaction_IsAutocommit_Async()
-    {
+    async transaction_IsAutocommit_Async() {
         js0.args(arguments);
 
         await this.checkInit_Async();
 
-        let result = await this.nativeActions.callNative_Async(
-                'Transaction_IsAutocommit', {});
-        return result;
+        let result;
+        try {
+            result = await this.nativeActions.callNative_Async(
+                    'Transaction_IsAutocommit');
+        } catch (e) {
+            throw new ABDDatabaseError(e);
+        }
+
+        return result.transactionId;
     }
 
-    async transaction_Start_Async()
-    {
+    async transaction_Start_Async() {
         js0.args(arguments);
 
         if (abData.debug)
@@ -256,11 +247,13 @@ class Database
 
         await this.checkInit_Async();
 
-        let result = await this.nativeActions.callNative_Async(
-                'Transaction_Start', {});
-
-        if (result.error !== null)
-            throw new ABDDatabaseError(result.error);
+        let result;
+        try {
+            result = await this.nativeActions.callNative_Async(
+                    'Transaction_Start')
+        } catch (e) {
+            throw new ABDDatabaseError(e);
+        }
 
         if (abData.debug)
             console.log('Debug: Transaction Id', result.transactionId);
@@ -283,32 +276,39 @@ class Database
     //     return localTransaction;
     // }
 
-    async query_Execute_Async(query, transactionId = null)
-    {
+    async query_Execute_Async(query, transactionId = null) {
         js0.args(arguments, 'string', [ 'int', js0.Null, js0.Default ]);
 
+        if (abData.debug)
+            console.log('Debug: Query Execute -> ', query, new Error());
+
         await this.checkInit_Async();
 
-        let result = await this.nativeActions.callNative_Async('Query_Execute', 
-                { query: query, transactionId: transactionId, });
-
-        if (result.error !== null)
-            throw new ABDDatabaseError(result.error);
+        try {
+            await this.nativeActions.callNative_Async('Query_Execute', 
+                    { query: query, transactionId: transactionId, });
+        } catch (e) {
+            throw new ABDDatabaseError(e);
+        }
     }   
 
-    async query_Select_Async(query, columnTypes, transactionId = null)
-    {
-        js0.args(arguments, 'string', js0.Iterable('string'), [ 'int', 
+    async query_Select_Async(query, columnTypes, transactionId = null) {
+        js0.args(arguments, 'string', js0.Iterable('int'), [ 'int', 
                 js0.Null, js0.Default ]);
+
+        if (abData.debug)
+            console.log('Debug: Query Execute -> ', query, new Error());
 
         await this.checkInit_Async();
 
-        let result = await this.nativeActions.callNative_Async('Query_Select', 
-                { query: query, columnTypes: columnTypes, 
-                transactionId: transactionId, });
-
-        if (result.rows === null)
-            throw new ABDDatabaseError(result.error);
+        let result;
+        try {
+            result = await this.nativeActions.callNative_Async('Query_Select', 
+                    { query: query, columnTypes: columnTypes, 
+                    transactionId: transactionId, });
+        } catch (e) {
+            throw new ABDDatabaseError(e);
+        }
 
         return result.rows;
     }

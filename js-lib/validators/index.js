@@ -16,38 +16,31 @@ class validators_Class
     get ABDStringValidator() { return require('./ABDStringValidator'); };
 
 
-    Bool(args = {})
-    {
+    Bool(args = {}) {
         return new this.ABDBoolValidator(args);
     }
 
-    Email(args = {})
-    {
+    Email(args = {}) {
         return new this.ABDEmailValidator(args);
     }
 
-    Int(args = {})
-    {
+    Int(args = {}) {
         return new this.ABDIntValidator(args);
     }
 
-    JSON(args = {})
-    {
+    JSON(args = {}) {
         return new this.ABDJSONValidator(args);
     }
 
-    Float(args = {})
-    {
+    Float(args = {}) {
         return new this.ABDFloatValidator(args);
     }
 
-    Long(args = {})
-    {
+    Long(args = {}) {
         return new this.ABDLongValidator(args);
     }
 
-    String(args = {})
-    {
+    String(args = {}) {
         return new this.ABDStringValidator(args);
     }
 

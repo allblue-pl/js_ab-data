@@ -13,20 +13,17 @@ class ABDFieldValidator
     }
 
 
-    constructor(args)
-    {
+    constructor(args) {
         js0.args(arguments, js0.RawObject);
 
         this._args = args;
     }
 
-    getType()
-    {
+    getType() {
         js0.virtual(this);
     }
 
-    validate(validator, fieldName, value)
-    {
+    validate(validator, fieldName, value) {
         js0.args(arguments, require('../Validator'), 'string', null);
 
         if (value === null) {

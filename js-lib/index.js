@@ -69,6 +69,10 @@ class abData_Class
         return require('./RTable');
     }
 
+    get SelectColumnType() {
+        return require('./SelectColumnType');
+    }
+
     get Table() {
         return require('./Table');
     }
@@ -82,21 +86,18 @@ class abData_Class
     }
 
 
-    constructor()
-    {
+    constructor() {
         this._debug = false;
     }
 
-    error(errorTitle, error)
-    {
+    error(errorTitle, error) {
         if (!this.debug)
             return;
 
         console.error(errorTitle, error);
     }
 
-    setDebug(debug)
-    {
+    setDebug(debug) {
         js0.args(arguments, 'boolean');
         this._debug = debug;
     }

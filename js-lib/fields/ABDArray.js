@@ -7,17 +7,14 @@ const
 ;
 
 
-class ABDArray extends ABDField
-{
+class ABDArray extends ABDField {
 
-    constructor(properties)
-    {
+    constructor(properties) {
         super([], properties);
     }
 
     
-    __parse(value)
-    {
+    __parse(value) {
         js0.args(arguments, Array);
 
         return value;

@@ -7,8 +7,7 @@ const
 class FieldInfo
 {
 
-    static GetType_FromField(field)
-    {
+    static GetType_FromField(field) {
         js0.args(arguments, require('./fields/ABDField'));
 
         if (field instanceof require('./fields/ABDAutoIncrementId'))
@@ -48,8 +47,7 @@ class FieldInfo
     }
 
 
-    constructor(name, field, types, key, notNull)
-    {
+    constructor(name, field, types, key, notNull) {
         js0.args(arguments, 'string', [ require('./fields/ABDField'), js0.Null ], 
                 js0.ArrayItems('string'), 'string', 'boolean');
 
@@ -64,8 +62,7 @@ class FieldInfo
         this.notNull = notNull;
     }
 
-    getQuery_Column()
-    {
+    getQuery_Column() {
         let hasDefault = false;
 
         return `${this.name} ${this.types[0]} ` + (this.notNull ? 'NOT NULL' : 'NULL');

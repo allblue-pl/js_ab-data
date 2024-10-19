@@ -7,8 +7,7 @@ const
 export default class Wrapper
 {
 
-    constructor(dataStore, db)
-    {
+    constructor(dataStore, db) {
         js0.args(arguments, require('../DataStore'), require('./Database'));
 
         this.dataStore = dataStore;

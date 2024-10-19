@@ -45,13 +45,11 @@ class fields_Class
     //     return new ABDArray(properties);
     // }
 
-    AutoIncrementId(properties = {})
-    {
+    AutoIncrementId(properties = {}) {
         return new ABDAutoIncrementId(properties);
     }
 
-    Bool(properties = {}) 
-    {
+    Bool(properties = {})  {
         return new ABDBool(properties);
     }
 
@@ -75,28 +73,23 @@ class fields_Class
     //     return new ABDDouble(properties);
     // }
 
-    Float(properties = {})
-    {
+    Float(properties = {}) {
         return new ABDFloat(properties);
     }
 
-    Id(properties = {})
-    {
+    Id(properties = {}) {
         return new ABDId(properties);
     }
 
-    Int(properties = {})
-    {
+    Int(properties = {}) {
         return new ABDInt(properties);
     }
 
-    JSON(properties = {})
-    {
+    JSON(properties = {}) {
         return new ABDJSON(properties);
     }
 
-    Long(properties = {})
-    {
+    Long(properties = {}) {
         return new ABDLong(properties);
     }
 
@@ -105,18 +98,15 @@ class fields_Class
     //     return new ABDObject(properties);
     // }
 
-    String(size, properties = {})
-    {
+    String(size, properties = {}) {
         return new ABDString(size, properties);
     }
 
-    Time(properties = {})
-    {
+    Time(properties = {}) {
         return new ABDTime(properties);
     }
 
-    Text(type, properties = {})
-    {
+    Text(type, properties = {}) {
         return new ABDText(type, properties);
     }
 

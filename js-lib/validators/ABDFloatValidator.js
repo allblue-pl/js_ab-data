@@ -11,8 +11,7 @@ const
 class ABDFloatValidator extends ABDFieldValidator
 {
 
-    constructor(args)
-    {
+    constructor(args) {
         js0.args(arguments, js0.RawObject);
         js0.typeE(args, js0.Preset({
             'notNull': [ 'boolean', js0.Default(true) ],
@@ -24,14 +23,12 @@ class ABDFloatValidator extends ABDFieldValidator
         super(args);
     }
 
-    getType()
-    {
+    getType() {
         return 'Float';
     }
 
 
-    __validate(validator, fieldName, value)
-    {
+    __validate(validator, fieldName, value) {
         if (value === '') {
             if (this.args['required'])
                 this.fieldError(validator, fieldName, abText.$('abData.NotSet'));

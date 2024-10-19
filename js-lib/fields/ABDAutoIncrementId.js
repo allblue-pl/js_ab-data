@@ -5,51 +5,49 @@ const
 
     ABDField = require('./ABDField'),
 
-    ABDIntValidator = require('../validators/ABDIntValidator')
+    ABDIntValidator = require('../validators/ABDIntValidator'),
+    SelectColumnType = require('../SelectColumnType')
 ;
 
 
 class ABDAutoIncrementId extends ABDField
 {
 
-    constructor(properties = {})
-    {
+    constructor(properties = {}) {
         js0.args(arguments, [ js0.RawObject, js0.Default ]);
         super([], properties);
     }
 
-    getType()
-    {
+    getSelectType() {
+        return SelectColumnType.Int;
+    }
+
+    getType() {
         return 'AutoIncrementId';
     }
 
 
-    __getDefaultValue()
-    {
+    __getDefaultValue() {
         return 0;
     }
 
-    __getFieldValidator(fieldValidatorInfo)
-    {
+    __getFieldValidator(fieldValidatorInfo) {
         return new ABDIntValidator(fieldValidatorInfo);
     }
 
-    __escape(value)
-    {
+    __escape(value) {
         js0.args(arguments, 'number');
 
         return String(Math.round(value));
     }
 
-    __parse(value)
-    {
+    __parse(value) {
         js0.args(arguments, 'number');
 
         return Math.round(value);
     }
 
-    __unescape(value)
-    {
+    __unescape(value) {
         js0.args(arguments, null);
             
         return parseInt(value);

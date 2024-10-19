@@ -16,8 +16,7 @@ class RequestProcessor
     }
 
 
-    constructor(dataScheme, device)
-    {
+    constructor(dataScheme, device) {
         js0.args(arguments, require('./scheme/DataScheme'), require('./Device'));
 
         this._scheme = dataScheme;
@@ -66,8 +65,7 @@ class RequestProcessor
     }
 
 
-   _processRequestBatchHelper_Async(processingId, requests, transactionId)
-    {
+   _processRequestBatchHelper_Async(processingId, requests, transactionId) {
         return new Promise((resolve, reject) => {
             if (this._processingQueue[0].processingId === processingId) {
                 this.__processRequestBatch_Async(requests, transactionId)

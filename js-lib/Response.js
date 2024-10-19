@@ -40,8 +40,7 @@ export default class Response
     }
 
 
-    constructor()
-    {
+    constructor() {
         this.actionErrors = {};
         this.type = Response.Types_Success;
         this.errorMessage = null;
@@ -50,8 +49,7 @@ export default class Response
         this.requestIds = [];
     }
 
-    parseRawObject(response)
-    {
+    parseRawObject(response) {
         js0.args(arguments, js0.RawObject);
 
         this.actionErrors = response.actionErrors;

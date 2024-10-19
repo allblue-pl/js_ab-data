@@ -7,8 +7,7 @@ const
 class Validator
 {
 
-    constructor()
-    {
+    constructor() {
         this._info =  {
             'valid': true,
             'fields': {},
@@ -17,15 +16,13 @@ class Validator
         };
     }
 
-    addField(fieldName, fieldValue)
-    {
+    addField(fieldName, fieldValue) {
         js0.args(arguments, 'string', null);
 
         this._fields_Add(fieldName, fieldValue);
     }
 
-    addFieldValidator(fieldName, fieldValidator)
-    {
+    addFieldValidator(fieldName, fieldValidator) {
         js0.args(arguments, 'string', require('./validators/ABDFieldValidator'));
 
         if (!this.hasField(fieldName))
@@ -34,8 +31,7 @@ class Validator
         fieldValidator.validate(this, fieldName, this._info.fields[fieldName].value);
     }
 
-    getFieldInfo(fieldName)
-    {
+    getFieldInfo(fieldName) {
         js0.args(arguments, 'string');
 
         if (!fieldName in this._info['fields'])
@@ -44,21 +40,18 @@ class Validator
         return this._info['fields'][fieldName];
     }
 
-    getInfo()
-    {
+    getInfo() {
         return this._info;
     }
 
-    error(message)
-    {
+    error(message) {
         js0.args(arguments, 'string');
 
         this._info['valid'] = false;
         this._info['errors'].push(message);
     }
 
-    fieldError(fieldName, message)
-    {
+    fieldError(fieldName, message) {
         js0.args(arguments, 'string', 'string');
 
         let field = this._fields_Get(fieldName);
@@ -70,28 +63,24 @@ class Validator
         field['errors'].push(message);
     }
 
-    hasField(fieldName)
-    {
+    hasField(fieldName) {
         js0.args(arguments, 'string');
 
         return fieldName in this._info['fields'];
     }
 
-    isFieldValid(fieldName)
-    {
+    isFieldValid(fieldName) {
         js0.args(arguments, 'string');
 
         return this.getFieldInfo(fieldName).valid;
     }
 
-    isValid()
-    {
+    isValid() {
         return this._info['valid'];
     }
 
 
-    _fields_Add(fieldName, fieldValue)
-    {
+    _fields_Add(fieldName, fieldValue) {
         js0.args(arguments, 'string', null);
 
         this._info['fields'][fieldName] = {
@@ -106,8 +95,7 @@ class Validator
         return this._info['fields'][fieldName];
     }
 
-    _fields_Get(fieldName)
-    {
+    _fields_Get(fieldName) {
         if (!this.hasField(fieldName))
             throw new Error(`Field '${fieldName}' does not exist.`);
 

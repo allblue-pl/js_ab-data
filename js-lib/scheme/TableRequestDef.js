@@ -3,6 +3,7 @@
 const
     js0 = require('js0'),
 
+    fields = require('../fields'),
     RequestDef = require('./RequestDef')
 ;
 
@@ -17,7 +18,9 @@ class TableRequestDef extends RequestDef
 
     static Args_Select() {
         return {
-            columns: [ js0.Iterable('string'), js0.Null, js0.Default(null) ],
+            selectColumns: [ js0.Iterable(js0.PresetArray(
+                    [ 'string', js0.PresetArray([ 'string', fields.ABDField ]) ])), 
+                    js0.Null, js0.Default(null) ],
             where: [ Array, js0.Default([]) ],
             orderBy: [ js0.Iterable(js0.PresetArray([ 'string', 'boolean' ])), 
                     js0.Default([]) ],
@@ -25,19 +28,23 @@ class TableRequestDef extends RequestDef
             limit: [ js0.PresetArray([ js0.Int, js0.Int ]), js0.Null, 
                     js0.Default(null) ],
             join: [ js0.Iterable(js0.Preset({
+                selectColumns: [ js0.Iterable(js0.PresetArray(
+                        [ 'string', js0.PresetArray([ 'string', fields.ABDField ]) ])), 
+                        js0.Null, js0.Default(null) ],
                 type: [ js0.Enum([ 'left', 'inner' ]), js0.Default('left') ],
                 prefix: 'string',
                 table: require('../Table'),
                 on: js0.Iterable(js0.PresetArray([ 'string', 'string' ])),
                 where: [ Array, js0.Default([]) ],
-                columns: [ js0.Iterable('string'), js0.Null, js0.Default(null) ],
+                orderBy: [ js0.Iterable(js0.PresetArray([ 'string', 'boolean' ])), 
+                        js0.Default([]) ],
+                groupBy: [ js0.Iterable('string'), js0.Null, js0.Default(null) ],
                     })), js0.Default([]) ],
         };
     }
 
 
-    constructor()
-    {
+    constructor() {
         super();
         js0.args(arguments);
    

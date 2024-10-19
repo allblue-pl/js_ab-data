@@ -6,6 +6,7 @@ const
     ABDField = require('./ABDField'),
 
     ABDJSONValidator = require('../validators/ABDJSONValidator'),
+    SelectColumnType = require('../SelectColumnType'),
 
     helper = require('../helper')
 ;
@@ -17,40 +18,37 @@ class ABDJSON extends ABDField
         return this._size;
     }
 
-    constructor(properties = {})
-    {
+    constructor(properties = {}) {
         js0.args(arguments, [ js0.RawObject, js0.Default ]);
         super([], properties);
     }
 
-    getType()
-    {
+    getSelectType() {
+        return SelectColumnType.String;
+    }
+
+    getType() {
         return 'String';
     }
 
 
-    __getDefaultValue()
-    {
+    __getDefaultValue() {
         return null;
     }
 
-    __getFieldValidator(fieldValidatorInfo)
-    {
+    __getFieldValidator(fieldValidatorInfo) {
         return new ABDJSONValidator(fieldValidatorInfo);
     }
 
-    __escape(value)
-    {
+    __escape(value) {
         return `'` + helper.escapeString(JSON.stringify({ value: value })) + `'`;
     }
 
-    __parse(value)
-    {
+    __parse(value) {
         return helper.escapeString(JSON.stringify({ value: value }));
     }
 
-    __unescape(value)
-    {
+    __unescape(value) {
         if (value === null)
             return null;
 

@@ -7,8 +7,7 @@ const
 class RequestDef
 {
 
-    static ExtendDef(def, extDef)
-    {
+    static ExtendDef(def, extDef) {
         js0.args(arguments, js0.RawObject, js0.RawObject);
 
         let newDef = {};
@@ -22,20 +21,17 @@ class RequestDef
         return newDef;
     }
 
-    constructor()
-    {
+    constructor() {
         this._actionDefs = {};
     }
 
-    defA(actionName, actionType, argsDef, resultDef)
-    {
+    defA(actionName, actionType, argsDef, resultDef) {
         this.defAction(actionName, actionType, argsDef, resultDef);
 
         return this;
     }
 
-    defAction(actionName, actionType, argsDef, resultDef)
-    {
+    defAction(actionName, actionType, argsDef, resultDef) {
         js0.args(arguments, 'string', js0.Enum([ 'r', 'w' ]), 
                 js0.RawObject, js0.RawObject);
 
@@ -59,13 +55,11 @@ class RequestDef
         return this;
     }
 
-    getADef(actionName)
-    {
+    getADef(actionName) {
         return this.getActionDef(actionName);
     }
 
-    getActionDef(actionName)
-    {
+    getActionDef(actionName) {
         js0.args(arguments, 'string');
 
         if (!(actionName in this._actionDefs))
@@ -74,20 +68,17 @@ class RequestDef
         return this._actionDefs[actionName];
     }
 
-    hasActionDef(actionName)
-    {
+    hasActionDef(actionName) {
         return actionName in this._actionDefs;
     }
 
-    undefA(actionName)
-    {
+    undefA(actionName) {
         this.undefAction(actionName);
 
         return this;
     }
 
-    undefAction(actionName)
-    {
+    undefAction(actionName) {
         js0.args(arguments, 'string');
 
         if (!(actionName in this._actionDefs))

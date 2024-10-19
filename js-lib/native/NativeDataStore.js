@@ -8,6 +8,7 @@ const
     DataStore = require('../DataStore'),
     DatabaseInfo = require('../DatabaseInfo'),
     Response = require('../Response'),
+    SelectColumnType = require('../SelectColumnType'),
 
     Database = require('./Database')
 ;
@@ -15,14 +16,14 @@ const
 class NativeDataStore extends DataStore
 {
 
-    static async GetDeviceInfo_Async(db, transactionId = null)
-    {
+    static async GetDeviceInfo_Async(db, transactionId = null) {
         js0.args(arguments, abData.native.Database, [ 'int', js0.Null, 
                 js0.Default ]);
 
         let rows = await db.query_Select_Async(
                 `SELECT Name, Data FROM _ABData_Settings WHERE Name = 'deviceInfo'`, 
-                [ 'String', 'String' ], transactionId);
+                [ SelectColumnType.String, SelectColumnType.String ], 
+                transactionId);
 
         if (rows.length === 0)
             return null;
@@ -32,15 +33,15 @@ class NativeDataStore extends DataStore
         return deviceInfo;
     }
 
-    static async GetDBSchemeVersion_Async(db, transactionId = null)
-    {
+    static async GetDBSchemeVersion_Async(db, transactionId = null) {
         js0.args(arguments, abData.native.Database, [ 'int', js0.Null,
                 js0.Default ]);
         let version = null;
         try {
             let version_Rows = await db.query_Select_Async(
                     `SELECT Name, Data FROM _ABData_Settings WHERE Name = 'version'`, 
-                    [ 'String', 'String' ], transactionId);
+                    [ SelectColumnType.String, SelectColumnType.String ], 
+                    transactionId);
             if (version_Rows.length !== 0) {
                 try {
                     version = JSON.parse(version_Rows[0][1])['value'];
@@ -67,8 +68,7 @@ class NativeDataStore extends DataStore
         return version;
     }
 
-    static async InitDeviceInfo_Async(db, transactionId = null)
-    {
+    static async InitDeviceInfo_Async(db, transactionId = null) {
         js0.args(arguments, abData.native.Database, [ 'int', js0.Null, 
                 js0.Default ]);
 
@@ -83,8 +83,7 @@ class NativeDataStore extends DataStore
         return deviceInfo;
     }
 
-    static async ResetDeviceLastUpdate_Async(db, transactionId = null)
-    {
+    static async ResetDeviceLastUpdate_Async(db, transactionId = null) {
         js0.args(arguments, abData.native.Database, [ 'int', js0.Null, 
                 js0.Default ]);
 
@@ -110,8 +109,7 @@ class NativeDataStore extends DataStore
     }
 
     static async SetDeviceInfo_Async(db, deviceId, deviceHash, lastItemId, 
-            lastUpdate, declaredItemIds, transactionId = null)
-    {
+            lastUpdate, declaredItemIds, transactionId = null) {
         js0.args(arguments, abData.native.Database, js0.Long, 'string', js0.Long, 
                 [ js0.Long, js0.Null ], Array, [ 'int', js0.Null, js0.Default ]);
 
@@ -148,8 +146,7 @@ class NativeDataStore extends DataStore
             await db.transaction_Finish_Async(true, transactionId);
     }
 
-    static async SetDBSchemeVersion_Async(db, version, transactionId = null)
-    {
+    static async SetDBSchemeVersion_Async(db, version, transactionId = null) {
         js0.args(arguments, abData.native.Database, 'int', [ 'int', js0.Null, 
                 js0.Default ]);
 
@@ -180,8 +177,7 @@ class NativeDataStore extends DataStore
         return version;
     }
 
-    static async UpdateDBScheme_Async(db, scheme, transactionId = null)
-    {
+    static async UpdateDBScheme_Async(db, scheme, transactionId = null) {
         js0.args(arguments, require('./Database'), 
                 require('../scheme/DataScheme'), [ 'int', js0.Null, 
                 js0.Default ]);
@@ -193,7 +189,7 @@ class NativeDataStore extends DataStore
         }
 
         let dbInfo_Scheme = scheme.createDatabaseInfo();
-        let dbInfo_DB = await db.createDatabaseInfo_Async();
+        let dbInfo_DB = await db.createDatabaseInfo_Async(transactionId);
 
         let actions = DatabaseInfo.Compare(scheme, dbInfo_Scheme, dbInfo_DB);
 
@@ -275,8 +271,7 @@ class NativeDataStore extends DataStore
     }
 
 
-    constructor(requestProcessor, apiUri)
-    {
+    constructor(requestProcessor, apiUri) {
         js0.args(arguments, require('../RequestProcessor_Native'), 'string');
 
         super(requestProcessor);
@@ -291,8 +286,7 @@ class NativeDataStore extends DataStore
         this._listeners_OnDBSync = [];
     }
 
-    async addDeviceDeletedRows_Async(rDeviceDeletedRows, transactionId = null)
-    {
+    async addDeviceDeletedRows_Async(rDeviceDeletedRows, transactionId = null) {
         js0.args(arguments, Array, [ 'int', js0.Null ]);
 
         await this._scheme.getTable('_ABData_DeviceDeletedRows').update_Async(
@@ -300,8 +294,7 @@ class NativeDataStore extends DataStore
     }
 
     async addDBRequest_Async(requestName, actionName, actionArgs, 
-            transactionId = null)
-    {
+            transactionId = null) {
         js0.args(arguments, 'string', 'string', js0.RawObject, [ 'int', 
                 js0.Null, js0.Default ]);
 
@@ -314,7 +307,8 @@ class NativeDataStore extends DataStore
         let nextRequestId = 1;
         let nextRequestId_Rows = await this.db.query_Select_Async(
                 `SELECT Name, Data FROM _ABData_Settings WHERE Name = 'nextRequestId'`, 
-                [ 'String', 'String' ], transactionId);
+                [ SelectColumnType.String, SelectColumnType.String ], 
+                transactionId);
         if (nextRequestId_Rows.length !== 0)
             nextRequestId = JSON.parse(nextRequestId_Rows[0][1])['value'];
 
@@ -349,15 +343,13 @@ class NativeDataStore extends DataStore
             await this.db.transaction_Finish_Async(true, transactionId);
     }
 
-    addListener_OnDBSync(listener)
-    {
+    addListener_OnDBSync(listener) {
         js0.args(arguments, 'function');
 
         this._listeners_OnDBSync.push(listener);
     }
 
-    async clearData_Async(transactionId = null)
-    {
+    async clearData_Async(transactionId = null) {
         js0.args(arguments, [ 'int', js0.Null, js0.Default ]);
 
         let localTransaction = false;
@@ -373,24 +365,21 @@ class NativeDataStore extends DataStore
             await this.db.transaction_Finish_Async(true, transactionId);
     }
 
-    async clearDeviceDeletedRows_Async(transactionId = null)
-    {
+    async clearDeviceDeletedRows_Async(transactionId = null) {
         js0.args(arguments, [ 'int', js0.Null, js0.Default ]);
 
         await this._scheme.getTable('_ABData_DeviceDeletedRows').delete_Async(
                 this._db, {}, transactionId);
     }
 
-    async clearDBRequests_Async(transactionId = null)
-    {
+    async clearDBRequests_Async(transactionId = null) {
         js0.args(arguments, [ 'int', js0.Null, js0.Default ]);
 
         await this.scheme.getT('_ABData_DBRequests').delete_Async(this.db, {}, 
                 transactionId);
     }
 
-    async deleteDBRequests_ByIds_Async(requestIds, transactionId = null)
-    {
+    async deleteDBRequests_ByIds_Async(requestIds, transactionId = null) {
         js0.args(arguments, js0.ArrayItems('number'), [ 'int', js0.Null, 
                 js0.Default ]);
 
@@ -399,19 +388,18 @@ class NativeDataStore extends DataStore
                 ` WHERE Id IN (` + requestIds.join(',') + `)`, transactionId);
     }
 
-    async getDeviceDeletedRows_Async(transactionId = null)
-    {
+    async getDeviceDeletedRows_Async(transactionId = null) {
         js0.args(arguments, [ 'int', js0.Null, js0.Default ]);
 
         let rows = await this.db.query_Select_Async(
                 `SELECT TableId, RowId FROM _ABData_DeviceDeletedRows`,
-                [ 'Int', 'Long' ], transactionId);
+                [ SelectColumnType.Int, SelectColumnType.Long ], 
+                transactionId);
 
         return rows;
     }
 
-    async getDeviceInfo_Async(transactionId = null)
-    {
+    async getDeviceInfo_Async(transactionId = null) {
         js0.args(arguments, [ 'int', js0.Null, js0.Default ]);
 
         let tSettings = this.scheme.getTable('_ABData_Settings');
@@ -422,8 +410,7 @@ class NativeDataStore extends DataStore
     }
 
     async getDBRequests_ByType_Async(requestName, actionName, 
-            transactionId = null)
-    {
+            transactionId = null) {
         js0.args(arguments, 'string', 'string', [ 'int', js0.Null, js0.Default ]);
 
         let rows = await this.db.query_Select_Async(
@@ -431,7 +418,9 @@ class NativeDataStore extends DataStore
                 ` FROM _ABData_DBRequests` +
                 ` WHERE RequestName = '${requestName}' AND ActionName = '${actionName}'` +
                 ` ORDER BY Id`,
-                [ 'Long', 'Int', 'String', 'String', 'String' ], transactionId);
+                [ SelectColumnType.Long, SelectColumnType.Int, 
+                SelectColumnType.String, SelectColumnType.String, 
+                SelectColumnType.String ], transactionId);
 
         let rows_Parsed = [];
         for (let row of rows) {
@@ -446,14 +435,15 @@ class NativeDataStore extends DataStore
         return rows_Parsed;
     }
 
-    async getDBRequests_ForSync_Async(transactionId = null)
-    {
+    async getDBRequests_ForSync_Async(transactionId = null) {
         js0.args(arguments, [ 'int', js0.Null, js0.Default ]);
 
         let rows = await this.db.query_Select_Async(
                 `SELECT Id, RequestName, ActionName, ActionArgs, SchemeVersion` +
                 ` FROM _ABData_DBRequests ORDER BY Id`, 
-                [ 'Long', 'String', 'String', 'String', 'Int' ], transactionId);
+                [ SelectColumnType.Long, SelectColumnType.String,
+                SelectColumnType.String, SelectColumnType.String,
+                SelectColumnType.Int ], transactionId);
 
         for (let row of rows)
             row[3] = JSON.parse(row[3]);
@@ -461,8 +451,7 @@ class NativeDataStore extends DataStore
         return rows;
     }
 
-    getRequest(requestName)
-    {
+    getRequest(requestName) {
         js0.args(arguments, 'string');
 
         if (!this.hasRequest(requestName))
@@ -471,16 +460,36 @@ class NativeDataStore extends DataStore
         return this._requests[requestName];
     }
 
-    hasRequest(requestName)
-    {
+    hasRequest(requestName) {
         js0.args(arguments, 'string');
 
         return requestName in this._requests;
     }
 
-    async syncDB_Async(args, clearDataFn, transactionId = null)
-    {
-        js0.args(arguments, js0.RawObject, [ 'function', js0.Null ], [ 'int', js0.Null, js0.Default ]);
+    async notifyDataClear_Async(args, deviceInfo) {
+        js0.args(arguments, js0.RawObject, js0.RawObject);
+        
+        let result = await webABApi.json_Async(this._apiUri + 
+                'notify-data-clear', { 
+            args: args,
+            deviceInfo: {
+                deviceId: deviceInfo.deviceId,
+                deviceHash: deviceInfo.deviceHash,
+                lastUpdate: deviceInfo.lastUpdate,
+                declaredItemIds: deviceInfo.declaredItemIds,
+            },
+            schemeVersion: this.scheme.version,
+        });
+
+        if (!result.isSuccess()) {
+            throw new Error('Cannot send data clear notification: ' + 
+                result.message);
+        }
+    }
+
+    async syncDB_Async(args, clearDataFn, transactionId = null) {
+        js0.args(arguments, js0.RawObject, [ 'function', js0.Null ], 
+                [ 'int', js0.Null, js0.Default ]);
 
         let localTransaction = false;
         if (transactionId === null) {
@@ -526,6 +535,8 @@ class NativeDataStore extends DataStore
 
             response.type = Response.Types_Error;
             response.errorMessage = result.message;
+            if (result.result === webABApi.Result.ErrorResults_CannotParseJSON)
+                response.errorMessage += ' -> ' + result.data.data;
 
             if (localTransaction)
                 await this.db.transaction_Finish_Async(false, transactionId);
@@ -554,7 +565,20 @@ class NativeDataStore extends DataStore
                         'Clear data requested, but clearDataFn not provided.');
             }
             
-            await clearDataFn(transactionId);
+            try {
+                await clearDataFn(transactionId);
+                await this.notifyDataClear_Async(args, deviceInfo);
+            } catch (e) {
+                console.error(e);
+
+                response.type = Response.Types_Error;
+                response.errorMessage = 'Cannot clear data from request -> ' + 
+                        e.message;
+                if (localTransaction)
+                    await this.db.transaction_Finish_Async(false, transactionId);
+
+                return response;
+            }
         }
 
         /* Process Update Data - Deletes */
@@ -629,8 +653,6 @@ class NativeDataStore extends DataStore
                 if (!this.scheme.hasTable(tableName))
                     continue;
 
-                console.log(tableName, result.data.updateData.update[tableName]);
-
                 await this.scheme.getTable(tableName).update_Async(this.db,
                         result.data.updateData.update[tableName], transactionId);
             }
@@ -651,8 +673,6 @@ class NativeDataStore extends DataStore
         /* Get update data from data infos */
         let dataInfos = result.data.dataInfos;
         while (dataInfos.length > 0) {
-            console.log('Test', dataInfos);
-
             let result_DataInfos = await webABApi.json_Async(this._apiUri + 
                     'sync-db_get-update-data', { 
                 args: args,
@@ -688,9 +708,6 @@ class NativeDataStore extends DataStore
                 for (let tableName in result_DataInfos.data.updateData.update) {
                     if (!this.scheme.hasTable(tableName))
                         continue;
-    
-                    console.log(tableName, 
-                            result_DataInfos.data.updateData.update[tableName]);
 
                     await this.scheme.getTable(tableName).update_Async(this.db,
                             result_DataInfos.data.updateData.update[tableName], 
@@ -749,8 +766,7 @@ class NativeDataStore extends DataStore
     }
 
     async updateDBRequest_Async(requestId, requestName, actionName, actionArgs,
-            transactionId = null)
-    {
+            transactionId = null) {
         js0.args(arguments, [ 'number', js0.Null ], 'string', 'string', 
                 js0.RawObject, [ 'int', js0.Null, js0.Default ]);
 
@@ -767,7 +783,7 @@ class NativeDataStore extends DataStore
         }
 
         let rows = await this.db.query_Select_Async('SELECT Id FROM _ABData_DBRequests',
-                [ 'Long' ], transactionId);
+                [ [ SelectColumnType.Long ] ], transactionId);
         if (rows.length === 0)
             throw new Error(`DB Request with id '${requestId}' does not exist.`);
 
@@ -820,8 +836,7 @@ class NativeDataStore extends DataStore
     // }
 
 
-    async _syncDB_GetUpdateData_Async(args, transactionId = null)
-    {
+    async _syncDB_GetUpdateData_Async(args, transactionId = null) {
 
     }
 

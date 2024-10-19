@@ -13,8 +13,7 @@ const
 class RTable extends Table
 {
 
-    constructor(id, name, alias, columns)
-    {   
+    constructor(id, name, alias, columns) {   
         js0.args(arguments, 'int', 'string', 'string', Array);
 
         if (name[0] !== '_') {

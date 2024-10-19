@@ -24,8 +24,7 @@ class TableInfo
     }
 
 
-    constructor(name)
-    {
+    constructor(name) {
         js0.args(arguments, 'string');
 
         this._name = name;
@@ -34,20 +33,17 @@ class TableInfo
         this._primaryKeys = null;
     }
 
-    addFieldInfo(fieldInfo)
-    {
+    addFieldInfo(fieldInfo) {
         js0.args(arguments, require('./FieldInfo'));
 
         this._fieldInfos.push(fieldInfo);
     }
 
-    addIndex(indexName, columns)
-    {
+    addIndex(indexName, columns) {
         throw new Error('Not implemented.');
     }
 
-    getFieldInfo_ByName(fieldName)
-    {
+    getFieldInfo_ByName(fieldName) {
         for (let fieldInfo of this.fieldInfos) {
             if (fieldInfo.name === fieldName)
                 return fieldInfo;
@@ -56,8 +52,7 @@ class TableInfo
         return null;
     }
 
-    getQuery_Create()
-    {
+    getQuery_Create() {
         let query = `CREATE TABLE ${this.name} (`;
         let fields = [];
 
@@ -76,8 +71,7 @@ class TableInfo
         return query;
     }
 
-    setAutoIncrement(columnName)
-    {
+    setAutoIncrement(columnName) {
         js0.args(arguments, [ 'string', js0.Null ]);
 
         this._autoIncrement = columnName;
@@ -86,8 +80,7 @@ class TableInfo
         return this;
     }
 
-    setPKs(pks)
-    {
+    setPKs(pks) {
         js0.args(arguments, [ Array, js0.Null ]);
 
         this._autoIncrement = null;

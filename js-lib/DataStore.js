@@ -15,8 +15,7 @@ class DataStore
         return this._device.lastId;
     }
 
-    get requestProcessor()
-    {
+    get requestProcessor() {
         return this._requestProcessor;
     }
 
@@ -25,21 +24,18 @@ class DataStore
     }
 
 
-    constructor(requestProcessor)
-    {
+    constructor(requestProcessor) {
         js0.args(arguments, require('./RequestProcessor'));
 
         this._requestProcessor = requestProcessor;
         this._scheme = requestProcessor.scheme;
     }
 
-    getT(tableName)
-    {
+    getT(tableName) {
         return this.getTable(tableName);
     }
 
-    getTable(tableName)
-    {
+    getTable(tableName) {
         js0.args(arguments, 'string');
 
         if (!(this._scheme.hasTable(tableName)))
@@ -48,14 +44,12 @@ class DataStore
         return this._scheme.getTable(tableName);
     }
 
-    nextId()
-    {
+    nextId() {
         return this.device.nextId();
     }
 
     async request_Async(requestName, actionName, actionArgs, 
-            transactionId = null)
-    {
+            transactionId = null) {
         js0.args(arguments, 'string', 'string', [ js0.RawObject, js0.Default ],
                 [ 'int', js0.Null, js0.Default ]);
 
@@ -70,13 +64,11 @@ class DataStore
         return result;
     }
 
-    async requestB_Async(requests, transactionId = null)
-    {
+    async requestB_Async(requests, transactionId = null) {
         return await this.requestBatch_Async(requests, transactionId);
     }
 
-    async requestBatch_Async(requests, transactionId = null)
-    {
+    async requestBatch_Async(requests, transactionId = null) {
         js0.args(arguments, js0.ArrayItems(js0.PresetArray([ 'string', 'string', 
                 'string', js0.RawObject ])), [ 'int', js0.Null, js0.Default ]);
 

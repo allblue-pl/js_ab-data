@@ -6,8 +6,7 @@ const ABDField = require('./ABDField');
 class ABDData extends ABDField
 {
 
-    constructor(properties)
-    {
+    constructor(properties) {
         super([], properties);
     }
 

@@ -5,41 +5,40 @@ const
     
     ABDField = require('./ABDField'),
 
-    ABDBoolValidator = require('../validators/ABDBoolValidator')
+    ABDBoolValidator = require('../validators/ABDBoolValidator'),
+    SelectColumnType = require('../SelectColumnType')
 ;
 
 
 class ABDBool extends ABDField
 {
 
-    constructor(properties)
-    {
+    constructor(properties) {
         super([], properties);
     }
 
-    getType()
-    {
+    getSelectType() {
+        return SelectColumnType.Bool;
+    }
+
+    getType() {
         return 'Bool';
     }
 
 
-    __getDefaultValue()
-    {
+    __getDefaultValue() {
         return false;
     }
 
-    __getFieldValidator(fieldValidatorInfo)
-    {
+    __getFieldValidator(fieldValidatorInfo) {
         return new ABDBoolValidator(fieldValidatorInfo);
     }
 
-    __getValidatorType()
-    {
+    __getValidatorType() {
         return 'bool';
     }
 
-    __escape(value)
-    {
+    __escape(value) {
         js0.args(arguments, 'boolean');
 
         if (value)
@@ -48,8 +47,7 @@ class ABDBool extends ABDField
         return '0';
     }
 
-    __parse(value)
-    {
+    __parse(value) {
         js0.args(arguments, 'boolean');
 
         if (value)
@@ -58,8 +56,7 @@ class ABDBool extends ABDField
         return false;
     }
 
-    __unescape(value)
-    {
+    __unescape(value) {
         js0.args(arguments, 'boolean');
 
         return value ? true : false;

@@ -13,8 +13,7 @@ const
 class RequestProcessor_Web extends RequestProcessor
 {
 
-    constructor(dataScheme, device, apiUri)
-    {
+    constructor(dataScheme, device, apiUri) {
         super(dataScheme, device);
         js0.args(arguments, require('./scheme/DataScheme'), require('./Device'),
                 'string');
@@ -22,8 +21,7 @@ class RequestProcessor_Web extends RequestProcessor
         this._apiUri = apiUri;
     }
 
-    async __processRequestBatch_Async(requests, transactionId)
-    {
+    async __processRequestBatch_Async(requests, transactionId) {
         js0.args(arguments, Array, [ js0.Null, js0.Default ]);
 
         let response = new Response();

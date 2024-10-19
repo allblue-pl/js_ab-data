@@ -21,8 +21,7 @@ class ABDObject extends ABDField
         return this._objectStructs;
     }
 
-    constructor(properties = {})
-    {
+    constructor(properties = {}) {
         super([], properties);
 
         this._initialized = false;
@@ -32,13 +31,11 @@ class ABDObject extends ABDField
         this._objectStructs = new js0.List();
     }
 
-    addObjectStruct(objectStructName, objectField)
-    {
+    addObjectStruct(objectStructName, objectField) {
         this._objectStructs.set(objectStructName, objectField);
     }
 
-    initialize(name)
-    {
+    initialize(name) {
         if (this._initialized)
             return;
         this._initialized = true;

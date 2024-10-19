@@ -7,13 +7,11 @@ const
 class Request
 {
 
-    constructor()
-    {
+    constructor() {
         this._actions = {};
     }
 
-    async executeAction_Async(device, actionName, actionArgs, transactionId)
-    {
+    async executeAction_Async(device, actionName, actionArgs, transactionId) {
         js0.args(arguments, require('../Device'), 'string', js0.RawObject,
                 [ 'int', js0.Null ]);
 
@@ -29,13 +27,11 @@ class Request
                 transactionId);
     }
 
-    setA(actionName, actionFn)
-    {
+    setA(actionName, actionFn) {
         this.setAction(actionName, actionFn);
     }
 
-    setAction(actionName, actionFn)
-    {
+    setAction(actionName, actionFn) {
         js0.args(arguments, 'string', 'function');
 
         if (actionName in this._actions)

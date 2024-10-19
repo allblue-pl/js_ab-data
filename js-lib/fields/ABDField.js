@@ -22,8 +22,7 @@ class ABDField
     }
 
 
-    constructor(args, properties)
-    {
+    constructor(args, properties) {
         js0.args(arguments, Array, js0.RawObject);
         js0.typeE(properties, js0.Preset({
             notNull: [ 'boolean', js0.Default(false) ],
@@ -34,13 +33,7 @@ class ABDField
         this._properties = properties;
     }
 
-    getType()
-    {
-        js0.virtual(this);
-    }
-
-    escape(value)
-    {
+    escape(value) {
         js0.args(arguments, null);
 
         if (value === null)
@@ -49,8 +42,7 @@ class ABDField
         return js0.rtn('string', this.__escape(value));
     }
 
-    escapeArray(arr)
-    {
+    escapeArray(arr) {
         js0.args(arguments, Array);
 
         let arr_Escaped = [];
@@ -60,8 +52,7 @@ class ABDField
         return '(' + arr_Escaped.join(',') + ')';
     }
 
-    getFieldValidator(fieldValidatorInfo)
-    {
+    getFieldValidator(fieldValidatorInfo) {
         js0.args(arguments, js0.RawObject);
 
         if (!('notNull' in fieldValidatorInfo))
@@ -71,16 +62,14 @@ class ABDField
                 this.__getFieldValidator(fieldValidatorInfo));
     }
 
-    parse(value)
-    {
+    parse(value) {
         if (value === null)
             return null;
 
         return this.__parse(value);
     }
 
-    unescape(value)
-    {
+    unescape(value) {
         if (value === null)
             return null;
 
@@ -88,11 +77,13 @@ class ABDField
     }
 
 
-    __unescape(value)
-    { 
+    __unescape(value) { 
         return value;
     }
 
+
+    getSelectType() { js0.virtual(this); }
+    // getType() { js0.virtual(this); }
 
     __getDefaultValue() { js0.virtual(this); }
     __getFieldValidator(fieldValidatorInfo) { js0.virtual(this); }

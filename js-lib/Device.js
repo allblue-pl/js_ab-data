@@ -12,8 +12,7 @@ class Device
     }
 
 
-    static GetIdInfo(id)
-    {
+    static GetIdInfo(id) {
         js0.args(arguments, 'number');
 
         let deviceId = Math.floor(id / Device.Devices_Offset);
@@ -47,8 +46,7 @@ class Device
     }
 
 
-    constructor(deviceId, deviceHash, lastUpdate, lastItemId, declaredItemIds = [])
-    {
+    constructor(deviceId, deviceHash, lastUpdate, lastItemId, declaredItemIds = []) {
         js0.args(arguments, js0.Long, 'string', js0.Long, [ js0.Long, js0.Null ],
                 [ Array, js0.Default() ]);
 
@@ -63,8 +61,7 @@ class Device
         this._locks_Next = 0;
     }
 
-    isNewId(id)
-    {
+    isNewId(id) {
         js0.args(arguments, 'number');
 
         let idInfo = Device.GetIdInfo(id);
@@ -78,13 +75,11 @@ class Device
         return false;
     }
 
-    lock()
-    {
+    lock() {
         this._locks.push(this._locks_Next++);
     }
 
-    nextId()
-    {
+    nextId() {
         let nextId = this._id * Device.Devices_Offset + (++this._lastItemId);
         this._itemIds_Declared.push(this._lastItemId);
 
@@ -98,15 +93,13 @@ class Device
     //     this._itemIds_Declared = declaredItemIds;
     // }
 
-    setLastUpdate(lastUpdate)
-    {
+    setLastUpdate(lastUpdate) {
         js0.args(arguments, js0.Long);
 
         this._lastUpdate = lastUpdate;
     }
 
-    unlock(lock)
-    {
+    unlock(lock) {
         js0.args(arguments, 'int');
 
         for (let i = 0; i < this._locks.length; i++) {
@@ -119,8 +112,7 @@ class Device
         throw new Error(`Lock '${lock}' does not exist.`);
     }
 
-    update(lastUpdate, lastItemId)
-    {
+    update(lastUpdate, lastItemId) {
         js0.args(arguments, js0.Long, js0.Long);
 
         this._lastUpdate = lastUpdate;
@@ -128,14 +120,12 @@ class Device
     }
 
     
-    _checkLock()
-    {
+    _checkLock() {
         if (this._locks.length > 0) 
             throw new Error('Device locked.');
     }
 
-    _isNewId_Device(idInfo)
-    {
+    _isNewId_Device(idInfo) {
         if (idInfo['deviceId'] !== this._id)
             return false;
 

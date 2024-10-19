@@ -5,44 +5,43 @@ const
     
     ABDField = require('./ABDField'),
 
-    ABDFloatValidator = require('../validators/ABDFloatValidator')
+    ABDFloatValidator = require('../validators/ABDFloatValidator'),
+    SelectColumnType = require('../SelectColumnType')
 ;
 
 class ABDFloat extends ABDField
 {
 
-    constructor(properties)
-    {
+    constructor(properties) {
         super([], properties);
     }
 
-    getType()
-    {
+    getSelectType() {
+        return SelectColumnType.Float;
+    }
+
+    getType() {
         return 'Float';
     }
 
 
-    __getFieldValidator(fieldValidatorInfo)
-    {
+    __getFieldValidator(fieldValidatorInfo) {
         return new ABDFloatValidator(fieldValidatorInfo);
     }
 
-    __escape(value)
-    {
+    __escape(value) {
         js0.args(arguments, 'number');
 
         return String(value);
     }
 
-    __parse(value)
-    {
+    __parse(value) {
         js0.args(arguments, 'number');
 
         return value;
     }
 
-    __unescape(value)
-    {
+    __unescape(value) {
         return parseFloat(value);
     }
 

@@ -18,18 +18,15 @@ const
 class Database
 {
 
-    static EscapeString(str)
-    {
+    static EscapeString(str) {
         return helper.escapeString(str);
     }
 
-    static UnescapeString(str)
-    {
+    static UnescapeString(str) {
         return helper.unescapeString(str);
     }
 
-    static Quote(str)
-    {
+    static Quote(str) {
         return helper.quote(str);
     }
 
@@ -38,8 +35,7 @@ class Database
         return this._initialized;
     }
 
-    constructor()
-    {
+    constructor() {
         this._initialized = false;
         this._lastError = null;
 
@@ -87,7 +83,7 @@ class Database
             })
             .addNative('Query_Select', {
                 query: 'string',
-                columnTypes: js0.Iterable('string'),
+                columnTypes: js0.Iterable('int'),
                 transactionId: [ js0.Null, 'int', ],
             }, {
                 rows: [ Array, js0.Null ],
@@ -165,14 +161,14 @@ class Database
     //     return version;
     // }
 
-    async checkInit_Async()
-    {
+    async checkInit_Async() {
         if (!this._initialized)
             throw new Error('Database not initialized.');
     }
 
-    async createDatabaseInfo_Async()
-    {
+    async createDatabaseInfo_Async(transactionId = null) {
+        js0.args(arguments, [ 'int', js0.Null, js0.Default(null) ]);
+
         await this.checkInit_Async();
 
         let databaseInfo = new DatabaseInfo();
@@ -202,13 +198,11 @@ class Database
         return databaseInfo;
     }
 
-    getLastError()
-    {
+    getLastError() {
         return this._lastError;
     }
 
-    async init_Async()
-    {
+    async init_Async() {
         if (this._initialized)
             throw new Error('Database already initialized.');
 
@@ -221,8 +215,7 @@ class Database
         this._initialized = true;
     }
 
-    async transaction_Finish_Async(commit)
-    {
+    async transaction_Finish_Async(commit) {
         js0.args(arguments, 'boolean');
 
         await this.checkInit_Async();
@@ -237,8 +230,7 @@ class Database
             throw new ABDDatabaseError(result.error);
     }   
 
-    async transaction_IsAutocommit_Async()
-    {
+    async transaction_IsAutocommit_Async() {
         await this.checkInit_Async();
 
         let result = await this.nativeActions.callNative_Async(
@@ -246,8 +238,7 @@ class Database
         return result.result;
     }
 
-    async transaction_Start_Async()
-    {
+    async transaction_Start_Async() {
         await this.checkInit_Async();
 
         let result = await this.nativeActions.callNative_Async(
@@ -259,8 +250,7 @@ class Database
         this._transaction_CurrentId = result.transactionId;
     }   
 
-    async transaction_StartLocal_Async()
-    {
+    async transaction_StartLocal_Async() {
         await this.checkInit_Async();
 
         let localTransaction = false;
@@ -274,8 +264,7 @@ class Database
         return localTransaction;
     }
 
-    async query_Execute_Async(query)
-    {
+    async query_Execute_Async(query) {
         await this.checkInit_Async();
 
         let result = await this.nativeActions.callNative_Async('Query_Execute', 
@@ -285,8 +274,7 @@ class Database
             throw new ABDDatabaseError(result.error);
     }   
 
-    async query_Select_Async(query, columnTypes)
-    {
+    async query_Select_Async(query, columnTypes) {
         await this.checkInit_Async();
 
         let result = await this.nativeActions.callNative_Async('Query_Select', 

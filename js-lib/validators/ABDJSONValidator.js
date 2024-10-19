@@ -11,9 +11,8 @@ const
 class ABDJSONValidator extends ABDFieldValidator
 {
 
-    constructor(args)
-    {
-        js0.args(arguments, args);
+    constructor(args) {
+        js0.args(arguments, js0.RawObject);
         js0.typeE(args, js0.Preset({
             'notNull': [ 'boolean', js0.Default(true) ],
         }));
@@ -21,14 +20,12 @@ class ABDJSONValidator extends ABDFieldValidator
         super(args);
     }
 
-    getType()
-    {
+    getType() {
         return 'JSON';
     }
 
 
-    __validate(validator, fieldName, value)
-    {
+    __validate(validator, fieldName, value) {
         
     }
 
