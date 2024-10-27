@@ -39,11 +39,11 @@ class RequestDef
         resultDef._message = 'string';
 
         // if (actionType === 'w') {
-            if (!('success' in resultDef))
-                throw new Error(`No 'success' in action result definition.`);
+            // if (!('success' in resultDef))
+            //     throw new Error(`No 'success' in action result definition.`);
 
-            if (resultDef.success !== 'boolean')
-                throw new Error(`'success' part in action result must be a 'boolean'.`);
+            // if (resultDef.success !== 'boolean')
+            //     throw new Error(`'success' part in action result must be a 'boolean'.`);
         // }
 
         this._actionDefs[actionName] = {

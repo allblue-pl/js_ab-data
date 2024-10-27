@@ -1,7 +1,9 @@
 'use strict';
 
 const
-    js0 = require('js0')
+    js0 = require('js0'),
+
+    Response = require('./Response')
 ;
 
 class DataStore
@@ -53,15 +55,28 @@ class DataStore
         js0.args(arguments, 'string', 'string', [ js0.RawObject, js0.Default ],
                 [ 'int', js0.Null, js0.Default ]);
 
-        this.scheme.validateRequest([ 'request', requestName, actionName, 
-                actionArgs ]);
+        try {
+            this.scheme.validateRequest([ 'request', requestName, actionName, 
+                    actionArgs ]);
+        } catch (err) {
+            return {
+                actionErrors: {
+                    request: err.toString(),
+                },
+                errorMessage: `Action '${requestName}:${actionName}' error.`,
+                info: {},
+                requestIds: [],
+                results: {},
+                type: Response.Types_ActionError,
+            };
+        }
 
-        let result = await this._requestProcessor.processRequest_Async(
+        let response = await this._requestProcessor.processRequest_Async(
                 requestName, actionName, actionArgs, transactionId);
 
         // this._validateResults([ result ]);
 
-        return result;
+        return response;
     }
 
     async requestB_Async(requests, transactionId = null) {
@@ -72,8 +87,22 @@ class DataStore
         js0.args(arguments, js0.ArrayItems(js0.PresetArray([ 'string', 'string', 
                 'string', js0.RawObject ])), [ 'int', js0.Null, js0.Default ]);
 
-        for (let request of requests)
-            this.scheme.validateRequest(request)
+        for (let request of requests) {
+            try {
+                this.scheme.validateRequest(request)
+            } catch(err) {
+                return {
+                    actionErrors: {
+                        [request[0]]: err.toString(),
+                    },
+                    errorMessage: `Action '${request[0]}:${request[1]}' error.`,
+                    info: {},
+                    requestIds: [],
+                    results: {},
+                    type: Response.Types_ActionError,
+                };
+            }
+        }
 
         let response = await this._requestProcessor.processRequestBatch_Async(
                 requests, transactionId);
