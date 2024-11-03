@@ -18,6 +18,7 @@ class TableRequestDef extends RequestDef
 
     static Args_Select() {
         return {
+            assoc: [ 'boolean', js0.Default(true) ],
             selectColumns: [ js0.Iterable(js0.PresetArray(
                     [ 'string', js0.PresetArray([ 'string', fields.ABDField ]) ])), 
                     js0.Null, js0.Default(null) ],

@@ -36,7 +36,7 @@ class ABDTime extends ABDField {
     __escape(value) {
         js0.args(arguments, 'number');
 
-        return String(value);
+        return String(this.__parse(value));
     }
 
     __parse(value) {

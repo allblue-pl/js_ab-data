@@ -38,7 +38,7 @@ class ABDInt extends ABDField
     __escape(value) {
         js0.args(arguments, 'number');
 
-        return String(Math.round(value));
+        return String(this.__parse(value));
     }
 
     __parse(value) {

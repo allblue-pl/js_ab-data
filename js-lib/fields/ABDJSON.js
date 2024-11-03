@@ -24,11 +24,11 @@ class ABDJSON extends ABDField
     }
 
     getSelectType() {
-        return SelectColumnType.String;
+        return SelectColumnType.JSON;
     }
 
     getType() {
-        return 'String';
+        return 'JSON';
     }
 
 
@@ -41,18 +41,21 @@ class ABDJSON extends ABDField
     }
 
     __escape(value) {
-        return `'` + helper.escapeString(JSON.stringify({ value: value })) + `'`;
+        js0.args(arguments, js0.RawObject);
+
+        return `'` + this.__parse(value) + `'`;
     }
 
     __parse(value) {
-        return helper.escapeString(JSON.stringify({ value: value }));
+        js0.args(arguments, js0.RawObject);
+
+        let jsonValue = value.value;
+
+        return helper.escapeString(JSON.stringify({ value: jsonValue, }));
     }
 
     __unescape(value) {
-        if (value === null)
-            return null;
-
-        return JSON.parse(helper.unescapeString(value)).value;
+        return value;
     }
 
 }

@@ -41,7 +41,7 @@ class ABDBool extends ABDField
     __escape(value) {
         js0.args(arguments, 'boolean');
 
-        if (value)
+        if (this.__parse(value))
             return '1';
 
         return '0';

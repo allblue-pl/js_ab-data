@@ -49,7 +49,7 @@ class ABDString extends ABDField
     __escape(value) {
         js0.args(arguments, 'string');
 
-        return `'` + helper.escapeString(value) + `'`;
+        return `'` + this.__parse(value) + `'`;
     }
 
     __parse(value) {

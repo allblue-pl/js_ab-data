@@ -26,7 +26,12 @@ class ABDJSONValidator extends ABDFieldValidator
 
 
     __validate(validator, fieldName, value) {
-        
+        if (!js0.typeE(value, js0.Preset({
+            value: null,
+                }))) {
+            validator.fieldError(fieldName, abText.$(
+                    'abData.Errors_WrongJSONFieldFormat'));
+        }
     }
 
 }

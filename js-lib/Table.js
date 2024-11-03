@@ -245,16 +245,28 @@ class Table
 
         let rows = [];
         for (let result_Row of rows_DB) {
-            let row = {};
-            for (let i = 0; i < args.selectColumns.size; i++) {
-                row[args.selectColumns.getKeyAt(i)] = 
-                        args.selectColumns.getAt(i)[1].unescape(result_Row[i]);
+            let row = null;
+            if (args.assoc) {
+                row = {};
+                for (let i = 0; i < args.selectColumns.size; i++) {
+                    row[args.selectColumns.getKeyAt(i)] = 
+                            args.selectColumns.getAt(i)[1].unescape(result_Row[i]);
+                }
+            } else {
+                row = [];
+                for (let i = 0; i < args.selectColumns.size; i++) {
+                    row.push(args.selectColumns.getAt(i)[1].unescape(
+                            result_Row[i]));
+                }
             }
+
             rows.push(row);
         }
 
-        if (args.join.length > 0)
-            rows = await this._join_Async(db, rows, args.join, transactionId);
+        if (args.join.length > 0) {
+            rows = await this._join_Async(db, rows, args.join, args.assoc, 
+                transactionId);
+        }
 
         return rows;
     }
@@ -360,12 +372,15 @@ class Table
             let rows = rows_All.slice(i, Math.min(i + 100, rows_All.length));
 
             let rows_WithNullPKs = [];
+            let rows_WithNullPKs_Indexes = [];
             let rows_WithPKs = [];
+            let rows_WithPKs_Indexes = [];
 
             for (let i = 0; i < rows.length; i++) {
                 let row = rows[i];
 
                 if (Object.keys(columns).length !== Object.keys(row).length) {
+                    console.error(rows);
                     throw new Error(`Wrong columns number in row ${i}` +
                             ` (inconsistency with first row).`);
                 }
@@ -385,10 +400,13 @@ class Table
                     }
                 }
 
-                if (isNew)
+                if (isNew) {
                     rows_WithNullPKs.push(row);
-                else
+                    rows_WithNullPKs_Indexes.push(i);
+                } else {
                     rows_WithPKs.push(row);
+                    rows_WithPKs_Indexes.push(i);
+                }
             }
 
             let rows_PKs_ToCheck = [];
@@ -400,12 +418,15 @@ class Table
             }
 
             let rows_Insert = [];
+            let rows_Insert_Indexes = [];
             let rows_Update = [];
+            let rows_Update_Indexes = [];
 
             let rows_Existing = pks_Included ? await this.select_ByPKs_Async(db,
                     rows_PKs_ToCheck, {}, transactionId) : [];
 
-            for (let row_WithPKs of rows_WithPKs) {
+            for (let i = 0; i < rows_WithPKs.length; i++) {
+                let row_WithPKs = rows_WithPKs[i];
                 let match = false;
                 for (let row_Existing of rows_Existing) {
                     match = true;
@@ -421,14 +442,20 @@ class Table
                         break;
                 }
 
-                if (match)
+                if (match) {
                     rows_Update.push(row_WithPKs);
-                else
+                    rows_Update_Indexes.push(rows_WithPKs_Indexes[i]);
+                } else {
                     rows_Insert.push(row_WithPKs);
+                    rows_Insert_Indexes.push(rows_WithPKs_Indexes[i]);
+                }
             }
 
-            for (let row_WithNullPKs of rows_WithNullPKs)
+            for (let i = 0; i < rows_WithNullPKs.length; i++) {
+                let row_WithNullPKs = rows_WithNullPKs[i];
                 rows_Insert.push(row_WithNullPKs);
+                rows_Insert_Indexes.push(rows_WithNullPKs[i]);
+            }
 
             /* DB */
             let tableName_DB = helper.quote(this.name);
@@ -442,26 +469,43 @@ class Table
 
                     let columnName_DB = helper.quote(columnName);
                     let update_ColumnQuery = `${columnName_DB}=(CASE`;
-                    for (let row of rows_Update) {
+                    for (let i = 0; i < rows_Update.length; i++) {
+                        let row = rows_Update[i];
                         update_ColumnQuery += " WHEN ";
                         let pks_Match_Arr = [];
-                        for (let pk of pks) {
-                            pks_Match_Arr.push(helper.quote(pk) + '=' + 
-                                    columns[pk].field.escape(row[pk]));
+                        try {
+                            for (let pk of pks) {
+                                pks_Match_Arr.push(helper.quote(pk) + '=' + 
+                                        columns[pk].field.escape(row[pk]));
+                            }
+                            update_ColumnQuery += '(' + pks_Match_Arr.join(' AND ') + ')';
+                            update_ColumnQuery += ' THEN ' +  
+                                    columns[columnName].field.escape(row[columnName]);
+                        } catch (e) {
+                            console.error(e);
+                            throw new Error('Error thrown parsing column' +
+                                 ` '${columnName}' in row '${rows_Update_Indexes[i]}' -> ` + 
+                                 e.toString());
                         }
-                        update_ColumnQuery += '(' + pks_Match_Arr.join(' AND ') + ')';
-                        update_ColumnQuery += ' THEN ' +  columns[columnName].field.escape(row[columnName]);
                     }
                     update_ColumnQuery += ' END)';
                     update_ColumnQueries_Arr.push(update_ColumnQuery);
                 }
 
                 let update_Where_Arr = [];
-                for (let row of rows_Update) {
+                for (let i = 0; i < rows_Update.length; i++) {
+                    let row = rows_Update[i];
                     let pks_Match_Arr = [];
                     for (let pk of pks) {
-                        pks_Match_Arr.push(helper.quote(pk) + '=' + 
-                                columns[pk].field.escape(row[pk]));
+                        try {
+                            pks_Match_Arr.push(helper.quote(pk) + '=' + 
+                                    columns[pk].field.escape(row[pk]));
+                        } catch (e) {
+                            console.error(e);
+                            throw new Error('Error thrown parsing column' +
+                                ` '${pk}' in row '${rows_Update_Indexes[i]}' -> ` + 
+                                e.toString());
+                        }
                     }
                     update_Where_Arr.push('(' + pks_Match_Arr.join(' AND ') + ')');
                 }
@@ -476,7 +520,8 @@ class Table
             /* Insert */
             if (rows_Insert.length > 0) {
                 let valuesArr_DB = [];
-                for (let row of rows_Insert) {
+                for (let i = 0; i < rows_Insert.length; i++) {
+                    let row = rows_Insert[i];
                     let row_DB = [];
                     for (let columnName in columns) {
                         let column = columns[columnName];
@@ -484,8 +529,9 @@ class Table
                             row_DB.push(column.field.escape(row[columnName]));
                         } catch (e) {
                             console.error(e);
-                            throw new Error(`Cannot escape value for column` +
-                                    ` '${columnName}'.`);
+                            throw new Error('Error thrown parsing column' +
+                                ` '${columnName}' in row '${rows_Insert_Indexes[i]}' -> ` + 
+                                e.toString());
                         }
                         
                     }
@@ -659,10 +705,17 @@ class Table
 
                     sign = '';
                 } else {
-                    if (js0.type(value, Array))
-                        value_DB = ' ' + columnField.escapeArray(value);
-                    else
-                        value_DB = ' ' + columnField.escape(value);
+                    try {
+                        if (js0.type(value, Array))
+                            value_DB = ' ' + columnField.escapeArray(value);
+                        else
+                            value_DB = ' ' + columnField.escape(value);
+                    } catch (e) {
+                        console.error('Cannot parse query condition:', 
+                            columnValues);
+                        throw Error('Cannot parse query condition -> ' + 
+                                e.toString());
+                    }
                 }
             }
 
@@ -695,9 +748,10 @@ class Table
         throw new Error('Wrong condition format.');
     }
 
-    async _join_Async(db, rows, joinArgs, transactionId) {
+    async _join_Async(db, rows, joinArgs, assoc, transactionId) {
         js0.args(arguments, require('../native/Database'), Array, 
-                TableRequestDef.Args_Select().join, [ 'int', js0.Null ]);
+                TableRequestDef.Args_Select().join, 'boolean', 
+                [ 'int', js0.Null ]);
 
         let rows_Joined = [];
         for (let row of rows)
@@ -752,8 +806,12 @@ class Table
                 on_ColValues[on[0]] = [];
 
             for (let row of rows) {
-                for (let on of join.on)
-                    on_ColValues[on[0]].push(row[on[1]]);
+                for (let on of join.on) {
+                    if (assoc)
+                        on_ColValues[on[0]].push(row[on[1]]);
+                    else
+                        on_ColValues[on[0]].push(row[this.getColumnIndex(on[1])]);
+                }
             }
 
             let where = [ join.where ];
@@ -766,6 +824,7 @@ class Table
             }
 
             let join_Rows = await table.select_Async(db, {
+                assoc: assoc,
                 selectColumns: join.selectColumns, 
                 where: where,
                 orderBy: join.orderBy,
@@ -780,9 +839,17 @@ class Table
                 for (let join_Row of join_Rows) {
                     let joinFound = true;
                     for (let on of join.on) {
-                        if (row[on[1]] !== join_Row[on[0]]) {
-                            joinFound = false;
-                            break;
+                        if (assoc) {
+                            if (row[on[1]] !== join_Row[on[0]]) {
+                                joinFound = false;
+                                break;
+                            }
+                        } else {
+                            if (row[this.getColumnIndex(on[1])] !== 
+                                    join_Row[table.getColumnIndex(on[0])]) {
+                                joinFound = false;
+                                break;
+                            }
                         }
                     }
 
@@ -798,8 +865,13 @@ class Table
                 rows_Joined_New.push(row);
 
                 for (let columnName of join.selectColumns.getKeys()) {
-                    row[join['prefix'] + columnName] = join_Row_Matched === null ?
-                            null : join_Row_Matched[columnName];
+                    if (assoc) {
+                        row[join['prefix'] + columnName] = join_Row_Matched === null ?
+                                null : join_Row_Matched[columnName];
+                    } else
+                        row.push(join_Row_Matched === null ?
+                                null : join_Row_Matched[
+                                table.getColumnIndex(columnName)]);
                 }
             }
 
