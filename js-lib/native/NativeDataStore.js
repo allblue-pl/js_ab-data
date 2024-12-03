@@ -49,10 +49,8 @@ class NativeDataStore extends DataStore
                     if (abData.debug)
                         console.log(GetDBSchemeVersion, e);
                     
-                    if (e.name === 'SyntaxError') {
-                        console.error("Cannot parse DB scheme version.");
-                        return -1;
-                    }
+                    if (e.name === 'SyntaxError')
+                        throw new Error("Cannot parse DB scheme version.");
                 }
             }
         } catch (e) {
@@ -60,7 +58,7 @@ class NativeDataStore extends DataStore
                 console.log('GetDBSchemeVersion', e);
 
             if (e instanceof require('./ABDDatabaseError')) {
-                return -1
+                return -1;
             } else 
                 throw e;
         }

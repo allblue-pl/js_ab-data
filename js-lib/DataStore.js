@@ -3,6 +3,7 @@
 const
     js0 = require('js0'),
 
+    abData = require('.'),
     Response = require('./Response')
 ;
 
@@ -59,6 +60,9 @@ class DataStore
             this.scheme.validateRequest([ 'request', requestName, actionName, 
                     actionArgs ]);
         } catch (err) {
+            if (abData.debug)
+                console.error(err);
+
             return {
                 actionErrors: {
                     request: err.toString(),
