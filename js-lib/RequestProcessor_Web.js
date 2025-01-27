@@ -55,7 +55,11 @@ class RequestProcessor_Web extends RequestProcessor
         response.parseRawObject(result.data.response);
 
         for (let request of requests) {
+            if (!(request[0] in response.results))
+                continue;
             let result = response.results[request[0]];
+            if (result === null)
+                continue;
             if (result._type > 0)
                 continue;
 

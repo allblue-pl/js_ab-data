@@ -761,6 +761,14 @@ class Table
             let join = joinArgs[joinIndex];
             let table = join.table;
 
+            if (join.selectColumns === null) {
+                join.selectColumns = new js0.List();
+                for (let columnName of table.getColumnNames()) {
+                    join.selectColumns.set(columnName, 
+                            table.getSelectColumnInfo(columnName));
+                }
+            }
+
             for (let on of join.on) {
                 if (!this.hasColumn(on[1])) {
                     /* Check joined tables for column. */
@@ -782,17 +790,17 @@ class Table
                     }
                 }
 
-                if (!table.hasColumn(on[0])) {
-                    throw new Error(`Join column '${on[0]}' from join table ` +
-                            `'${table.getTableName()}' does not exist.`);
+                let joinTableHasColumn = false;
+                for (let selectColumn of join.selectColumns) {
+                    if (selectColumn[0] === on[0]) {
+                        joinTableHasColumn = true;
+                        break;
+                    }
                 }
-            }
 
-            if (join.selectColumns === null) {
-                join.selectColumns = new js0.List();
-                for (let columnName of table.getColumnNames()) {
-                    join.selectColumns.set(columnName, 
-                            table.getSelectColumnInfo(columnName));
+                if (!joinTableHasColumn) {
+                    throw new Error(`Join column '${on[0]}' from join table ` +
+                            `'${table.getTableName()}' does not exist in 'selectColumns'.`);
                 }
             }
 

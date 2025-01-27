@@ -3,7 +3,7 @@
 const
     js0 = require('js0'),
 
-    fields = require('../fields'),
+    ABDField = require('../fields/ABDField'),
     RequestDef = require('./RequestDef')
 ;
 
@@ -20,7 +20,7 @@ class TableRequestDef extends RequestDef
         return {
             assoc: [ 'boolean', js0.Default(true) ],
             selectColumns: [ js0.Iterable(js0.PresetArray(
-                    [ 'string', js0.PresetArray([ 'string', fields.ABDField ]) ])), 
+                    [ 'string', js0.PresetArray([ 'string', ABDField ]) ])), 
                     js0.Null, js0.Default(null) ],
             where: [ Array, js0.Default([]) ],
             orderBy: [ js0.Iterable(js0.PresetArray([ 'string', 'boolean' ])), 
@@ -30,7 +30,7 @@ class TableRequestDef extends RequestDef
                     js0.Default(null) ],
             join: [ js0.Iterable(js0.Preset({
                 selectColumns: [ js0.Iterable(js0.PresetArray(
-                        [ 'string', js0.PresetArray([ 'string', fields.ABDField ]) ])), 
+                        [ 'string', js0.PresetArray([ 'string', ABDField ]) ])), 
                         js0.Null, js0.Default(null) ],
                 type: [ js0.Enum([ 'left', 'inner' ]), js0.Default('left') ],
                 prefix: 'string',
