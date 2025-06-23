@@ -20,8 +20,7 @@ const
 ;
 
 
-class fields_Class
-{
+class fields_Class {
 
     // get ABDArray() { return ABDArray; };
     get ABDAutoIncrementId() { return ABDAutoIncrementId; };

@@ -4,8 +4,7 @@ const
     js0 = require('js0')
 ;
 
-export default class Response
-{
+export default class Response {
 
     static get ResultTypes_Success() {
         return 0;

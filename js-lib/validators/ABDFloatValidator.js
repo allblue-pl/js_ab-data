@@ -8,8 +8,7 @@ const
     ABDFieldValidator = require('./ABDFieldValidator')
 ;
 
-class ABDFloatValidator extends ABDFieldValidator
-{
+class ABDFloatValidator extends ABDFieldValidator {
 
     constructor(args) {
         js0.args(arguments, js0.RawObject);

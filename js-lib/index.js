@@ -6,8 +6,7 @@ const
     DatabaseInfo = require('./DatabaseInfo')
 ;
 
-class abData_Class
-{
+class abData_Class {
 
     get debug() {
         return this._debug

@@ -15,8 +15,7 @@ const
     ABDDatabaseError = require('./ABDDatabaseError')
 ;
 
-class Database
-{
+class Database {
 
     static EscapeString(str) {
         return helper.escapeString(str);

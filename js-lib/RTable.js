@@ -10,8 +10,7 @@ const
     TableRequestDef = require('./scheme/TableRequestDef')
 ;
 
-class RTable extends Table
-{
+class RTable extends Table {
 
     constructor(id, name, alias, columns) {   
         js0.args(arguments, 'int', 'string', 'string', Array);

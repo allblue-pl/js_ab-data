@@ -4,8 +4,7 @@ const
     js0 = require('js0')
 ;
 
-class Request
-{
+class Request {
 
     constructor() {
         this._actions = {};

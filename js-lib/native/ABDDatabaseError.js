@@ -1,7 +1,6 @@
 'use strict';
 
-class ABDDatabaseError extends Error
-{
+class ABDDatabaseError extends Error {
     constructor(message) {
         super(message);
 

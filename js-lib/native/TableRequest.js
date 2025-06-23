@@ -9,8 +9,7 @@ const
     Request = require('./Request')
 ;
 
-class TableRequest extends Request
-{
+class TableRequest extends Request {
 
     static async Delete_Async(device, db, table, args, transactionId = null) {
         js0.args(arguments, require('./NativeDevice'), require('./Database'), 

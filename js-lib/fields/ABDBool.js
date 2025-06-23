@@ -10,8 +10,7 @@ const
 ;
 
 
-class ABDBool extends ABDField
-{
+class ABDBool extends ABDField {
 
     constructor(properties) {
         super([], properties);

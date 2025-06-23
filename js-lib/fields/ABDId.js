@@ -9,8 +9,7 @@ const
     SelectColumnType = require('../SelectColumnType')
 ;
 
-class ABDId extends ABDField
-{
+class ABDId extends ABDField {
 
     constructor(properties = {}) {
         js0.args(arguments, [ js0.RawObject, js0.Default ]);

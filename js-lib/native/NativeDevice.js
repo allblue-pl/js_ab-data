@@ -6,8 +6,7 @@ const
     Device = require('../Device')
 ;
 
-class NativeDevice extends Device
-{
+class NativeDevice extends Device {
 
     constructor(deviceId, deviceHash, lastUpdate, lastItemId, declaredItemIds = []) {
         super(deviceId, deviceHash, lastUpdate, lastItemId, declaredItemIds);

@@ -5,8 +5,7 @@ const
     js0 = require('js0')
 ;
 
-class ABDFieldValidator
-{
+class ABDFieldValidator {
 
     get args() {
         return this._args;

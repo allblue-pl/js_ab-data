@@ -8,14 +8,15 @@ const
     TableInfo = require('./TableInfo')
 ;
 
-class DatabaseInfo
-{
+class DatabaseInfo {
 
     static Compare(scheme, dbInfo_Scheme, dbInfo_DB) {
         js0.args(arguments, require('./scheme/DataScheme'), DatabaseInfo,
                 DatabaseInfo);
 
-        let ignored_TableNames = scheme.getIgnored_TableNames();
+        let ignored_TableNames_LC = scheme.getIgnored_TableNames();
+        for (let i = 0; i < ignored_TableNames_LC.length; i++)
+            ignored_TableNames_LC[i] = ignored_TableNames_LC[i].toLowerCase();
 
         let actions = {
             tables: {
@@ -26,7 +27,7 @@ class DatabaseInfo
         };
 
         for (let tableInfo_DB of dbInfo_DB.tableInfos) {
-            if (ignored_TableNames.includes(tableInfo_DB.name))
+            if (ignored_TableNames_LC.includes(tableInfo_DB.name))
                 continue;
 
             let tableInfo_Scheme = dbInfo_Scheme.getTableInfo_ByName(tableInfo_DB.name);
@@ -43,7 +44,7 @@ class DatabaseInfo
                 continue;
             }
 
-            if (ignored_TableNames.includes(tableInfo_DB.name))
+            if (ignored_TableNames_LC.includes(tableInfo_DB.name))
                 continue;
 
             let actions_Alter = DatabaseInfo.Compare_Tables(tableInfo_DB, 

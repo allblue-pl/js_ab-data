@@ -9,8 +9,18 @@ const
     TableRequestDef = require('./scheme/TableRequestDef')
 ;
 
-class Table
-{
+let insertsTime = 0;
+let insertsCount = 0;
+
+class Table {
+
+    static get MaxUpdateRows() {
+        return 100;
+    }
+
+    static get MaxInsertRows() {
+        return 10000;
+    }
 
     get alias() {
         return this._alias;
@@ -116,6 +126,20 @@ class Table
         // return columnNames;
     }
 
+    getColumnValidators(columnName) {
+        js0.args(arguments, 'string');
+
+        let column = this.getColumn(columnName);
+        let validators = [ column.fieldValidator ];
+        if (!(columnName in this._columnValidators))
+            return validators;
+
+        for (let columnValidator of this._columnValidators(columnName))
+            validators.push(columnValidator);
+
+        return validators;
+    }
+
     getSelectColumnInfo(columnName) {
         js0.args(arguments, 'string');
 
@@ -177,6 +201,26 @@ class Table
         return this._columns.has(columnName);
     }
 
+    async insert_Async(db, rows, transactionId = null, 
+            ignoreNotExistingColumns = false, orReplace = false) {
+        js0.args(arguments, require('./native/Database'), js0.ArrayItems(
+                js0.RawObject), [ 'int', js0.Null, js0.Default ], [ 'boolean', 
+                js0.Default ], [ 'boolean', js0.Default ]);
+
+        return await this._insert_Base_Async(db, rows, null, null, 
+            transactionId, ignoreNotExistingColumns, orReplace)
+    }
+
+    async insert_NoAssoc_Async(db, rows, columnNames, transactionId = null, 
+            ignoreNotExistingColumns = false, orReplace = false) {
+        js0.args(arguments, require('./native/Database'), js0.ArrayItems(
+                Array), js0.ArrayItems('string'), [ 'int', js0.Null, js0.Default ], [ 'boolean', 
+                js0.Default ], [ 'boolean', js0.Default ]);
+
+        return await this._insert_Base_Async(db, null, rows, columnNames, 
+                transactionId, ignoreNotExistingColumns, orReplace);
+    }
+
     async row_Async(db, args = {}, transactionId = null) {
         js0.args(arguments, require('./native/Database'), [ js0.RawObject,
                 js0.Default ], [ 'int', js0.Null, js0.Default ]);
@@ -201,6 +245,10 @@ class Table
         if (args.selectColumns === null) {
             args.selectColumns = new js0.List();
             for (let [ columnName, column ] of this.columns) {
+                if (args.selectColumnNames !== null) {
+                    if (!args.selectColumnNames.includes(columnName))
+                        continue;
+                }
                 args.selectColumns.set(columnName, 
                         [ column.select, column.field ]);
             }
@@ -226,6 +274,9 @@ class Table
         if (args.groupBy !== null)
             query += ` GROUP BY ` + args.groupBy.join(',');
 
+        let query_OrderBy = '';
+        if (args.query_OrderBy !== null)
+            query_OrderBy = ` ORDER BY ${args.query_OrderBy}`;
         if (args.orderBy.length > 0) {
             let orderBy_Arr = [];
             for (let orderBy of args.orderBy) {
@@ -234,8 +285,13 @@ class Table
                 orderBy_Arr.push(columnName + (orderBy[1] ? ' DESC' : ''));
             }
 
-            query += ' ORDER BY ' + orderBy_Arr.join(', ');
+            if (query_OrderBy === '')
+                query_OrderBy += ' ORDER BY ';
+            else
+                query_OrderBy += ',';
+            query_OrderBy += orderBy_Arr.join(',');
         }
+        query += query_OrderBy;
 
         if (args.limit !== null)
             query += ` LIMIT ${args.limit[0]}, ${args.limit[1]}`;
@@ -331,6 +387,26 @@ class Table
         this._rowParser = parserFn;
     }
 
+    // async update_Async(db, rows, transactionId = null, 
+    //     ignoreNotExistingColumns = false) {
+    //     js0.args(arguments, require('./native/Database'), js0.ArrayItems(
+    //             js0.RawObject), [ 'int', js0.Null, js0.Default ], [ 'boolean', 
+    //             js0.Default ]);
+
+    //     return await this._insert_Base_Async(db, rows, null, null, 
+    //             transactionId, ignoreNotExistingColumns, true);
+    // }
+
+    // async update_NoAssoc_Async(db, rows, columnNames, transactionId = null, 
+    //         ignoreNotExistingColumns = false) {
+    //     js0.args(arguments, require('./native/Database'), js0.ArrayItems(
+    //             Array), js0.ArrayItems('string'), [ 'int', js0.Null, 
+    //             js0.Default ], [ 'boolean', js0.Default ]);
+
+    //     return await this._insert_Base_Async(db, null, rows, columnNames, 
+    //             transactionId, ignoreNotExistingColumns, true);
+    // }
+
     async update_Async(db, rows, transactionId = null, 
             ignoreNotExistingColumns = false) {
         js0.args(arguments, require('./native/Database'), js0.ArrayItems(
@@ -367,192 +443,201 @@ class Table
             localTransaction = true;
         }
 
-        let rows_All = rows;
-        for (let i = 0; i < rows_All.length; i += 100) {
-            let rows = rows_All.slice(i, Math.min(i + 100, rows_All.length));
+        try {
+            let rows_All = rows;
+            for (let i = 0; i < rows_All.length; i += Table.MaxUpdateRows) {
+                let rows = rows_All.slice(i, Math.min(i + Table.MaxUpdateRows, 
+                        rows_All.length));
 
-            let rows_WithNullPKs = [];
-            let rows_WithNullPKs_Indexes = [];
-            let rows_WithPKs = [];
-            let rows_WithPKs_Indexes = [];
+                let rows_WithNullPKs = [];
+                let rows_WithNullPKs_Indexes = [];
+                let rows_WithPKs = [];
+                let rows_WithPKs_Indexes = [];
 
-            for (let i = 0; i < rows.length; i++) {
-                let row = rows[i];
+                for (let i = 0; i < rows.length; i++) {
+                    let row = rows[i];
 
-                if (Object.keys(columns).length !== Object.keys(row).length) {
-                    console.error(rows);
-                    throw new Error(`Wrong columns number in row ${i}` +
-                            ` (inconsistency with first row).`);
-                }
-
-                for (let columnName in columns) {
-                    if (!(columnName in row)) {
-                        throw new Error(`Inconsistent/unknown column` +
-                                ` '${columnName}' in row ${i}.`);
+                    if (Object.keys(columns).length !== Object.keys(row).length) {
+                        console.error(rows);
+                        throw new Error(`Wrong columns number in row ${i}` +
+                                ` (inconsistency with first row).`);
                     }
-                }
 
-                let isNew = true;
-                for (let pk in pks) {
-                    if (row[pk] !== null) {
-                        isNew = false;
-                        break;
+                    for (let columnName in columns) {
+                        if (!(columnName in row)) {
+                            throw new Error(`Inconsistent/unknown column` +
+                                    ` '${columnName}' in row ${i}.`);
+                        }
                     }
-                }
 
-                if (isNew) {
-                    rows_WithNullPKs.push(row);
-                    rows_WithNullPKs_Indexes.push(i);
-                } else {
-                    rows_WithPKs.push(row);
-                    rows_WithPKs_Indexes.push(i);
-                }
-            }
-
-            let rows_PKs_ToCheck = [];
-            for (let row of rows_WithPKs) {
-                let row_PKs = [];
-                for (let pk of pks)
-                    row_PKs.push(row[pk]);
-                rows_PKs_ToCheck.push(row_PKs);
-            }
-
-            let rows_Insert = [];
-            let rows_Insert_Indexes = [];
-            let rows_Update = [];
-            let rows_Update_Indexes = [];
-
-            let rows_Existing = pks_Included ? await this.select_ByPKs_Async(db,
-                    rows_PKs_ToCheck, {}, transactionId) : [];
-
-            for (let i = 0; i < rows_WithPKs.length; i++) {
-                let row_WithPKs = rows_WithPKs[i];
-                let match = false;
-                for (let row_Existing of rows_Existing) {
-                    match = true;
-                    for (let pk of pks) {
-                        if (columns[pk].field.parse(row_WithPKs[pk]) !== 
-                                row_Existing[pk]) {
-                            match = false;
+                    let isNew = true;
+                    for (let pk in pks) {
+                        if (row[pk] !== null) {
+                            isNew = false;
                             break;
                         }
                     }
 
-                    if (match)
-                        break;
+                    if (isNew) {
+                        rows_WithNullPKs.push(row);
+                        rows_WithNullPKs_Indexes.push(i);
+                    } else {
+                        rows_WithPKs.push(row);
+                        rows_WithPKs_Indexes.push(i);
+                    }
                 }
 
-                if (match) {
-                    rows_Update.push(row_WithPKs);
-                    rows_Update_Indexes.push(rows_WithPKs_Indexes[i]);
-                } else {
-                    rows_Insert.push(row_WithPKs);
-                    rows_Insert_Indexes.push(rows_WithPKs_Indexes[i]);
+                let rows_PKs_ToCheck = [];
+                for (let row of rows_WithPKs) {
+                    let row_PKs = [];
+                    for (let pk of pks)
+                        row_PKs.push(row[pk]);
+                    rows_PKs_ToCheck.push(row_PKs);
                 }
-            }
 
-            for (let i = 0; i < rows_WithNullPKs.length; i++) {
-                let row_WithNullPKs = rows_WithNullPKs[i];
-                rows_Insert.push(row_WithNullPKs);
-                rows_Insert_Indexes.push(rows_WithNullPKs[i]);
-            }
+                let rows_Insert = [];
+                let rows_Insert_Indexes = [];
+                let rows_Update = [];
+                let rows_Update_Indexes = [];
 
-            /* DB */
-            let tableName_DB = helper.quote(this.name);
+                let rows_Existing = pks_Included ? await this.select_ByPKs_Async(db,
+                        rows_PKs_ToCheck, {
+                    selectColumnNames: this.pks,
+                }, transactionId) : [];
 
-            /* Update */
-            if (rows_Update.length > 0 && (Object.keys(rows[0]).length > pks.length)) {
-                let update_ColumnQueries_Arr = [];
-                for (let columnName in columns) {
-                    if (pks.includes(columnName))
-                        continue;
+                for (let i = 0; i < rows_WithPKs.length; i++) {
+                    let row_WithPKs = rows_WithPKs[i];
+                    let match = false;
+                    for (let row_Existing of rows_Existing) {
+                        match = true;
+                        for (let pk of pks) {
+                            if (columns[pk].field.parse(row_WithPKs[pk]) !== 
+                                    row_Existing[pk]) {
+                                match = false;
+                                break;
+                            }
+                        }
 
-                    let columnName_DB = helper.quote(columnName);
-                    let update_ColumnQuery = `${columnName_DB}=(CASE`;
+                        if (match)
+                            break;
+                    }
+
+                    if (match) {
+                        rows_Update.push(row_WithPKs);
+                        rows_Update_Indexes.push(rows_WithPKs_Indexes[i]);
+                    } else {
+                        rows_Insert.push(row_WithPKs);
+                        rows_Insert_Indexes.push(rows_WithPKs_Indexes[i]);
+                    }
+                }
+
+                for (let i = 0; i < rows_WithNullPKs.length; i++) {
+                    let row_WithNullPKs = rows_WithNullPKs[i];
+                    rows_Insert.push(row_WithNullPKs);
+                    rows_Insert_Indexes.push(rows_WithNullPKs[i]);
+                }
+
+                /* DB */
+                let tableName_DB = helper.quote(this.name);
+
+                /* Update */
+                if (rows_Update.length > 0 && (Object.keys(rows[0]).length > pks.length)) {
+                    let update_ColumnQueries_Arr = [];
+                    for (let columnName in columns) {
+                        if (pks.includes(columnName))
+                            continue;
+
+                        let columnName_DB = helper.quote(columnName);
+                        let update_ColumnQuery = `${columnName_DB}=(CASE`;
+                        for (let i = 0; i < rows_Update.length; i++) {
+                            let row = rows_Update[i];
+                            update_ColumnQuery += " WHEN ";
+                            let pks_Match_Arr = [];
+                            try {
+                                for (let pk of pks) {
+                                    pks_Match_Arr.push(helper.quote(pk) + '=' + 
+                                            columns[pk].field.escape(row[pk]));
+                                }
+                                update_ColumnQuery += '(' + pks_Match_Arr.join(' AND ') + ')';
+                                update_ColumnQuery += ' THEN ' +  
+                                        columns[columnName].field.escape(row[columnName]);
+                            } catch (e) {
+                                console.error(e);
+                                throw new Error('Error thrown parsing column' +
+                                    ` '${columnName}' in row '${rows_Update_Indexes[i]}' -> ` + 
+                                    e.toString());
+                            }
+                        }
+                        update_ColumnQuery += ' END)';
+                        update_ColumnQueries_Arr.push(update_ColumnQuery);
+                    }
+
+                    let update_Where_Arr = [];
                     for (let i = 0; i < rows_Update.length; i++) {
                         let row = rows_Update[i];
-                        update_ColumnQuery += " WHEN ";
                         let pks_Match_Arr = [];
-                        try {
-                            for (let pk of pks) {
+                        for (let pk of pks) {
+                            try {
                                 pks_Match_Arr.push(helper.quote(pk) + '=' + 
                                         columns[pk].field.escape(row[pk]));
+                            } catch (e) {
+                                console.error(e);
+                                throw new Error('Error thrown parsing column' +
+                                    ` '${pk}' in row '${rows_Update_Indexes[i]}' -> ` + 
+                                    e.toString());
                             }
-                            update_ColumnQuery += '(' + pks_Match_Arr.join(' AND ') + ')';
-                            update_ColumnQuery += ' THEN ' +  
-                                    columns[columnName].field.escape(row[columnName]);
-                        } catch (e) {
-                            console.error(e);
-                            throw new Error('Error thrown parsing column' +
-                                 ` '${columnName}' in row '${rows_Update_Indexes[i]}' -> ` + 
-                                 e.toString());
                         }
+                        update_Where_Arr.push('(' + pks_Match_Arr.join(' AND ') + ')');
                     }
-                    update_ColumnQuery += ' END)';
-                    update_ColumnQueries_Arr.push(update_ColumnQuery);
+
+                    let update_Query = `UPDATE ${tableName_DB} SET ` +  
+                            update_ColumnQueries_Arr.join(',') + ` WHERE ` + 
+                            update_Where_Arr.join(' OR ');
+
+                    await db.query_Execute_Async(update_Query, transactionId);
                 }
 
-                let update_Where_Arr = [];
-                for (let i = 0; i < rows_Update.length; i++) {
-                    let row = rows_Update[i];
-                    let pks_Match_Arr = [];
-                    for (let pk of pks) {
-                        try {
-                            pks_Match_Arr.push(helper.quote(pk) + '=' + 
-                                    columns[pk].field.escape(row[pk]));
-                        } catch (e) {
-                            console.error(e);
-                            throw new Error('Error thrown parsing column' +
-                                ` '${pk}' in row '${rows_Update_Indexes[i]}' -> ` + 
-                                e.toString());
+                /* Insert */
+                if (rows_Insert.length > 0) {
+                    let valuesArr_DB = [];
+                    for (let i = 0; i < rows_Insert.length; i++) {
+                        let row = rows_Insert[i];
+                        let row_DB = [];
+                        for (let columnName in columns) {
+                            let column = columns[columnName];
+                            try {
+                                row_DB.push(column.field.escape(row[columnName]));
+                            } catch (e) {
+                                console.error(e);
+                                throw new Error('Error thrown parsing column' +
+                                    ` '${columnName}' in row '${rows_Insert_Indexes[i]}' -> ` + 
+                                    e.toString());
+                            }
+                            
                         }
+
+                        valuesArr_DB.push('(' + row_DB.join(',') + ')');
                     }
-                    update_Where_Arr.push('(' + pks_Match_Arr.join(' AND ') + ')');
+
+                    /* Column Names */
+                    let columnNames_DB = [];
+                    for (let columnName in columns)
+                        columnNames_DB.push(helper.quote(columnName));
+                    let columnNames_DB_Str = columnNames_DB.join(',');
+
+                    /* Values */
+                    let values_DB = valuesArr_DB.join(',');
+
+                    let insert_Query = `INSERT INTO ${tableName_DB} (${columnNames_DB_Str})` +
+                            ` VALUES ${values_DB}`;
+
+                    await db.query_Execute_Async(insert_Query, transactionId);
                 }
-
-                let update_Query = `UPDATE ${tableName_DB} SET ` +  
-                        update_ColumnQueries_Arr.join(',') + ` WHERE ` + 
-                        update_Where_Arr.join(' OR ');
-
-                await db.query_Execute_Async(update_Query, transactionId);
             }
-
-            /* Insert */
-            if (rows_Insert.length > 0) {
-                let valuesArr_DB = [];
-                for (let i = 0; i < rows_Insert.length; i++) {
-                    let row = rows_Insert[i];
-                    let row_DB = [];
-                    for (let columnName in columns) {
-                        let column = columns[columnName];
-                        try {
-                            row_DB.push(column.field.escape(row[columnName]));
-                        } catch (e) {
-                            console.error(e);
-                            throw new Error('Error thrown parsing column' +
-                                ` '${columnName}' in row '${rows_Insert_Indexes[i]}' -> ` + 
-                                e.toString());
-                        }
-                        
-                    }
-
-                    valuesArr_DB.push('(' + row_DB.join(',') + ')');
-                }
-
-                /* Column Names */
-                let columnNames_DB = [];
-                for (let columnName in columns)
-                    columnNames_DB.push(helper.quote(columnName));
-                let columnNames_DB_Str = columnNames_DB.join(',');
-
-                /* Values */
-                let values_DB = valuesArr_DB.join(',');
-
-                let insert_Query = `INSERT INTO ${tableName_DB} (${columnNames_DB_Str})` +
-                        ` VALUES ${values_DB}`;
-
-                await db.query_Execute_Async(insert_Query, transactionId);
-            }
+        } catch (e) {
+            if (localTransaction)
+                 await db.transaction_Finish_Async(false, transactionId);
+            throw e;
         }
 
         /* Commit */
@@ -748,6 +833,130 @@ class Table
         throw new Error('Wrong condition format.');
     }
 
+    async _insert_Base_Async(db, assoc_Rows, noAssoc_Rows, noAssoc_ColumnNames, 
+            transactionId = null, ignoreNotExistingColumns = false, orReplace) {
+        js0.args(arguments, require('./native/Database'), [ js0.ArrayItems(
+            js0.RawObject), js0.Null ], [ js0.ArrayItems(Array), js0.Null ], [ js0.ArrayItems('string'), js0.Null ], 
+            [ 'int', js0.Null ], 'boolean', 'boolean');
+        let maxRows = orReplace ? Table.MaxUpdateRows : Table.MaxInsertRows;
+
+        let colRefs = null
+        let columnNames = null;
+        
+        if (assoc_Rows !== null) {
+            if (assoc_Rows.length === 0)
+                return;
+
+            columnNames = Object.keys(assoc_Rows[0]);
+        } else {
+            if (noAssoc_Rows.length === 0)
+                return;
+
+            colRefs = {};
+            columnNames = noAssoc_ColumnNames;
+            for (let i = 0; i < columnNames.length; i++)
+                colRefs[columnNames[i]] = i;
+        }
+
+        let pks = this.pks;
+        for (let pk of pks) {
+            if (!(columnNames.includes(pk)))
+                throw new Error(`Primary Key '${pk}' doesn not exist in row.`);
+        }
+
+        let columns = {};
+        for (let columnName of columnNames) {
+            if (!ignoreNotExistingColumns) {
+                columns[columnName] = this.getColumn(columnName, true);
+            } else {
+                if (this.hasColumn(columnName, true))
+                    columns[columnName] = this.getColumn(columnName, true);
+            }
+        }
+
+        let localTransaction = false;
+        if (transactionId === null) {
+            transactionId = await db.transaction_Start_Async();
+            localTransaction = true;
+        }
+
+        try {
+            let tableName_DB = helper.quote(this.name);
+
+            /* Insert */
+            let rows_All = assoc_Rows === null ? noAssoc_Rows : assoc_Rows;
+            for (let i = 0; i < rows_All.length; i += maxRows) {
+                // let rows_Insert = rows_All.slice(i, Math.min(i + Table.MaxInsertRows, 
+                //         rows_All.length));
+                let lastInsert = Math.min(i + maxRows, rows_All.length);
+                let valuesArr_DB = [];
+                for (let j = i; j < lastInsert; j++) {
+                    let row = rows_All[j];
+
+                    if (assoc_Rows !== null) {
+                        if (columnNames.length !== Object.keys(row).length) {
+                            console.error(rows_All);
+                            throw new Error(`Wrong columns number in row ${j}` +
+                                    ` (inconsistency with first row).`);
+                        }
+
+                        for (let columnName in columns) {
+                            if (!(columnName in row)) {
+                                throw new Error(`Inconsistent/unknown column` +
+                                        ` '${columnName}' in row ${j}.`);
+                            }
+                        }
+                    }
+
+                    let row_DB = [];
+                    for (let columnName in columns) {
+                        let column = columns[columnName];
+                        try {
+                            row_DB.push(column.field.escape(assoc_Rows === null ?
+                                    row[colRefs[columnName]] : row[columnName]));
+                        } catch (e) {
+                            console.error(e);
+                            throw new Error('Error thrown parsing column' +
+                                ` '${columnName}' in row '${j}' -> ` + 
+                                e.toString());
+                        }
+                        
+                    }
+
+                    valuesArr_DB.push('(' + row_DB.join(',') + ')');
+                }
+
+                /* Column Names */
+                let columnNames_DB = [];
+                for (let columnName in columns)
+                    columnNames_DB.push(helper.quote(columnName));
+                let columnNames_DB_Str = columnNames_DB.join(',');
+
+                /* Values */
+                let values_DB = valuesArr_DB.join(',');
+
+                let insert_Query = 'INSERT' +
+                        (orReplace ? ' OR REPLACE' : '') +
+                        ` INTO ${tableName_DB} (${columnNames_DB_Str})` +
+                        ` VALUES ${values_DB}`;
+
+                let t1 = (new Date()).getTime();
+                await db.query_Execute_Async(insert_Query, transactionId);
+                insertsTime += (new Date()).getTime() - t1;
+                insertsCount++;
+                console.log('InsertsTime_Avg', (insertsTime / insertsCount) / 1000.0);
+            }
+        } catch (e) {
+            if (localTransaction)
+                await db.transaction_Finish_Async(false, transactionId);
+            throw e;
+        }
+
+        /* Commit */
+        if (localTransaction)
+            await db.transaction_Finish_Async(true, transactionId);
+    }
+
     async _join_Async(db, rows, joinArgs, assoc, transactionId) {
         js0.args(arguments, require('../native/Database'), Array, 
                 TableRequestDef.Args_Select().join, 'boolean', 
@@ -834,6 +1043,7 @@ class Table
             let join_Rows = await table.select_Async(db, {
                 assoc: assoc,
                 selectColumns: join.selectColumns, 
+                selectColumnNames: join.selectColumnNames,
                 where: where,
                 orderBy: join.orderBy,
                 limit: null,

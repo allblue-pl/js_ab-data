@@ -4,8 +4,7 @@ const
     js0 = require('js0')
 ;
 
-class Device
-{
+class Device {
 
     static get Devices_Offset() {
         return 100000000;

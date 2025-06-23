@@ -4,8 +4,7 @@ const
     js0 = require('js0')
 ;
 
-class RequestProcessor
-{
+class RequestProcessor {
 
     get device() {
         return this._device;

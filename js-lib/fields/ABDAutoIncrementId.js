@@ -10,8 +10,7 @@ const
 ;
 
 
-class ABDAutoIncrementId extends ABDField
-{
+class ABDAutoIncrementId extends ABDField {
 
     constructor(properties = {}) {
         js0.args(arguments, [ js0.RawObject, js0.Default ]);

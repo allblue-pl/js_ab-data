@@ -13,8 +13,7 @@ const
     Database = require('./Database')
 ;
 
-class NativeDataStore extends DataStore
-{
+class NativeDataStore extends DataStore {
 
     static async GetDeviceInfo_Async(db, transactionId = null) {
         js0.args(arguments, abData.native.Database, [ 'int', js0.Null, 
@@ -358,6 +357,7 @@ class NativeDataStore extends DataStore
 
         await NativeDataStore.ResetDeviceLastUpdate_Async(this.db, transactionId);
         await this.clearDBRequests_Async(transactionId);
+        await this.clearDeviceDeletedRows_Async(transactionId);
 
         if (localTransaction)
             await this.db.transaction_Finish_Async(true, transactionId);
@@ -505,6 +505,10 @@ class NativeDataStore extends DataStore
             
         let response = new Response();
 
+        let dbSync_RequestsTime = 0;
+        let dbSync_ServerTime = 0;
+        let dbSync_InsertsTime = 0;
+        let t1 = (new Date()).getTime();
         let result = await webABApi.json_Async(this._apiUri + 'sync-db', { 
             args: args,
             deviceInfo: {
@@ -517,6 +521,8 @@ class NativeDataStore extends DataStore
             rDeviceDeletedRows: rDeviceDeletedRows,
             schemeVersion: this.scheme.version,
         });
+        dbSync_ServerTime += result.data.timeSpan;
+        dbSync_RequestsTime += (new Date()).getTime() - t1;
 
         if (abData.debug)
             console.log('Debug', result);
@@ -546,7 +552,7 @@ class NativeDataStore extends DataStore
 
         if (response.type !== Response.Types_Success) {
             if (abData.debug) {
-                console.error('Request error: ' + response.message);
+                console.error('Request error: ' + response.errorMessage);
                 console.error(response);
             }
 
@@ -646,13 +652,32 @@ class NativeDataStore extends DataStore
         }
 
         /* Process Update Data - Updates */
+        t1 = (new Date()).getTime();
         try {
             for (let tableName in result.data.updateData.update) {
                 if (!this.scheme.hasTable(tableName))
                     continue;
 
-                await this.scheme.getTable(tableName).update_Async(this.db,
-                        result.data.updateData.update[tableName], transactionId);
+                let update_TableColumns = result.data.updateData
+                        .update_ColumnNames[tableName];
+                let update_Rows = result.data.updateData
+                        .update[tableName];
+
+                await this.scheme.getTable(tableName).insert_NoAssoc_Async(
+                        this.db, update_Rows, update_TableColumns, 
+                        transactionId, false, deviceInfo.lastUpdate !== null);
+
+                /* Assoc */
+                // if (deviceInfo.lastUpdate === null) {
+                //     await this.scheme.getTable(tableName).insert_Async(this.db,
+                //             result.data.updateData.update[tableName], 
+                //             transactionId);
+                // } else {
+                //     await this.scheme.getTable(tableName).update_Async(this.db,
+                //             result.data.updateData.update[tableName], 
+                //             transactionId);
+                // }
+                /* / Assoc */
             }
         } catch (e) {
             if (abData.debug)
@@ -667,10 +692,17 @@ class NativeDataStore extends DataStore
 
             return response;
         }
+        dbSync_InsertsTime = (new Date()).getTime() - t1;
 
         /* Get update data from data infos */
         let dataInfos = result.data.dataInfos;
+        let dataInfos_RequestsTime = 0;
+        let dataInfos_RequestsCount = 0;
+        let dataInfos_InsertsTime = 0;
+        let dataInfos_ServerTime = 0;
+        let dataInfos_InsertsCount = 0;
         while (dataInfos.length > 0) {
+            let t1 = (new Date()).getTime();
             let result_DataInfos = await webABApi.json_Async(this._apiUri + 
                     'sync-db_get-update-data', { 
                 args: args,
@@ -683,6 +715,9 @@ class NativeDataStore extends DataStore
                 dataInfos: dataInfos,
                 schemeVersion: this.scheme.version,
             });
+            dataInfos_ServerTime += result_DataInfos.data.timeSpan;
+            dataInfos_RequestsTime += (new Date()).getTime() - t1;
+            dataInfos_RequestsCount++;
 
             if (abData.debug)
                 console.log('Debug', result_DataInfos);
@@ -707,9 +742,29 @@ class NativeDataStore extends DataStore
                     if (!this.scheme.hasTable(tableName))
                         continue;
 
-                    await this.scheme.getTable(tableName).update_Async(this.db,
-                            result_DataInfos.data.updateData.update[tableName], 
-                            transactionId);
+                    let update_ColumnNames = result_DataInfos.data.updateData
+                            .update_ColumnNames[tableName];
+                    let update_Rows = result_DataInfos
+                            .data.updateData.update[tableName];
+
+                    await this.scheme.getTable(tableName).insert_NoAssoc_Async(
+                            this.db, update_Rows, update_ColumnNames,
+                            transactionId, false, deviceInfo.lastUpdate !== null);
+
+                    dataInfos_InsertsTime += (new Date()).getTime() - t1;
+                    dataInfos_InsertsCount++;
+
+                    /* Assoc */
+                    // if (deviceInfo.lastUpdate === null) {
+                    //     await this.scheme.getTable(tableName).insert_Async(this.db,
+                    //         result_DataInfos.data.updateData.update[tableName], 
+                    //         transactionId);
+                    // } else {
+                    //     await this.scheme.getTable(tableName).update_Async(this.db,
+                    //             result_DataInfos.data.updateData.update[tableName], 
+                    //             transactionId);
+                    // }
+                    /* / Assoc */
                 }
             } catch (e) {
                 if (abData.debug)
@@ -727,6 +782,18 @@ class NativeDataStore extends DataStore
 
             dataInfos = result_DataInfos.data.dataInfos;
         }
+
+        console.log('DBSync RequestTime', Math.round((dbSync_RequestsTime
+                - dbSync_ServerTime) / 1000.0));
+        console.log('DBSync ServerTime', Math.round(dbSync_ServerTime / 1000.0));
+        console.log('DBSync InsertsTime', Math.round(dbSync_InsertsTime / 1000.0));
+
+        console.log('DataInfos RequestsTime', Math.round((dataInfos_RequestsTime
+                - dataInfos_ServerTime) / 1000.0));
+        console.log('DataInfos_RequestsCount', dataInfos_RequestsCount);
+        console.log('DataInfos ServerTime', Math.round(dataInfos_ServerTime / 1000.0));
+        console.log('DataInfos InsertsTime', Math.round(dataInfos_InsertsTime / 1000.0));
+        console.log('DataInfos_InsertsCount', dataInfos_InsertsCount);
 
         /* Process listeners */
         try {
@@ -781,7 +848,7 @@ class NativeDataStore extends DataStore
         }
 
         let rows = await this.db.query_Select_Async('SELECT Id FROM _ABData_DBRequests',
-                [ [ SelectColumnType.Long ] ], transactionId);
+                [ SelectColumnType.Long ], transactionId);
         if (rows.length === 0)
             throw new Error(`DB Request with id '${requestId}' does not exist.`);
 

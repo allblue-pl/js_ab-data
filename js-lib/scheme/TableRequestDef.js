@@ -7,8 +7,7 @@ const
     RequestDef = require('./RequestDef')
 ;
 
-class TableRequestDef extends RequestDef
-{
+class TableRequestDef extends RequestDef {
 
     static Args_Delete() {
         return {
@@ -22,6 +21,7 @@ class TableRequestDef extends RequestDef
             selectColumns: [ js0.Iterable(js0.PresetArray(
                     [ 'string', js0.PresetArray([ 'string', ABDField ]) ])), 
                     js0.Null, js0.Default(null) ],
+            selectColumnNames: [ js0.ArrayItems('string'), js0.Null, js0.Default(null) ],
             where: [ Array, js0.Default([]) ],
             orderBy: [ js0.Iterable(js0.PresetArray([ 'string', 'boolean' ])), 
                     js0.Default([]) ],
@@ -32,6 +32,7 @@ class TableRequestDef extends RequestDef
                 selectColumns: [ js0.Iterable(js0.PresetArray(
                         [ 'string', js0.PresetArray([ 'string', ABDField ]) ])), 
                         js0.Null, js0.Default(null) ],
+                selectColumnNames: [ js0.ArrayItems('string'), js0.Null, js0.Default(null) ],
                 type: [ js0.Enum([ 'left', 'inner' ]), js0.Default('left') ],
                 prefix: 'string',
                 table: require('../Table'),
@@ -41,6 +42,8 @@ class TableRequestDef extends RequestDef
                         js0.Default([]) ],
                 groupBy: [ js0.Iterable('string'), js0.Null, js0.Default(null) ],
                     })), js0.Default([]) ],
+                query_OrderBy: [ 'string', js0.Null, js0.Default(null) ],
+                // query_Where: [ 'string', js0.Null, js0.Default(null) ],
         };
     }
 

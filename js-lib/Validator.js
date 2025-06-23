@@ -4,8 +4,7 @@ const
     js0 = require('js0')
 ;
 
-class Validator
-{
+class Validator {
 
     constructor() {
         this._info =  {

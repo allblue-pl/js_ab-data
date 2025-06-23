@@ -4,8 +4,7 @@ const
     js0 = require('js0')
 ;
 
-class TableInfo
-{
+class TableInfo {
 
     get autoIncrement() {
         return this._autoIncrement;
@@ -31,6 +30,8 @@ class TableInfo
         this._fieldInfos = [];
         this._autoIncrement = null;
         this._primaryKeys = null;
+        this._charset = 'utf8';
+        this._collation = 'utf8_general_ci';
     }
 
     addFieldInfo(fieldInfo) {

@@ -4,8 +4,7 @@ const
     js0 = require('js0')
 ;
 
-class FieldInfo
-{
+class FieldInfo {
 
     static GetType_FromField(field) {
         js0.args(arguments, require('./fields/ABDField'));

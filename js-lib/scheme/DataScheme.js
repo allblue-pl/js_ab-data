@@ -8,8 +8,7 @@ const
     TableInfo = require('../TableInfo')
 ;
 
-class DataScheme
-{
+class DataScheme {
 
     get tableNames() {
         return this._tables.keys();

@@ -7,8 +7,7 @@ const
     Response = require('./Response')
 ;
 
-class DataStore
-{
+class DataStore {
 
     get device() {
         return this._requestProcessor.device;

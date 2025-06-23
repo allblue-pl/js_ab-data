@@ -11,8 +11,7 @@ const
     helper = require('../helper')
 ;
 
-class ABDJSON extends ABDField
-{
+class ABDJSON extends ABDField {
 
     get size() {
         return this._size;

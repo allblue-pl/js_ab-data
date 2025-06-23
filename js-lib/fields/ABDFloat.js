@@ -9,8 +9,7 @@ const
     SelectColumnType = require('../SelectColumnType')
 ;
 
-class ABDFloat extends ABDField
-{
+class ABDFloat extends ABDField {
 
     constructor(properties) {
         super([], properties);

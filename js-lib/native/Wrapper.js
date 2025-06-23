@@ -4,8 +4,7 @@ const
     js0 = require('js0')
 ;
 
-export default class Wrapper
-{
+export default class Wrapper {
 
     constructor(dataStore, db) {
         js0.args(arguments, require('../DataStore'), require('./Database'));

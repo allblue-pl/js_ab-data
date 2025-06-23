@@ -4,8 +4,7 @@ const
     js0 = require('js0')
 ;
 
-class ABDField
-{
+class ABDField {
 
     get args() {
         return this._args;

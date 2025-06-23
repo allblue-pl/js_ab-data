@@ -11,8 +11,7 @@ const
     RequestProcessor = require('./RequestProcessor')
 ;
 
-class RequestProcessor_Native extends RequestProcessor
-{
+class RequestProcessor_Native extends RequestProcessor {
 
     get db() {
         return this._db;

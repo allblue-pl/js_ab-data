@@ -10,8 +10,7 @@ const
     abData = require('.')
 ;
 
-class RequestProcessor_Web extends RequestProcessor
-{
+class RequestProcessor_Web extends RequestProcessor {
 
     constructor(dataScheme, device, apiUri) {
         super(dataScheme, device);
@@ -34,7 +33,7 @@ class RequestProcessor_Web extends RequestProcessor
             },
             requests: requests,
             args: {},
-        })
+        });
 
         response.info = {
             webResult: result,
