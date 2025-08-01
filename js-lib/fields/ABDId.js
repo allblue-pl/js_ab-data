@@ -15,15 +15,19 @@ class ABDId extends ABDField {
         js0.args(arguments, [ js0.RawObject, js0.Default ]);
         super([], properties);
     }
-    
-    getSelectType() {
-        return SelectColumnType.Long;
+
+
+    __compareDBType(dbVersion, dbType) {
+        return [ 'bigint', 'bigint(20)' ].includes(dbType);
     }
 
-    getType() {
-        return 'Id';
+    __getDBExtra() {
+        return '';
     }
 
+    __getDBType(dbVersion) {
+        return 'bigint';
+    }
 
     __getDefaultValue() {
         return 0;
@@ -31,6 +35,14 @@ class ABDId extends ABDField {
 
     __getFieldValidator(fieldValidatorInfo) {
         return new ABDLongValidator(fieldValidatorInfo);
+    }
+
+    __getSelectType() {
+        return SelectColumnType.Long;
+    }
+
+    __getType() {
+        return 'Id';
     }
 
     __escape(value) {

@@ -3,12 +3,11 @@
 const
     js0 = require('js0'),
 
-    ABDField = require('../fields/ABDField'),
+    ABDField = require('./fields/ABDField'),
     RequestDef = require('./RequestDef')
 ;
 
 class TableRequestDef extends RequestDef {
-
     static Args_Delete() {
         return {
             where: [ Array, js0.Default([]) ],
@@ -35,7 +34,7 @@ class TableRequestDef extends RequestDef {
                 selectColumnNames: [ js0.ArrayItems('string'), js0.Null, js0.Default(null) ],
                 type: [ js0.Enum([ 'left', 'inner' ]), js0.Default('left') ],
                 prefix: 'string',
-                table: require('../Table'),
+                tableDef: require('./TableDef'),
                 on: js0.Iterable(js0.PresetArray([ 'string', 'string' ])),
                 where: [ Array, js0.Default([]) ],
                 orderBy: [ js0.Iterable(js0.PresetArray([ 'string', 'boolean' ])), 
@@ -87,6 +86,5 @@ class TableRequestDef extends RequestDef {
                 error: [ 'string', js0.Null ],
             });
     }
-
 }
 module.exports = TableRequestDef;

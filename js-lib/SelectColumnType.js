@@ -1,6 +1,16 @@
 'use strict';
 
 class SelectColumnType {
+    static get $Values() {
+        return [
+            SelectColumnType.Bool,
+            SelectColumnType.Float,
+            SelectColumnType.Int,
+            SelectColumnType.Long,
+            SelectColumnType.JSON,
+            SelectColumnType.String,
+        ];
+    }
 
     static get Bool() { return 0; }
     static get Float() { return 1; }
@@ -8,6 +18,5 @@ class SelectColumnType {
     static get Long() { return 3; }
     static get JSON() { return 4; }
     static get String() { return 5; }
-
 }
 module.exports = SelectColumnType;

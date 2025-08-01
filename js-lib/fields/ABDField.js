@@ -1,11 +1,12 @@
 'use strict';
 
 const
-    js0 = require('js0')
+    js0 = require('js0'),
+
+    SelectColumnType = require('../SelectColumnType')
 ;
 
 class ABDField {
-
     get args() {
         return this._args;
     }
@@ -14,6 +15,10 @@ class ABDField {
         return this._properties.defaultValue === js0.NotSet ? 
                 (this._properties.notNull ? this.__getDefaultValue() : null) :
                 this._properties.defaultValue;
+    }
+
+    get notNull() {
+        return this._properties.notNull;
     }
 
     get properties() {
@@ -30,6 +35,33 @@ class ABDField {
 
         this._args = args;
         this._properties = properties;
+    }
+
+    compareDBType(dbVersion, dbType) {
+        js0.args(arguments, require('../DatabaseVersion'), 'string');
+        return js0.rtn('boolean', this.__compareDBType(dbVersion, dbType));
+    }
+
+    getDBType(dbVersion) {
+        js0.args(arguments, require('../DatabaseVersion'));
+        return js0.rtn('string', this.__getDBType(dbVersion));
+    }
+
+    getDBExtra(dbVersion) {
+        js0.args(arguments, require('../DatabaseVersion'));
+        return js0.rtn('string', this.__getDBExtra(dbVersion));
+    }
+
+    getSelectType() {
+        return js0.rtn(js0.Enum(SelectColumnType.$Values), 
+                this.__getSelectType());
+    }
+
+    getQuery_Column(dbVersion, columnName) {
+        js0.args(arguments, require('../DatabaseVersion'), 'string');
+
+        return `${columnName} ` + this.getDBType(dbVersion) + (this.notNull ? 
+                ' NOT NULL' : ' NULL');
     }
 
     escape(value) {
@@ -79,13 +111,15 @@ class ABDField {
     __unescape(value) { 
         return value;
     }
+    
 
-
-    getSelectType() { js0.virtual(this); }
-    // getType() { js0.virtual(this); }
-
+    __compareDBType(dbVersion, dbFieldType) { js0.virtual(this); }
+    __getDBExtra(dbVersion) { js0.virtual(this); }
+    __getDBType(dbVersion) { js0.virtual(this); }
     __getDefaultValue() { js0.virtual(this); }
     __getFieldValidator(fieldValidatorInfo) { js0.virtual(this); }
+    __getSelectType() { js0.virtual(this); }
+    __getType(dbVersion) { js0.virtual(this); }
     __escape(value) { js0.virtual(this); }
     __parse(value) { js0.virtual(this); }
 

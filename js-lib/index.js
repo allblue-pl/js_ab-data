@@ -9,27 +9,27 @@ const
 class abData_Class {
 
     get debug() {
-        return this._debug
+        return this._debug;
     }
 
     get fields() {
         return require('./fields');
     }
 
-    get native() {
-        return require('./native');
-    }
-
-    get scheme() {
-        return require('./scheme');
-    }
-
     get validators() {
         return require('./validators');
     }
 
+    get ABDField() {
+        return require('./fields/ABDField');
+    }
+
     get Device() {
         return require('./Device');
+    }
+
+    get DataScheme() {
+        return require('./DataScheme');
     }
 
     get DataStore() {
@@ -40,6 +40,10 @@ class abData_Class {
         return require('./DatabaseInfo');
     }
 
+    get DatabaseVersion() {
+        return require('./DatabaseVersion');
+    }
+
     get Field() {
         return require('./fields/Field');
     }
@@ -48,36 +52,40 @@ class abData_Class {
         return require('./FieldInfo');
     }
 
+    get IndexInfo() {
+        return require('./IndexInfo');
+    }
+
     get Response() {
         return require('./Response');
+    }
+
+    get RequestDef() {
+        return require('./RequestDef');
     }
 
     get RequestProcessor() {
         return require('./RequestProcessor');
     }
 
-    get RequestProcessor_Native() {
-        return require('./RequestProcessor_Native');
-    }
-
-    get RequestProcessor_Web() {
-        return require('./RequestProcessor_Web');
-    }
-
-    get RTable() {
-        return require('./RTable');
+    get RTableDef() {
+        return require('./RTableDef');
     }
 
     get SelectColumnType() {
         return require('./SelectColumnType');
     }
 
-    get Table() {
-        return require('./Table');
+    get TableDef() {
+        return require('./TableDef');
     }
 
     get TableInfo() {
         return require('./TableInfo');
+    }
+
+    get TableRequestDef() {
+        return require('./TableRequestDef');
     }
 
     get Validator() {

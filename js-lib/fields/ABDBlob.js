@@ -5,13 +5,12 @@ const
     
     ABDField = require('./ABDField'),
 
-    ABDStringValidator = require('../validators/ABDStringValidator'),
     SelectColumnType = require('../SelectColumnType'),
 
     helper = require('../helper')
 ;
 
-class ABDString extends ABDField {
+class ABDBlob extends ABDField {
 
     get type() {
         return this._type;
@@ -37,31 +36,31 @@ class ABDString extends ABDField {
 
     __compareDBType(dbVersion, dbType) {
         if (this.type === 'tiny')
-            return dbType === 'tinytext';
+            return dbType === 'tinyblob';
         if (this.type === 'regular')
-            return dbType === 'text';
+            return dbType === 'blob';
         if (this.type === 'medium')
-            return dbType === 'mediumtext';
+            return dbType === 'mediumblob';
 
         js0.assert(false, `Unknown 'text' field type.`);
     }
 
+    __getDBExtra() {
+        return '';
+    }
+
     __getDBType(dbVersion) {
         if (this.type === 'tiny')
-            return 'tinytext';
+            return 'tinyblob';
         if (this.type === 'regular')
-            return 'text';
+            return 'blob';
         if (this.type === 'medium')
-            return 'mediumtext';
+            return 'mediumblob';
 
         js0.assert(false, `Unknown 'text' field type.`);
     }
 
     __getDefaultValue() {
-        return '';
-    }
-
-    __getDBExtra() {
         return '';
     }
 
@@ -97,4 +96,4 @@ class ABDString extends ABDField {
     }
 
 }
-module.exports = ABDString;
+module.exports = ABDBlob;

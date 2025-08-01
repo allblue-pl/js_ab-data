@@ -5,67 +5,25 @@ const
 ;
 
 class FieldInfo {
+    // static CompareDBExtra(field, dbVersion, dbExtra) {
+    //     js0.args(arguments, require('./fields/ABDField'), 
+    //             require('./DatabaseVersion'), 'string');
+    //     return dbExtra === field.getDBExtra();
+    // }
 
-    static GetType_FromField(field) {
-        js0.args(arguments, require('./fields/ABDField'));
-
-        if (field instanceof require('./fields/ABDAutoIncrementId'))
-            return [ 'integer primary key', 'integer' ];
-        else if (field instanceof require('./fields/ABDBool'))
-            return [ 'tinyint(1)' ];
-        // else if (field instanceof require('./fields/ABDDouble'))
-        //     return `double`;
-        else if (field instanceof require('./fields/ABDFloat'))
-            return [ `float` ];
-        else if (field instanceof require('./fields/ABDId'))
-            return [ `bigint`, `bigint(20)` ];
-        else if (field instanceof require('./fields/ABDInt'))
-            return [ `int`, `int(11)` ];
-        else if (field instanceof require('./fields/ABDJSON'))
-            return [ `mediumtext` ];
-        else if (field instanceof require('./fields/ABDLong'))
-            return [ `bigint` ];
-        else if (field instanceof require('./fields/ABDString'))
-            return [ `varchar(${field.size})` ];
-        else if (field instanceof require('./fields/ABDText')) {
-            let dbType = null;
-            if (field.type === 'tiny')
-                dbType = 'tinytext';
-            else if (field.type === 'regular')
-                dbType = 'text';
-            else if (field.type = 'medium')
-                dbType = 'mediumtext';
-            else
-                throw new Error(`Unknown field type '${field.type}'.`);
-          
-            return [ dbType ];
-        } else if (field instanceof require('./fields/ABDTime'))
-            return [ `bigint` ];
-
-        throw new Error(`Unknown FieldInfo type of field '${field.constructor.name}'.`);
+    static CompareDBType(field, dbInfo, dbType) {
+        js0.args(arguments, require('./fields/ABDField'), 
+                require('./DatabaseVersion'), 'string');
+        return field.compareDBType(dbInfo, dbType);
     }
 
 
-    constructor(name, field, types, key, notNull) {
-        js0.args(arguments, 'string', [ require('./fields/ABDField'), js0.Null ], 
-                js0.ArrayItems('string'), 'string', 'boolean');
-
-        let types_Parsed = [];
-        for (let type of types)
-            types_Parsed.push(type.toLowerCase());
+    constructor(name, dbType, notNull) {
+        js0.args(arguments, 'string', 'string', 'boolean');
 
         this.name = name;
-        this.field = field;
-        this.types = types_Parsed;
-        this.key = '';
+        this.dbType = dbType === null ? null : dbType.toLowerCase();
         this.notNull = notNull;
     }
-
-    getQuery_Column() {
-        let hasDefault = false;
-
-        return `${this.name} ${this.types[0]} ` + (this.notNull ? 'NOT NULL' : 'NULL');
-    }
-
 }
 module.exports = FieldInfo;

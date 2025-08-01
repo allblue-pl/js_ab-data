@@ -9,29 +9,49 @@ const
     SelectColumnType = require('../SelectColumnType')
 ;
 
-
 class ABDAutoIncrementId extends ABDField {
-
-    constructor(properties = {}) {
-        js0.args(arguments, [ js0.RawObject, js0.Default ]);
-        super([], properties);
+    get isLong() {
+        return this._isLong;
     }
 
-    getSelectType() {
-        return SelectColumnType.Int;
+    constructor() {
+        js0.args(arguments);
+        super([], { notNull: true, });
     }
 
-    getType() {
-        return 'AutoIncrementId';
+
+    __compareDBType(dbVersion, dbType) {
+        if (this.isLong)
+            return dbType === 'bigint';
+        
+        return dbType === 'int';
     }
 
+    __getDBType(dbVersion) {
+        return 'int';
+    }
 
     __getDefaultValue() {
         return 0;
     }
 
+    __getDBExtra(dbVersion) {
+        if (dbVersion.type === 'sqlite')
+            return '';
+
+        return 'auto_increment';
+    }
+
     __getFieldValidator(fieldValidatorInfo) {
         return new ABDIntValidator(fieldValidatorInfo);
+    }
+
+    __getSelectType() {
+        return SelectColumnType.Int;
+    }
+
+    __getType() {
+        return 'AutoIncrementId';
     }
 
     __escape(value) {
@@ -51,6 +71,5 @@ class ABDAutoIncrementId extends ABDField {
             
         return parseInt(value);
     }
-
 }
 module.exports = ABDAutoIncrementId;

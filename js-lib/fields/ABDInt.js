@@ -11,20 +11,38 @@ const
 
 
 class ABDInt extends ABDField {
+    get unsigned() {
+        return this._unsigned;
+    }
 
     constructor(properties = {}) {
         js0.args(arguments, [ js0.RawObject, js0.Default ]);
-        super([], properties);
+
+        let unsigned = false;
+        if ('unsigned' in properties) {
+            js0.typeE(properties.unsigned, 'boolean');
+            unsigned = properties.unsigned;
+            delete properties.unsigned;
+        }
+
+        super([ unsigned ], properties);
+
+        this._unsigned = unsigned;
     }
 
-    getSelectType() {
-        return SelectColumnType.Int;
+
+    __getDBExtra(dbVersion) {
+        return '';
     }
 
-    getType() {
-        return 'Int';
+    __getDBType(dbVersion) {
+        return 'int';
     }
 
+    __compareDBType(dbVersion, dbType) {
+        let unsigned = this.unsigned ? ' unsigned' : '';
+        return [ `int${unsigned}`, `int(11)${unsigned}` ].includes(dbType);
+    }
 
     __getDefaultValue() {
         return 0;
@@ -32,6 +50,14 @@ class ABDInt extends ABDField {
 
     __getFieldValidator(fieldValidatorInfo) {
         return new ABDIntValidator(fieldValidatorInfo);
+    }
+
+    __getSelectType() {
+        return SelectColumnType.Int;
+    }
+
+    __getType() {
+        return 'Int';
     }
 
     __escape(value) {

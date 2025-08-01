@@ -16,21 +16,37 @@ class ABDLong extends ABDField {
         super([], properties);
     }
 
-    getSelectType() {
-        return SelectColumnType.Long;
+
+    __compareDBType(dbVersion, dbType) {
+        return dbType === 'bigint';
     }
 
-    getType() {
-        return 'Long';
+    __getDBExtra(dbVersion) {
+        return '';
     }
 
+    __getDBType(dbVersion) {
+        return 'bigint';
+    }
 
     __getDefaultValue() {
         return 0;
     }
 
+    __getDBExtra(dbVersion) {
+        return '';
+    }
+
     __getFieldValidator(fieldValidatorInfo) {
         return new ABDLongValidator(fieldValidatorInfo);
+    }
+
+    __getSelectType() {
+        return SelectColumnType.Long;
+    }
+
+    __getType() {
+        return 'Long';
     }
 
     __escape(value) {

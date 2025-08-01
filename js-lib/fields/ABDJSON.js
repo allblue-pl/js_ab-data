@@ -22,21 +22,33 @@ class ABDJSON extends ABDField {
         super([], properties);
     }
 
-    getSelectType() {
-        return SelectColumnType.JSON;
+
+    __getDBType(dbVersion) {
+        return 'mediumtext'
     }
 
-    getType() {
-        return 'JSON';
+    __compareDBType(dbVersion, dbType) {
+        return dbType === 'mediumtext';
     }
-
 
     __getDefaultValue() {
         return null;
     }
 
+    __getDBExtra(dbVersion) {
+        return '';
+    }
+
     __getFieldValidator(fieldValidatorInfo) {
         return new ABDJSONValidator(fieldValidatorInfo);
+    }
+
+    __getSelectType() {
+        return SelectColumnType.JSON;
+    }
+
+    __getType() {
+        return 'JSON';
     }
 
     __escape(value) {

@@ -1,17 +1,17 @@
 'use strict';
 
 const
-    js0 = require('js0'),
-
-    DatabaseInfo = require('../DatabaseInfo'),
-    FieldInfo = require('../FieldInfo'),
-    TableInfo = require('../TableInfo')
+    js0 = require('js0')
 ;
 
 class DataScheme {
+    static get Version() {
+        return [ 0, 0, 1 ];
+    }
+
 
     get tableNames() {
-        return this._tables.keys();
+        return this._tableDefs.keys();
     }
 
     get version() {
@@ -24,34 +24,9 @@ class DataScheme {
 
         this._version = version;
         this._requests = new Map();
-        this._tables = new Map();
+        this._tableDefs = new Map();
 
         this._ignored_TableNames = [];
-    }
-
-    createDatabaseInfo() {
-        let databaseInfo = new DatabaseInfo();
-
-        for (let [ tableName, table ] of this._tables) {
-            let tableInfo = new TableInfo(table.name);
-            for (let [ fieldName, column ] of table.columns) {
-                let field = column.field;
-                let fieldInfo = new FieldInfo(
-                    fieldName,
-                    field,
-                    FieldInfo.GetType_FromField(field),
-                    '',
-                    field.properties.notNull
-                );
-                tableInfo.addFieldInfo(fieldInfo);
-            }
-
-            tableInfo.setPKs(table.pks);
-
-            databaseInfo.addTableInfo(tableInfo);
-        }
-
-        return databaseInfo;
     }
 
     defR(requestName, requestDef) {
@@ -71,21 +46,24 @@ class DataScheme {
         return this;
     }
 
-    defT(table) {
-        this.defTable(table);
+    defT(tableDef) {
+        if (tableDef.pks === null)
+            throw new Error(`Table '${tableDef.name}' PKs not set.`);
+
+        this.defTable(tableDef);
 
         return this;
     }
 
-    defTable(table) {
-        js0.args(arguments, require('../Table'));
+    defTable(tableDef) {
+        js0.args(arguments, require('./TableDef'));
 
-        this._validateTableId(table.getTableId());
+        this._validateTableId(tableDef.getTableId());
 
-        if (this._tables.has(table.name))
+        if (this._tableDefs.has(tableDef.name))
             throw new Error(`Table '${tableName}' already exists.`);
 
-        this._tables.set(table.name, table);
+        this._tableDefs.set(tableDef.name, tableDef);
 
         return this;
     }
@@ -101,26 +79,30 @@ class DataScheme {
         return this._requests.get(requestName);
     }
 
-    getT(tableName) {
+    getTDef(tableName) {
         return this.getTable(tableName);
     }
 
-    getTable(tableName) {
+    getTableDef(tableName) {
         js0.args(arguments, 'string');
 
-        if (!(this._tables.has(tableName)))
-            throw new Error(`Table '${tableName}' does not exist.`);
-
-        return this._tables.get(tableName);
-    }
-
-    getTable_ById(tableId) {
-        for (let [ tableName, table ] of this._tables) {
-            if (table.getTableId() === tableId)
-                return table;
+        for (let [ tableDefName, tableDef ] of this._tableDefs) {
+            if (tableName.toLowerCase() === tableDefName.toLowerCase())
+                return tableDef;
         }
 
-        throw new Error(`Table with id '${tableId}' does not exist.`);
+        throw new Error(`Table definition '${tableName}' does not exist.`);
+    }
+
+    getTableDef_ById(tableId) {
+        js0.args(arguments, 'int');
+
+        for (let [ tableDefName, tableDef ] of this._tableDefs) {
+            if (tableDef.getTableId() === tableId)
+                return tableDef;
+        }
+
+        throw new Error(`Table definition with id '${tableId}' does not exist.`);
     }
 
     getTableIds() {
@@ -146,14 +128,19 @@ class DataScheme {
     hasTable(tableName) {
         js0.args(arguments, 'string');
 
-        return this._tables.has(tableName);
+        for (let [ tableDefName, tableDef ] of this._tableDefs) {
+            if (tableName.toLowerCase() === tableDefName.toLowerCase())
+                return true;
+        }
+
+        return false;
     }
 
     hasTable_ById(tableId) {
         js0.args(arguments, 'int');
 
-        for (let [ tableName, table ] of this._tables) {
-            if (table.getTableId() === tableId)
+        for (let [ tableDefName, tableDef ] of this._tableDefs) {
+            if (tableDef.getTableId() === tableId)
                 return true;
         }
 
@@ -240,7 +227,7 @@ class DataScheme {
 
 
     _validateTableId(tableId) {
-        for (let [ tableName, table ] of this._tables) {
+        for (let [ tableName, table ] of this._tableDefs) {
             if (table.getTableId() === tableId)
                 throw new Error(`Table with id '${tableId}' already exists ('${tableName}')`);
         }

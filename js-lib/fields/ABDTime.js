@@ -16,21 +16,33 @@ class ABDTime extends ABDField {
         super([], properties);
     }
 
-    getSelectType() {
-        return SelectColumnType.Long;
+
+    __compareDBType(dbVersion, dbType) {
+        return [ 'bigint', 'bigint(20)' ].includes(dbType);
     }
 
-    getType() {
-        return 'Time';
+    __getDBType(dbVersion) {
+        return 'bigint';
     }
-
 
     __getDefaultValue() {
         return 0;
     }
 
+    __getDBExtra() {
+        return '';
+    }
+
     __getFieldValidator(fieldValidatorInfo) {
         return new ABDTimeValidator(fieldValidatorInfo);
+    }
+
+    __getSelectType() {
+        return SelectColumnType.Long;
+    }
+
+    __getType() {
+        return 'Time';
     }
 
     __escape(value) {

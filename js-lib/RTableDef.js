@@ -3,22 +3,20 @@
 const
     js0 = require('js0'),
     
-    fields = require('./fields'),
-    helper = require('./helper'),
+    f = require('./fields'),
 
-    Table = require('./Table'),
-    TableRequestDef = require('./scheme/TableRequestDef')
+    TableDef = require('./TableDef')
 ;
 
-class RTable extends Table {
+class RTableDef extends TableDef {
 
     constructor(id, name, alias, columns) {   
         js0.args(arguments, 'int', 'string', 'string', Array);
 
         if (name[0] !== '_') {
             columns = [
-                [ '_Id', fields.Id({ notNull: true, }) ],
-                [ '_Modified_DateTime', fields.Long({ notNull: false, }) ],
+                [ '_Id', f.Id({ notNull: true, }) ],
+                [ '_Modified_DateTime', f.Long({ notNull: false, }) ],
                 // [ '_Modified_DeviceId', fields.Long({}) ],
             ].concat(columns);
         }
@@ -31,4 +29,4 @@ class RTable extends Table {
     }
 
 }
-module.exports = RTable;
+module.exports = RTableDef;

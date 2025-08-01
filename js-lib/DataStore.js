@@ -33,19 +33,6 @@ class DataStore {
         this._scheme = requestProcessor.scheme;
     }
 
-    getT(tableName) {
-        return this.getTable(tableName);
-    }
-
-    getTable(tableName) {
-        js0.args(arguments, 'string');
-
-        if (!(this._scheme.hasTable(tableName)))
-            throw new Error(`Table '${tableName}' does not exist.`);
-
-        return this._scheme.getTable(tableName);
-    }
-
     nextId() {
         return this.device.nextId();
     }
@@ -62,7 +49,7 @@ class DataStore {
             if (abData.debug)
                 console.error(err);
 
-            return {
+            return abData.Response.Create({
                 actionErrors: {
                     request: err.toString(),
                 },
@@ -71,7 +58,7 @@ class DataStore {
                 requestIds: [],
                 results: {},
                 type: Response.Types_ActionError,
-            };
+            });
         }
 
         let response = await this._requestProcessor.processRequest_Async(

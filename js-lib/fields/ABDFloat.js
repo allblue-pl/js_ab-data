@@ -15,17 +15,33 @@ class ABDFloat extends ABDField {
         super([], properties);
     }
 
-    getSelectType() {
-        return SelectColumnType.Float;
+
+    __compareDBType(dbVersion, dbType) {
+        return dbType === 'float';
     }
 
-    getType() {
-        return 'Float';
+    __getDefaultValue() {
+        return 0.0;
     }
 
+    __getDBExtra(dbVersion) {
+        return '';
+    }
+
+    __getDBType(dbVersion) {
+        return 'float';
+    }
 
     __getFieldValidator(fieldValidatorInfo) {
         return new ABDFloatValidator(fieldValidatorInfo);
+    }
+
+    __getSelectType() {
+        return SelectColumnType.Float;
+    }
+
+    __getType() {
+        return 'Float';
     }
 
     __escape(value) {
