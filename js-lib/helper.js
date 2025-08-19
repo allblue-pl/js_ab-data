@@ -1,5 +1,3 @@
-'use strict';
-
 const
     js0 = require('js0')
 ;

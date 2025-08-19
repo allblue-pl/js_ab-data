@@ -1,12 +1,9 @@
-'use strict';
-
 const
     abText = require('ab-text'),
     js0 = require('js0')
 ;
 
-class ABDFieldValidator
-{
+class ABDFieldValidator {
 
     get args() {
         return this._args;
@@ -17,10 +14,6 @@ class ABDFieldValidator
         js0.args(arguments, js0.RawObject);
 
         this._args = args;
-    }
-
-    getType() {
-        js0.virtual(this);
     }
 
     validate(validator, fieldName, value) {
@@ -38,6 +31,7 @@ class ABDFieldValidator
     }
 
 
+    getType() { js0.virtual(this); }
     __validate(value) { js0.virtual(this); }
 
 }

@@ -1,11 +1,8 @@
-'use strict';
-
 const
     js0 = require('js0')
 ;
 
-class RequestDef
-{
+class RequestDef {
 
     static ExtendDef(def, extDef) {
         js0.args(arguments, js0.RawObject, js0.RawObject);

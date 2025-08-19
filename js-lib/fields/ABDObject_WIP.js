@@ -1,13 +1,10 @@
-'use strict';
-
 const js0 = require('js0');
 
 const ABDField = require('./ABDField');
 const ABDLong = require('./ABDLong');
 
 
-class ABDObject extends ABDField
-{
+class ABDObject extends ABDField {
 
     get fields() {
         return this._fields;

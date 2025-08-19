@@ -1,5 +1,3 @@
-'use strict';
-
 const 
     js0 = require('js0'),
     
@@ -10,28 +8,40 @@ const
 ;
 
 
-class ABDBool extends ABDField
-{
+class ABDBool extends ABDField {
 
     constructor(properties) {
+        js0.args(arguments, js0.RawObject);
         super([], properties);
     }
 
-    getSelectType() {
-        return SelectColumnType.Bool;
+
+    __compareDBType(dbVersion, dbType) {
+        return dbType === 'tinyint(1)' || dbType === 'bool';
     }
 
-    getType() {
-        return 'Bool';
+    __getDBType(dbVersion) {
+        return 'tinyint(1)'
     }
-
 
     __getDefaultValue() {
         return false;
     }
 
+     __getDBExtra(dbVersion) {
+        return '';
+    }
+
     __getFieldValidator(fieldValidatorInfo) {
         return new ABDBoolValidator(fieldValidatorInfo);
+    }
+
+    __getSelectType() {
+        return SelectColumnType.Bool;
+    }
+
+    __getDBType() {
+        return 'Bool';
     }
 
     __getValidatorType() {

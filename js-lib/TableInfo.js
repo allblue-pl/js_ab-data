@@ -1,18 +1,38 @@
-'use strict';
-
 const
     js0 = require('js0')
 ;
 
-class TableInfo
-{
+class TableInfo {
+    static GetQuery_Create(dbVersion, tableDef) {
+        js0.args(arguments, require('./DatabaseVersion'), require('./TableDef'));
 
-    get autoIncrement() {
-        return this._autoIncrement;
+        let query = `CREATE TABLE ${tableDef.name} (`;
+        let fields = [];
+        
+        for (let [ columnName, column ] of tableDef.columns) {
+            let field = column.field;
+            let field_DBExtra = field.getDBExtra(dbVersion);
+            fields.push(`${columnName} ` + field.getDBType(dbVersion) + 
+                    (field.notNull ? ' NOT NULL' : ' NULL') +
+                    (field_DBExtra === '' ? '' : ` ${field_DBExtra}`));
+        }
+
+        query += fields.join(', ');
+
+        query += `, PRIMARY KEY (` + tableDef.pks.join(', ') + `)`;
+        
+        query += `)`;
+
+        return query;
     }
+
 
     get fieldInfos() {
         return this._fieldInfos;
+    }
+
+    get indexInfos() {
+        return this._indexInfos;
     }
 
     get name() {
@@ -29,8 +49,10 @@ class TableInfo
 
         this._name = name;
         this._fieldInfos = [];
-        this._autoIncrement = null;
+        this._indexInfos = {};
         this._primaryKeys = null;
+        this._charset = 'utf8';
+        this._collation = 'utf8_general_ci';
     }
 
     addFieldInfo(fieldInfo) {
@@ -39,8 +61,10 @@ class TableInfo
         this._fieldInfos.push(fieldInfo);
     }
 
-    addIndex(indexName, columns) {
-        throw new Error('Not implemented.');
+    addIndexInfo(indexName, indexInfo) {
+        js0.args(arguments, 'string', require('./IndexInfo'));
+
+        this._indexInfos[indexName] = indexInfo;
     }
 
     getFieldInfo_ByName(fieldName) {
@@ -52,38 +76,37 @@ class TableInfo
         return null;
     }
 
-    getQuery_Create() {
-        let query = `CREATE TABLE ${this.name} (`;
-        let fields = [];
+    // setIndexes(indexes) {
+    //     js0.args(arguments, js0.ObjectItems(js0.ArrayItems(
+    //             js0.PresetArray([ 'string', 'boolean' ]))));
 
-        for (let fieldInfo of this.fieldInfos) {
-            fields.push(`${fieldInfo.name} ${fieldInfo.types[0]} ` + 
-                    (fieldInfo.notNull ? 'NOT NULL' : 'NULL'));
-        }
+    //     this._indexInfos = new IndexInfos();
+    //     for (let indexName in indexes) {
+    //         for (let i = 0; i < indexes[indexName].length; i++) {
+    //             let columnName = indexes[indexName][i][0];
+    //             let desc = indexes[indexName][i][1];
 
-        query += fields.join(', ');
-
-        if (this._primaryKeys !== null)
-            query += `, PRIMARY KEY (` + this._primaryKeys.join(',') + `)`;
-        
-        query += `)`;
-
-        return query;
-    }
-
-    setAutoIncrement(columnName) {
-        js0.args(arguments, [ 'string', js0.Null ]);
-
-        this._autoIncrement = columnName;
-        this._primaryKeys = null;
-
-        return this;
-    }
+    //             this.indexInfos.add(indexName, i, columnName, desc);
+    //         }
+    //     }
+    // }
 
     setPKs(pks) {
-        js0.args(arguments, [ Array, js0.Null ]);
+        js0.args(arguments, js0.ArrayItems('string'));
 
-        this._autoIncrement = null;
+        for (let pk of pks) {
+            let pkFound = false;
+            for (let fieldInfo of this._fieldInfos) {
+                if (fieldInfo.name === pk) {
+                    pkFound = true;
+                    break;
+                }
+            }
+
+            if (!pkFound)
+                throw new Error(`PK '${pk}' does not exist in field infos.`);
+        }
+
         this._primaryKeys = pks;
 
         return this;

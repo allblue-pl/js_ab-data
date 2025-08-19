@@ -1,12 +1,13 @@
-'use strict';
-
 const 
-    ABDArray = require('./ABDArray'),
+    js0 = require('js0'),
+
+    // ABDArray = require('./ABDArray'),
     ABDAutoIncrementId = require('./ABDAutoIncrementId'),
+    ABDBlob = require('./ABDBlob'),
     ABDBool = require('./ABDBool'), 
-    ABDData = require('./ABDData'),
-    // ABDDate = require('./ABDDate'),
-    // ABDDateTime = require('./ABDDateTime'),
+    // ABDData = require('./ABDData'),
+    ABDDate = require('./ABDDate'),
+    ABDDateTime = require('./ABDDateTime'),
     // ABDDouble = require('./ABDDouble'),
     ABDFloat = require('./ABDFloat'),
     ABDId = require('./ABDId'),
@@ -20,17 +21,18 @@ const
 ;
 
 
-class fields_Class
-{
+class fields_Class {
 
     // get ABDArray() { return ABDArray; };
     get ABDAutoIncrementId() { return ABDAutoIncrementId; };
+    get ABDBlob() { return ABDBlob; };
     get ABDBool() { return ABDBool; };
-    // get ABDDate() { return ABDDate; }
-    // get ABDDateTime() { return ABDDateTime; }
-    // get ABDData() { return ABDData; };
+    // get ABDData() { return ABDData; }
+    get ABDDate() { return ABDDate; }
+    get ABDDateTime() { return ABDDateTime; }
     // get ABDDouble() { return ABDDouble; };
     get ABDFloat() { return ABDFloat; };
+    get ABDId() { return ABDId; };
     get ABDInt() { return ABDInt; };
     get ABDJSON() { return ABDJSON; };
     get ABDLong() { return ABDLong; };
@@ -45,28 +47,35 @@ class fields_Class
     //     return new ABDArray(properties);
     // }
 
-    AutoIncrementId(properties = {}) {
-        return new ABDAutoIncrementId(properties);
+    AutoIncrementId() {
+        js0.args(arguments);
+        return new ABDAutoIncrementId();
+    }
+
+    Blob(properties = {})  {
+        js0.args(arguments, [ js0.RawObject, js0.Default ]);
+        return new ABDBlob(properties);
     }
 
     Bool(properties = {})  {
+        js0.args(arguments, [ js0.RawObject, js0.Default ]);
         return new ABDBool(properties);
     }
 
-    // Data(properties = {}) 
-    // {
-    //     return new ABDData(properties);
-    // }
+    Date(properties = {}) {
+        js0.args(arguments, [ js0.RawObject, js0.Default ]);
+        return new ABDData(properties);
+    }
 
-    // Date(properties = {}) 
-    // {
-    //     return new ABDDate(properties);
-    // }
+    Date(properties = {}) {
+        js0.args(arguments, [ js0.RawObject, js0.Default ]);
+        return new ABDDate(properties);
+    }
 
-    // DateTime(properties = {}) 
-    // {
-    //     return new ABDDateTime(properties);
-    // }
+    DateTime(properties = {}) {
+        js0.args(arguments, [ js0.RawObject, js0.Default ]);
+        return new ABDDateTime(properties);
+    }
 
     // Double(properties = {})
     // {
@@ -74,22 +83,27 @@ class fields_Class
     // }
 
     Float(properties = {}) {
+        js0.args(arguments, [ js0.RawObject, js0.Default ]);
         return new ABDFloat(properties);
     }
 
     Id(properties = {}) {
+        js0.args(arguments, [ js0.RawObject, js0.Default ]);
         return new ABDId(properties);
     }
 
     Int(properties = {}) {
+        js0.args(arguments, [ js0.RawObject, js0.Default ]);
         return new ABDInt(properties);
     }
 
     JSON(properties = {}) {
+        js0.args(arguments, [ js0.RawObject, js0.Default ]);
         return new ABDJSON(properties);
     }
 
     Long(properties = {}) {
+        js0.args(arguments, [ js0.RawObject, js0.Default ]);
         return new ABDLong(properties);
     }
 
@@ -99,14 +113,18 @@ class fields_Class
     // }
 
     String(size, properties = {}) {
+        js0.args(arguments, 'int', [ js0.RawObject, js0.Default ]);
         return new ABDString(size, properties);
     }
 
     Time(properties = {}) {
+        js0.args(arguments, [ js0.RawObject, js0.Default ]);
         return new ABDTime(properties);
     }
 
     Text(type, properties = {}) {
+        js0.args(arguments, js0.Enum([ 'tiny', 'regular', 'medium' ]), 
+                [ js0.RawObject, js0.Default ]);
         return new ABDText(type, properties);
     }
 

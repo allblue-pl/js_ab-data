@@ -1,11 +1,8 @@
-'use strict';
-
 // const 
 // ;
 
 
-class validators_Class
-{
+class validators_Class {
 
     get ABDBoolValidator() { return require('./ABDBoolValidator'); }
     get ABDEmailValidator() { return require('./ABDEmailValidator'); };

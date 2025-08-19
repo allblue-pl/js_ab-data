@@ -1,11 +1,8 @@
-'use strict';
-
 const
     js0 = require('js0')
 ;
 
-class Device
-{
+class Device {
 
     static get Devices_Offset() {
         return 100000000;
@@ -48,7 +45,7 @@ class Device
 
     constructor(deviceId, deviceHash, lastUpdate, lastItemId, declaredItemIds = []) {
         js0.args(arguments, js0.Long, 'string', js0.Long, [ js0.Long, js0.Null ],
-                [ Array, js0.Default() ]);
+                [ Array, js0.Default ]);
 
         this._id = deviceId;
         this._hash = deviceHash;

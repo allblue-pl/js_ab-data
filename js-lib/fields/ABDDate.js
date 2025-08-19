@@ -9,40 +9,34 @@ const
     helper = require('../helper')
 ;
 
-class ABDString extends ABDField {
-    get size() {
-        return this._size;
-    }
-
-    constructor(size, properties = {}) {
-        js0.args(arguments, js0.Int, [ js0.RawObject, js0.Default ]);
-        super([ size ], properties);
-
-        this._size = size;
+class ABDDate extends ABDField {
+    constructor(properties = {}) {
+        js0.args(arguments, [ js0.RawObject, js0.Default ]);
+        super([], properties);
     }
 
 
     __compareDBType(dbVersion, dbType) {
-        return dbType === `varchar(${this.size})`;
+        return dbType === 'datetime';
     }
 
     __getDBType(dbVersion) {
-        return `varchar(${this.size})`;
+        return 'datetime'
     }
 
     __getDefaultValue() {
-        return '';
+        return '0000-00-00'; // length: 10
     }
 
-    __getDBExtra(dbVersion) {
+    __getDBExtra() {
         return '';
     }
 
     __getFieldValidator(fieldValidatorInfo) {
-        if (!('maxLength' in fieldValidatorInfo))
-            fieldValidatorInfo['maxLength'] = this.size;
+        // if (!('maxLength' in fieldValidatorInfo))
+        //     fieldValidatorInfo['maxLength'] = this.size;
 
-        return new ABDStringValidator(fieldValidatorInfo);
+        return new ABDStringValidator({ maxLength: 10 });
     }
 
     __getSelectType() {
@@ -69,4 +63,4 @@ class ABDString extends ABDField {
         return value;
     }
 }
-module.exports = ABDString;
+module.exports = ABDDate;

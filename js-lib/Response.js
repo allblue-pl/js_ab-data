@@ -1,12 +1,8 @@
-'use strict';
-
 const
     js0 = require('js0')
 ;
 
-export default class Response
-{
-
+class Response {
     static get ResultTypes_Success() {
         return 0;
     }
@@ -40,6 +36,16 @@ export default class Response
     }
 
 
+    static Create(response) {
+        js0.args(arguments, js0.RawObject);
+
+        let r = new Response();
+        r.parseRawObject(response);
+
+        return r;
+    }
+
+
     constructor() {
         this.actionErrors = {};
         this.type = Response.Types_Success;
@@ -59,6 +65,5 @@ export default class Response
         this.results = response.results;
         this.requestIds = response.requestIds;
     }
-
 }
 module.exports = Response;
