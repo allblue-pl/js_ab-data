@@ -37,9 +37,9 @@ class ABDField {
         this._properties = properties;
     }
 
-    compareDBType(dbVersion, dbType) {
-        js0.args(arguments, require('../DatabaseVersion'), 'string');
-        return js0.rtn('boolean', this.__compareDBType(dbVersion, dbType));
+    compareDBType(dbVersion, dbType, dbExtra) {
+        js0.args(arguments, require('../DatabaseVersion'), 'string', 'string');
+        return js0.rtn('boolean', this.__compareDBType(dbVersion, dbType, dbExtra));
     }
 
     getDBType(dbVersion) {
@@ -60,8 +60,9 @@ class ABDField {
     getQuery_Column(dbVersion, columnName) {
         js0.args(arguments, require('../DatabaseVersion'), 'string');
 
+        let dbExtra = this.getDBExtra(dbVersion);
         return `${columnName} ` + this.getDBType(dbVersion) + (this.notNull ? 
-                ' NOT NULL' : ' NULL');
+                ' NOT NULL' : ' NULL') + (dbExtra === '' ? '' : ` ${dbExtra}`);
     }
 
     escape(value) {
@@ -113,7 +114,7 @@ class ABDField {
     }
     
 
-    __compareDBType(dbVersion, dbFieldType) { js0.virtual(this); }
+    __compareDBType(dbVersion, dbType, dbExtra) { js0.virtual(this); }
     __getDBExtra(dbVersion) { js0.virtual(this); }
     __getDBType(dbVersion) { js0.virtual(this); }
     __getDefaultValue() { js0.virtual(this); }

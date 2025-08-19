@@ -79,10 +79,6 @@ class DataScheme {
         return this._requests.get(requestName);
     }
 
-    getTDef(tableName) {
-        return this.getTable(tableName);
-    }
-
     getTableDef(tableName) {
         js0.args(arguments, 'string');
 

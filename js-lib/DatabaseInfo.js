@@ -115,7 +115,7 @@ class DatabaseInfo {
         // console.log('###');
 
         if (!FieldInfo.CompareDBType(scheme_Field, db_Info.dbVersion, 
-                db_FieldInfo.dbType)) {
+                db_FieldInfo.dbType, db_FieldInfo.dbExtra)) {
             console.log(db_FieldInfo, scheme_Field);
             console.log(`# Table '${scheme_TableDef.name}'.` +
                   ` DB type '${db_FieldInfo.dbType}' does not match for column '${columnName}'.`);
@@ -229,6 +229,8 @@ class DatabaseInfo {
             let db_IndexInfo = db_IndexInfos[indexName];
             
             if (!Object.keys(scheme_Indexes).includes(indexName)) {
+                console.log(`# Table '${scheme_TableDef.name}' index '${indexName}'` +
+                        ` does not exist in scheme. Deleting...`);
                 actions.indexes_Delete.push(indexName);
                 delete db_IndexInfos[indexName];
                 continue; 
@@ -236,6 +238,8 @@ class DatabaseInfo {
 
             if (db_IndexInfo.columnInfos.length !== 
                     scheme_Indexes[indexName].length) {
+                console.log(`# Table '${scheme_TableDef.name}' index '${index}'` +
+                        ` does not match columns count in scheme. Deleting...`);
                 actions.indexes_Delete.push(indexName);
                 delete db_IndexInfos[indexName];
                 continue; 
@@ -258,7 +262,7 @@ class DatabaseInfo {
                         scheme_Indexes[indexName][db_indexColumnInfo.position].name) {
                     console.log(`# Table '${scheme_TableDef.name}' index '${indexName}'` +
                             ` at ${db_indexColumnInfo.position} does not match name ` +
-                            ` of '${db_indexColumnInfo.name}'`);
+                            ` of '${db_indexColumnInfo.name}'. Deleting...`);
                     actions.indexes_Delete.push(indexName);
                     delete db_IndexInfos[indexName];
                     deleting = true;
@@ -269,7 +273,7 @@ class DatabaseInfo {
                         scheme_Indexes[indexName][db_indexColumnInfo.position].desc) {
                     console.log(`# Table '${scheme_TableDef.name}' index '${indexName}'` +
                             ` at ${db_indexColumnInfo.position} does not match 'desc'` +
-                             ` of '${db_indexColumnInfo.name}'`);
+                             ` of '${db_indexColumnInfo.name}'. Deleting...`);
                     actions.indexes_Delete.push(indexName);
                     delete db_IndexInfos[indexName];
                     deleting = true;
@@ -283,6 +287,8 @@ class DatabaseInfo {
         /* Create */
         for (let indexName in scheme_Indexes) {
             if (!Object.keys(db_IndexInfos).includes(indexName)) {
+                console.log(`# Table '${scheme_TableDef.name}' in db does not` +
+                        ` contain index '${indexName}'. Creating...`);
                 actions.indexes_Create[indexName] = scheme_Indexes[indexName];
                 continue; 
             }

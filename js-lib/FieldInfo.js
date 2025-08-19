@@ -11,19 +11,20 @@ class FieldInfo {
     //     return dbExtra === field.getDBExtra();
     // }
 
-    static CompareDBType(field, dbInfo, dbType) {
+    static CompareDBType(field, dbInfo, dbType, dbExtra) {
         js0.args(arguments, require('./fields/ABDField'), 
-                require('./DatabaseVersion'), 'string');
-        return field.compareDBType(dbInfo, dbType);
+                require('./DatabaseVersion'), 'string', 'string');
+        return field.compareDBType(dbInfo, dbType, dbExtra);
     }
 
 
-    constructor(name, dbType, notNull) {
-        js0.args(arguments, 'string', 'string', 'boolean');
+    constructor(name, dbType, notNull, dbExtra) {
+        js0.args(arguments, 'string', 'string', 'boolean', 'string');
 
         this.name = name;
         this.dbType = dbType === null ? null : dbType.toLowerCase();
         this.notNull = notNull;
+        this.dbExtra = dbExtra;
     }
 }
 module.exports = FieldInfo;

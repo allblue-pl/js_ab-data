@@ -10,19 +10,17 @@ const
 ;
 
 class ABDAutoIncrementId extends ABDField {
-    get isLong() {
-        return this._isLong;
-    }
-
     constructor() {
         js0.args(arguments);
         super([], { notNull: true, });
     }
 
 
-    __compareDBType(dbVersion, dbType) {
-        if (this.isLong)
-            return dbType === 'bigint';
+    __compareDBType(dbVersion, dbType, dbExtra) {
+        if (dbVersion.type === 'mysql') {
+            if (dbExtra !== 'auto_crement')
+                return false;
+        }
         
         return dbType === 'int';
     }
