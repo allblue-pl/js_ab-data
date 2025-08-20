@@ -18,7 +18,7 @@ class ABDAutoIncrementId extends ABDField {
 
     __compareDBType(dbVersion, dbType, dbExtra) {
         if (dbVersion.type === 'mysql') {
-            if (dbExtra !== 'auto_crement')
+            if (dbExtra !== 'auto_increment')
                 return false;
         }
         
