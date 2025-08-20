@@ -1,6 +1,5 @@
 {
     "abDependencies": {
-        "ab-data": "",
         "ab-date": "",
         "ab-fs": "",
         "ab-fs-matcher": "",
