@@ -61,7 +61,7 @@ class ABDField {
         js0.args(arguments, require('../DatabaseVersion'), 'string');
 
         let dbExtra = this.getDBExtra(dbVersion);
-        return `${columnName} ` + this.getDBType(dbVersion) + (this.notNull ? 
+        return `\`${columnName}\` ` + this.getDBType(dbVersion) + (this.notNull ? 
                 ' NOT NULL' : ' NULL') + (dbExtra === '' ? '' : ` ${dbExtra}`);
     }
 

@@ -8,13 +8,13 @@ class TableInfo {
     static GetQuery_Create(dbVersion, tableDef) {
         js0.args(arguments, require('./DatabaseVersion'), require('./TableDef'));
 
-        let query = `CREATE TABLE ${tableDef.name} (`;
+        let query = `CREATE TABLE \`${tableDef.name}\` (`;
         let fields = [];
         
         for (let [ columnName, column ] of tableDef.columns) {
             let field = column.field;
             let field_DBExtra = field.getDBExtra(dbVersion);
-            fields.push(`${columnName} ` + field.getDBType(dbVersion) + 
+            fields.push(`\`${columnName}\` ` + field.getDBType(dbVersion) + 
                     (field.notNull ? ' NOT NULL' : ' NULL') +
                     (field_DBExtra === '' ? '' : ` ${field_DBExtra}`));
         }

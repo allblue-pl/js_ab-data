@@ -47,17 +47,11 @@ class TableRequestDef extends RequestDef {
     }
 
 
-    constructor() {
+    constructor(readOnly = false) {
         super();
-        js0.args(arguments);
+        js0.args(arguments, [ 'boolean', js0.Default ]);
    
         this
-            .defA('delete', 'w', {
-                where: js0.ArrayItems(Array),
-            }, {
-                success: 'boolean',
-                error: [ 'string', js0.Null ],
-            })
             .defA('row', 'r',
                 TableRequestDef.Args_Select(), {
                 row: [ Array, js0.Null ],
@@ -72,19 +66,29 @@ class TableRequestDef extends RequestDef {
                 success: 'boolean',
                 error: [ 'string', js0.Null ],
             })
-            .defA('set', 'w', {
-                row: js0.RawObject,
-            }, {
-                success: 'boolean',
-                error: [ 'string', js0.Null ],
-            })
-            .defA('update', 'w', {
-                rows: js0.ArrayItems(js0.RawObject),
-                keys: [ '_Id' ],
-            }, {
-                success: 'boolean',
-                error: [ 'string', js0.Null ],
-            });
+
+        if (!readOnly) {
+            this
+                .defA('delete', 'w', {
+                    where: js0.ArrayItems(Array),
+                }, {
+                    success: 'boolean',
+                    error: [ 'string', js0.Null ],
+                })
+                .defA('set', 'w', {
+                    row: js0.RawObject,
+                }, {
+                    success: 'boolean',
+                    error: [ 'string', js0.Null ],
+                })
+                .defA('update', 'w', {
+                    rows: js0.ArrayItems(js0.RawObject),
+                    keys: [ '_Id' ],
+                }, {
+                    success: 'boolean',
+                    error: [ 'string', js0.Null ],
+                });
+        }
     }
 }
 module.exports = TableRequestDef;

@@ -36,6 +36,9 @@ class ABDInt extends ABDField {
     }
 
     __getDBType(dbVersion) {
+        if (dbVersion.type === 'mysql')
+            return 'int' + (this.unsigned ? ' unsigned' : '');
+
         return 'int';
     }
 

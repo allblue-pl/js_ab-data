@@ -16,7 +16,8 @@ class RequestProcessor {
 
 
     constructor(dataScheme, device) {
-        js0.args(arguments, require('./DataScheme'), require('./Device'));
+        js0.args(arguments, require('./DataScheme'), 
+                [ require('./Device'), js0.Null ]);
 
         this._scheme = dataScheme;
         this._device = device;
