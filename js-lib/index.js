@@ -60,6 +60,10 @@ class abData_Class {
         return require('./Response');
     }
 
+    get Result() {
+        return require('./Result');
+    }
+
     get RequestDef() {
         return require('./RequestDef');
     }
@@ -108,6 +112,5 @@ class abData_Class {
         js0.args(arguments, 'boolean');
         this._debug = debug;
     }
-
 }
 module.exports = new abData_Class();

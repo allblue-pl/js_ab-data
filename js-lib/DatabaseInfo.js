@@ -200,6 +200,9 @@ class DatabaseInfo {
             indexes_Create: {},
         };
 
+        console.log('db', db_TableInfo.pks);
+        console.log('scheme', scheme_TableDef.pks);
+
         if (db_TableInfo.pks.length === scheme_TableDef.pks.length) {
             for (let i = 0; i < scheme_TableDef.pks.length; i++) {
                 if (db_TableInfo.pks[i] !== scheme_TableDef.pks[i]) {
