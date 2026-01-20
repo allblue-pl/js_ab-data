@@ -12,7 +12,7 @@ const
 class ABDAutoIncrementId extends ABDField {
     constructor() {
         js0.args(arguments);
-        super([], { notNull: true, });
+        super([], { notNull: false, });
     }
 
 
