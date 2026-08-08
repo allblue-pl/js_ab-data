@@ -1,4 +1,6 @@
 {
   "name": "ab-data",
-  "version": "0.0.2"
+  "type": "module",
+  "version": "0.0.2",
+  "main": "index.js"
 }

@@ -1,0 +1,23 @@
+declare const lang_PL_ABData: {
+    NotChecked: string;
+    NotSet: string;
+    NotNull: string;
+    Time_WrongFormat: string;
+    Time_BelowMinDate: string;
+    Time_AboveMaxDate: string;
+    Email_WrongFormat: string;
+    Errors_AboveMaxLength: string;
+    Errors_BelowMinLength: string;
+    Errors_NotAllowedCharacters: string;
+    Errors_WrongFormat: string;
+    Int_NotANumber: string;
+    Int_NotAnInt: string;
+    Int_BelowMin: string;
+    Int_AboveMax: string;
+    Long_NotANumber: string;
+    Long_NotAnInt: string;
+    Long_BelowMin: string;
+    Long_AboveMax: string;
+    Radio_WrongValue: string;
+};
+export default lang_PL_ABData;

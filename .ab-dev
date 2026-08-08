@@ -1,15 +1,16 @@
 {
     "abDependencies": {
-        "ab-date": "",
-        "ab-fs": "",
-        "ab-fs-matcher": "",
-        "ab-fs-watcher": "",
-        "ab-lock": "",
-        "ab-log": "",
-        "ab-mysql": "",
-        "ab-strings": "",
-        "ab-text": "",
-        "ab-tasks": "",
-        "js0": ""
+        "@allblue/ts0": "https://github.com/allblue-pl/js_ts0",
+        "ab-date": "https://github.com/allblue-pl/ab-date",
+        "ab-lock": "https://github.com/allblue-pl/ab-lock",
+        "ab-strings": "https://github.com/allblue-pl/ab-strings",
+        "ab-text": "https://github.com/allblue-pl/ab-text",
+        "web-ab-api": "https://github.com/allblue-pl/web-ab-api"
+    },
+    "abTS": {
+        "tsconfig": ".",
+        "libs": [
+            "."
+        ]
     }
 }
