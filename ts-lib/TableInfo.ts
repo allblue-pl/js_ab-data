@@ -2,13 +2,13 @@ import ts0 from "@allblue/ts0"
 import ABDAutoIncrementId from "./abd-fields/ABDAutoIncrementId.ts";
 import DatabaseVersion from "./DatabaseVersion.ts";
 import TableDef from "./TableDef.ts";
-import FieldInfo from "./FieldInfo.ts";
+import DBFieldInfo from "./FieldInfo.ts";
 import IndexInfo from "./IndexInfo.ts";
 
 class TableInfo {
     #charset: string;
     #collation: string;
-    #fieldInfos: Array<FieldInfo>;
+    #fieldInfos: Array<DBFieldInfo>;
     #indexInfos: {[indexName: string]: IndexInfo};
     #name: string;
     #primaryKeys: Array<string>;
@@ -48,7 +48,7 @@ class TableInfo {
     }
 
 
-    get fieldInfos(): Array<FieldInfo> {
+    get fieldInfos(): Array<DBFieldInfo> {
         return this.#fieldInfos;
     }
 
@@ -74,7 +74,7 @@ class TableInfo {
         this.#collation = 'utf8_general_ci';
     }
 
-    addFieldInfo(fieldInfo: FieldInfo): void {
+    addFieldInfo(fieldInfo: DBFieldInfo): void {
         this.#fieldInfos.push(fieldInfo);
     }
 
@@ -82,7 +82,7 @@ class TableInfo {
         this.#indexInfos[indexName] = indexInfo;
     }
 
-    getFieldInfo_ByName(fieldName: string): FieldInfo|null {
+    getFieldInfo_ByName(fieldName: string): DBFieldInfo|null {
         for (let fieldInfo of this.fieldInfos) {
             if (fieldInfo.name === fieldName)
                 return fieldInfo;

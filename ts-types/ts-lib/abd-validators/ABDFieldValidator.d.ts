@@ -3,7 +3,7 @@ import Validator from "../Validator.ts";
 export default abstract class ABDFieldValidator {
     #private;
     get args(): ABDFieldValidator_Args_Parsed;
-    constructor(args_: ABDFieldValidator_Args);
+    constructor(args_?: ABDFieldValidator_Args);
     validate(validator: Validator, fieldName: string, value: TS0RawValue): void;
     abstract getType(): string;
     abstract __validate(validator: Validator, fieldName: string, value: TS0RawValue): void;

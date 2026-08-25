@@ -10,7 +10,7 @@ export default abstract class ABDFieldValidator {
     }
 
 
-    constructor(args_: ABDFieldValidator_Args) {
+    constructor(args_: ABDFieldValidator_Args = {}) {
         this.#args = assert_ABDFieldValidator_Args(args_);
     }
 

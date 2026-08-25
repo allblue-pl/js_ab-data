@@ -47,15 +47,15 @@ class Response {
     }
 
 
-    #actionErrors: {[actionName: string]: string};
+    #actionErrors: {[actionName: string]: string|null};
     #errorMessage: string|null;
     #info: ResponseInfo;
-    #requestIds: Array<number>;
-    #results: {[actionName: string]: ResponseResultData};
+    #requestIds: Array<string>;
+    #results: ResponseDataResults;
     #type: number;
 
 
-    get actionErrors(): {[actionName: string]: string} {
+    get actionErrors(): {[actionName: string]: string|null} {
         return this.#actionErrors;
     }
 
@@ -63,9 +63,17 @@ class Response {
         return this.#errorMessage;
     }
 
-    get results(): {[actionName: string]: ResponseResultData} {
-        return this.#results;
+    get info(): ResponseInfo {
+        return this.#info;
     }
+
+    get requestIds(): Array<string> {
+        return this.#requestIds;
+    }
+
+    // get results(): {[actionName: string]: ResponseResultData} {
+    //     return this.#results;
+    // }
 
     get type(): number {
         return this.#type;
@@ -79,6 +87,13 @@ class Response {
         this.#info = {};
         this.#results = {};
         this.#requestIds = [];
+    }
+
+    addResult(requestId: string, result: ResponseResultData|null, 
+            actionError: string|null): void {
+        this.#requestIds.push(requestId);
+        this.#actionErrors[requestId] = actionError;
+        this.#results[requestId] = result;
     }
 
     getErrorInfo(): ErrorInfo {
@@ -121,7 +136,7 @@ class Response {
         return this.errorMessage;
     }
 
-    getResult<T_ResponseResultData extends ResponseResultData>(actionName: string|TS0NotSet = ts0.notSet): 
+    getActionResult<T_ResponseResultData extends ResponseResultData>(actionName: string|TS0NotSet = ts0.notSet): 
             ResponseResult<T_ResponseResultData> {
         if (this.type >= 3)
             return new ResponseResult(this, null, null);
@@ -177,15 +192,15 @@ export default Response;
 
 
 export type ResponseData = {
-    actionErrors: {[actionName: string]: string},
+    actionErrors: {[actionName: string]: string|null},
     type: number,
     errorMessage: string,
     info: ResponseInfo,
     results: ResponseDataResults,
-    requestIds: Array<number>,
+    requestIds: Array<string>,
 }
 
-export type ResponseDataResults = {[actionName: string]: ResponseResultData};
+export type ResponseDataResults = {[actionName: string]: ResponseResultData|null};
 
 type ResponseInfo = {
     webResult?: ApiResult,

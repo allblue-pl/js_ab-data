@@ -20,9 +20,10 @@ class Device {
     #id: number;
     #itemIds_Declared: Array<number>;
     #lastItemId: number;
-    #lastUpdate: number;
+    #lastUpdate: number|null;
     #locks: Array<number>;
     #locks_Next: number;
+    #nextItemId: number;
 
 
     get declaredItemIds(): Array<number> {
@@ -41,7 +42,7 @@ class Device {
         return this.#lastItemId;
     }
 
-    get lastUpdate(): number {
+    get lastUpdate(): number|null {
         return this.#lastUpdate;
     }
 
@@ -51,6 +52,7 @@ class Device {
         this.#id = deviceId;
         this.#hash = deviceHash;
         this.#lastItemId = lastItemId;
+        this.#nextItemId = lastItemId + 1;
         this.#lastUpdate = lastUpdate;
 
         this.#itemIds_Declared = declaredItemIds;
@@ -62,11 +64,21 @@ class Device {
     isNewId(id: number): boolean {
         let idInfo = Device.GetIdInfo(id);
 
-        if (this.#isNewId_Device(idInfo))
+        if (this.isNewId_Device(idInfo))
             return true;
 
         // if (this.#isNewId_SystemDevice(idInfo))
         //     return true;
+
+        return false;
+    }
+
+    isNewId_Device(idInfo: Device_IdInfo): boolean {
+        if (idInfo['deviceId'] !== this.#id)
+            return false;
+
+        if (this.#itemIds_Declared.includes(idInfo['itemId']))
+            return true;
 
         return false;
     }
@@ -76,8 +88,9 @@ class Device {
     }
 
     nextId(): number {
-        let nextId = this.#id * Device.Devices_Offset + (++this.#lastItemId);
-        this.#itemIds_Declared.push(this.#lastItemId);
+        let nextId = this.#id * Device.Devices_Offset + this.#nextItemId;
+        this.#itemIds_Declared.push(this.#nextItemId);
+        this.#nextItemId++;
 
         return nextId;
     }
@@ -102,9 +115,10 @@ class Device {
         throw new Error(`Lock '${lock}' does not exist.`);
     }
 
-    update(lastUpdate: number, lastItemId: number): void {
+    update(lastUpdate: number|null, lastItemId: number): void {
         this.#lastUpdate = lastUpdate;
         this.#lastItemId = lastItemId;
+        this.#nextItemId = lastItemId + 1;
     }
 
     
@@ -112,20 +126,6 @@ class Device {
         if (this.#locks.length > 0) 
             throw new Error('Device locked.');
     }
-
-    #isNewId_Device(idInfo: Device_IdInfo): boolean {
-        if (idInfo['deviceId'] !== this.#id)
-            return false;
-
-        if (idInfo['itemId'] <= this.#lastItemId)
-            return false;
-
-        if (this.#itemIds_Declared.includes(idInfo['itemId']))
-            return true;
-
-        return false;
-    }
-
 }
 export default Device;
 

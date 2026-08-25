@@ -1,5 +1,5 @@
 import { type TS0RawValue } from "@allblue/ts0"
-import ABDField from "./ABDField.ts";
+import ABDField, { type ABDField_Properties } from "./ABDField.ts";
 import ABDLongValidator from "../abd-validators/ABDLongValidator.ts";
 import SelectColumnType, { type SelectColumnType_Type } from "../SelectColumnType.ts";
 import type DatabaseVersion from "../DatabaseVersion.ts";
@@ -7,8 +7,8 @@ import type { ABDFieldValidator_Args } from "../abd-validators/ABDFieldValidator
 import type ABDFieldValidator from "../abd-validators/ABDFieldValidator.ts";
 
 class ABDId extends ABDField {
-    constructor() {
-        super({ notNull: true });
+    constructor(properties: ABDField_Properties = {}) {
+        super(properties);
     }
 
 
@@ -49,7 +49,7 @@ class ABDId extends ABDField {
         return value;
     }
 
-    override __unescape(value: string): TS0RawValue {
+    override __unescape(value: boolean|number|string): boolean|number|string {
         return Number(value);
     }
 

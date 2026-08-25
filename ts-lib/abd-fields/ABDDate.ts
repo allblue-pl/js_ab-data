@@ -57,7 +57,7 @@ class ABDDate extends ABDField {
         return helper.escapeString(String(value));
     }
 
-    override __unescape(value: string): TS0RawValue {
+    override __unescape(value: boolean|number|string): boolean|number|string {
         return value;
     }
 }

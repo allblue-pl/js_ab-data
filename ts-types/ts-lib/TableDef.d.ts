@@ -6,13 +6,13 @@ declare class TableDef {
     #private;
     get alias(): string;
     get autoIncrement(): boolean;
-    get columns(): TablDef_ColumnInfos;
+    get columns(): TableDef_ColumnInfos;
     get indexes(): TableDef_IndexInfos;
     get name(): string;
     get pks(): Array<string>;
     constructor(id: number, name: string, alias: string, columns: Array<[string, ABDField, ABDFieldValidator_Args?]>);
     addColumnValidator(columnName: string, fieldValidator: ABDFieldValidator): TableDef;
-    getColumn(columnName: string): TablDef_ColumnInfo;
+    getColumn(columnName: string): TableDef_ColumnInfo;
     getColumn_Field(columnName: string): ABDField;
     getColumnIndex(columnName: string): number;
     getColumnNames(): Array<string>;
@@ -46,13 +46,13 @@ export type TableDef_IndexInfos = {
         desc: boolean;
     }>;
 };
-type TablDef_ColumnInfo = {
+export type TableDef_ColumnInfo = {
     field: ABDField;
     fieldValidator: ABDFieldValidator;
     index: number;
     select: string;
 };
-type TablDef_ColumnInfos = TS0List<string, TablDef_ColumnInfo>;
+export type TableDef_ColumnInfos = TS0List<string, TableDef_ColumnInfo>;
 export type TableDef_ValidatorInfo = {
     [columnName: string]: {
         field: {

@@ -1,30 +1,82 @@
-import abData from "./ts-lib/index.ts";
 import abDataDefTypes from "./ts-lib/abDataDefTypes.ts";
 import abdFields from "./ts-lib/abd-fields/index.ts";
 import abdValidators from "./ts-lib/abd-validators/index.ts";
 import ABDField from "./ts-lib/abd-fields/ABDField.ts";
+import ABDRequestArgs, {
+    abdRequestResult,
+    ABDRequestResult,
+} from "./ts-lib/ABDRequestArgs.ts";
 import DataScheme from "./ts-lib/DataScheme.ts";
 import DataStore from "./ts-lib/DataStore.ts";
-import Response from "./ts-lib/Response.ts";
-import ResponseResult from "./ts-lib/ResponseResult.ts";
+import FieldInfo from "./ts-lib/FieldInfo.ts";
+import IndexInfo from "./ts-lib/IndexInfo.ts";
+import ResponseResult, { p_ResponseResultData, type ResponseResultData } from "./ts-lib/ResponseResult.ts";
 import RequestDef from "./ts-lib/RequestDef.ts";
 import DatabaseInfo from "./ts-lib/DatabaseInfo.ts";
 import DatabaseVersion from "./ts-lib/DatabaseVersion.ts";
 import RTableDef from "./ts-lib/RTableDef.ts";
-import TableDef from "./ts-lib/TableDef.ts";
+import { type TableDef_ValidatorInfo } from "./ts-lib/TableDef.ts";
 // import TableRequestDef from "./ts-lib/TableRequestDef.ts";
 import Device from "./ts-lib/Device.ts";
-import RequestProcessor, { type Request_Parsed } from "./ts-lib/RequestProcessor.ts";
 import { type ABDataDefPreset, type ABDataDefValueType, ABDataDefArrayPresetType, 
         ABDataDefArrayType, ABDataDefObjectPresetType, ABDataDefObjectType, 
         ABDataDefTableRowType } from "./ts-lib/abDataDefTypes.ts";
+import SelectColumnType, { type SelectColumnType_Type } from "./ts-lib/SelectColumnType.ts";
 
-export default abData;
+import abData from "./ts-lib/index.ts";
+import Response, {
+    type ResponseData
+} from "./ts-lib/Response.ts";
+import RequestProcessor, {
+    type Request,
+    type Request_Parsed,
+    type RequestInfo,
+    type RequestInfo_Parsed,
+} from "./ts-lib/RequestProcessor.ts";
+import TableDef, {
+    type TableDef_ColumnInfo,
+    type TableDef_ColumnInfos,
+    type TableDef_IndexInfos } from "./ts-lib/TableDef.ts";
+import TableInfo from "./ts-lib/TableInfo.ts";
+import TableRequestDef, { 
+    type TableRequest_Args_Delete,
+    type TableRequest_Args_Join_Parsed, 
+    type TableRequest_Args_Join, 
+    type TableRequest_Args_Select_Parsed,
+    type TableRequest_Args_Select, 
+    type WhereConditions, 
+} from "./ts-lib/TableRequestDef.ts";
+
 export { type ABDataDefPreset, type ABDataDefValueType, ABDataDefArrayPresetType, 
         ABDataDefArrayType, ABDataDefObjectPresetType, ABDataDefObjectType, 
         ABDataDefTableRowType, };
-export type { Request_Parsed };
-export { abDataDefTypes, abdFields, abdValidators, ABDField, DataScheme, DataStore, 
-        DatabaseInfo, DatabaseVersion, Device, Response, ResponseResult, RequestDef, 
-        RTableDef, RequestProcessor, TableDef };
-// export { TableRequestDef };
+export { abDataDefTypes, abdFields, abdValidators, p_ResponseResultData, ABDField, DataScheme, DataStore, 
+        DatabaseInfo, DatabaseVersion, Device, ResponseResult, type ResponseResultData, 
+        RequestDef, RTableDef, type TableDef_ValidatorInfo, 
+        SelectColumnType, type SelectColumnType_Type };
+export { FieldInfo, IndexInfo };
+
+export default abData;
+export { ABDRequestArgs,
+    abdRequestResult,
+    ABDRequestResult };
+export { Response,
+    type ResponseData };
+export { RequestProcessor,
+    type Request,
+    type Request_Parsed,
+    type RequestInfo,
+    type RequestInfo_Parsed };
+export { TableDef,
+    type TableDef_ColumnInfo,
+    type TableDef_ColumnInfos,
+    type TableDef_IndexInfos };
+export { TableInfo };
+export { TableRequestDef,
+    type TableRequest_Args_Delete,
+    type TableRequest_Args_Join_Parsed, 
+    type TableRequest_Args_Join, 
+    type TableRequest_Args_Select_Parsed,
+    type TableRequest_Args_Select, 
+    type WhereConditions, 
+};

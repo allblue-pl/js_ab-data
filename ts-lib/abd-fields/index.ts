@@ -14,6 +14,10 @@ import ABDString from "./ABDString.ts";
 import ABDText, { type ABDText_Type } from "./ABDText.ts";
 import ABDTime from "./ABDTime.ts";
 import type { ABDField_Properties } from "./ABDField.ts";
+import type ABDField from "./ABDField.ts";
+import type { ABDData_Type } from "./ABDData.ts";
+import type { ABDataDefValueType } from "../abDataDefTypes.ts";
+import ABDData from "./ABDData.ts";
 
 
 class abdField_Class {
@@ -21,7 +25,7 @@ class abdField_Class {
     get ABDAutoIncrementId(): typeof ABDAutoIncrementId { return ABDAutoIncrementId; };
     get ABDBlob(): typeof ABDBlob { return ABDBlob; };
     get ABDBool(): typeof ABDBool { return ABDBool; };
-    // get ABDData() { return ABDData; }
+    get ABDData(): typeof ABDData { return ABDData; }
     get ABDDate(): typeof ABDDate { return ABDDate; }
     get ABDDateTime(): typeof ABDDateTime { return ABDDateTime; }
     // get ABDDouble() { return ABDDouble; };
@@ -53,9 +57,10 @@ class abdField_Class {
         return new ABDBool(properties);
     }
 
-    // Data(properties = {}): ABDData {
-    //     return new ABDData(properties);
-    // }
+    Data(dataDef: ABDataDefValueType, type: ABDData_Type, 
+            properties: ABDField_Properties = {}): ABDData {
+        return new ABDData(dataDef, type, properties);
+    }
 
     Date(properties: ABDField_Properties = {}): ABDDate {
         return new ABDDate(properties);
@@ -74,8 +79,8 @@ class abdField_Class {
         return new ABDFloat(properties);
     }
 
-    Id(): ABDId {
-        return new ABDId();
+    Id(properties: ABDField_Properties = {}): ABDId {
+        return new ABDId(properties);
     }
 
     Int(properties: ABDField_Properties = {}): ABDInt {

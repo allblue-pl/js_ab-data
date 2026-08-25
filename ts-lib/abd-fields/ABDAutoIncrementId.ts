@@ -64,8 +64,8 @@ class ABDAutoIncrementId extends ABDField {
         return Math.round(Number(value));
     }
 
-    override __unescape(value: string): TS0RawValue {
-        return parseInt(value);
+    override __unescape(value: boolean|number|string): boolean|number|string {
+        return parseInt(String(value));
     }
 }
 export default ABDAutoIncrementId;

@@ -1,5 +1,5 @@
 import abText from "ab-text";
-import ts0, { ts0Assert, type TS0RawArray, type TS0RawObject, type TS0RawValue } from "@allblue/ts0"
+import ts0, { TS0ArrayType, ts0Assert, type TS0RawArray, type TS0RawObject, type TS0RawValue } from "@allblue/ts0"
 import Response from "./Response.ts";
 import type { ErrorInfo } from "./ts-types.ts";
 
@@ -17,6 +17,7 @@ export default class ResponseResult<T_ResponseResultData extends ResponseResultD
     }
 
     #data: T_ResponseResultData|null;
+    #error: string|null;
     #response: Response;
 
 
@@ -24,6 +25,10 @@ export default class ResponseResult<T_ResponseResultData extends ResponseResultD
         ts0Assert(this.#data !== null, `Response result data is null.`);
 
         return this.#data;
+    }
+
+    get error(): string|null {
+        return this.#error;
     }
 
     get message(): string {
@@ -35,7 +40,7 @@ export default class ResponseResult<T_ResponseResultData extends ResponseResultD
 
 
     constructor(response: Response, resultData: ResponseResultData|null, 
-            actionError: string|null) {
+            error: string|null) {
         if (resultData !== null) {
             ts0.assertType(resultData, ts0.TPreset({
                 _type: 'int',
@@ -43,6 +48,7 @@ export default class ResponseResult<T_ResponseResultData extends ResponseResultD
             }, ts0.TObject("string", ts0.TRawValue)));
         }
 
+        this.#error = error;
         this.#response = response;
         this.#data = resultData as T_ResponseResultData;
     }
@@ -84,3 +90,7 @@ export type ResponseResultData = {
     _message: string,
     [key: string]: TS0RawValue,
 }
+export const p_ResponseResultData = ts0.TPreset({
+    _type: ts0.TEnum([ 0, 1, 2 ]),
+    _message: "string",
+}, ts0.TObject("string", ts0.TRawValue));

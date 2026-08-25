@@ -5,7 +5,7 @@ import DataStore from "./DataStore.ts";
 import DatabaseInfo from "./DatabaseInfo.ts";
 import DatabaseVersion from "./DatabaseVersion.ts";
 import Device from "./Device.ts";
-import FieldInfo from "./FieldInfo.ts";
+import DBFieldInfo from "./FieldInfo.ts";
 import IndexInfo from "./IndexInfo.ts";
 import RTableDef from "./RTableDef.ts";
 import RequestDef from "./RequestDef.ts";
@@ -15,7 +15,7 @@ import ResponseResult from "./ResponseResult.ts";
 import SelectColumnType from "./SelectColumnType.ts";
 import TableDef from "./TableDef.ts";
 import TableInfo from "./TableInfo.ts";
-// import TableRequestDef from "./TableRequestDef.ts";
+import TableRequestDef from "./TableRequestDef.ts";
 import Validator from "./Validator.ts";
 import { default as ABDField, default as Field } from "./abd-fields/ABDField.ts";
 import abdFields from "./abd-fields/index.ts";
@@ -72,8 +72,8 @@ class abData_Class {
         return Field;
     }
 
-    get FieldInfo(): typeof FieldInfo {
-        return FieldInfo;
+    get FieldInfo(): typeof DBFieldInfo {
+        return DBFieldInfo;
     }
 
     get IndexInfo(): typeof IndexInfo {
@@ -112,9 +112,9 @@ class abData_Class {
         return TableInfo;
     }
 
-    // get TableRequestDef(): typeof TableRequestDef {
-    //     return TableRequestDef;
-    // }
+    get TableRequestDef(): typeof TableRequestDef {
+        return TableRequestDef;
+    }
 
     get Validator(): typeof Validator {
         return Validator;

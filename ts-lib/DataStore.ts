@@ -1,24 +1,18 @@
 import ts0, { type TS0RawObject } from "@allblue/ts0"
 import Response, { type ResponseData } from "./Response.ts";
-import RequestProcessor, { type Request, type Request_Parsed } from "./RequestProcessor.ts";
+import RequestProcessor, { type Request, type Request_Parsed, type RequestInfo } from "./RequestProcessor.ts";
 import type Device from "./Device.ts";
 import type DataScheme from "./DataScheme.ts";
 import abData from "./index.ts";
+import ABDRequestArgs from "./ABDRequestArgs.ts";
 
 export default class DataStore {
+    #device: Device|null;
     #requestProcessor: RequestProcessor;
     #scheme: DataScheme;
 
-    get device(): Device|null {
-        return this.#requestProcessor.device;
-    }
-
     get lastId(): number|null {
-        return this.device === null ? null : this.device.lastItemId;
-    }
-
-    get requestProcessor(): RequestProcessor {
-        return this.#requestProcessor;
+        return this.#device === null ? null : this.#device.lastItemId;
     }
 
     get scheme(): DataScheme {
@@ -28,17 +22,16 @@ export default class DataStore {
 
     constructor(requestProcessor: RequestProcessor) {
         this.#requestProcessor = requestProcessor;
+        this.#device = requestProcessor.device;
         this.#scheme = requestProcessor.scheme;
     }
 
     nextId(): number|null {
-        return this.device === null ? null : this.device.nextId();
+        return this.#device === null ? null : this.#device.nextId();
     }
 
-    async request_Async(requestName: string, actionName: string, 
-            actionArgs: TS0RawObject, transactionId = null): Promise<Response> {
-        return await this.requestBatch_Async([[ "request", requestName, actionName,
-                actionArgs ]], transactionId);
+    async request_Async(request: RequestInfo, transactionId = null): Promise<Response> {
+        return await this.requestBatch_Async([[ "request", request ]], transactionId);
     }
 
     async requestB_Async(requests: Array<Request>, transactionId = null): 
@@ -50,8 +43,11 @@ export default class DataStore {
             Promise<Response> {
         let requests: Array<Request_Parsed> = [];
         for (let request of requests_) {
-            requests.push([ request[0], request[1], request[2], request[3], 
-                    this.#scheme.version ]);
+            requests.push([ request[0], [ 
+                request[1][0], 
+                request[1][1], 
+                ABDRequestArgs.ParseArgs(request[1][2]), 
+                this.#scheme.version ]]);
         }
 
         for (let request of requests) {

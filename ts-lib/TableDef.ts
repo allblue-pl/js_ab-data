@@ -2,7 +2,7 @@ import ts0, { ts0Assert, TS0AssertError, TS0List, type TS0RawObject, type TS0Raw
 import f from "./abd-fields/index.ts";
 import ABDFieldValidator, { type ABDFieldValidator_Args } from "./abd-validators/ABDFieldValidator.ts";
 import Validator from "./Validator.ts";
-import type FieldInfo from "./FieldInfo.ts";
+import type DBFieldInfo from "./FieldInfo.ts";
 import type ABDField from "./abd-fields/ABDField.ts";
 import type TableInfo from "./TableInfo.ts";
 import type IndexInfo from "./IndexInfo.ts";
@@ -10,8 +10,8 @@ import type IndexInfo from "./IndexInfo.ts";
 class TableDef {
     #alias: string;
     #autoIncrementColumn: string|null;
-    #columns: TablDef_ColumnInfos;
-    #columnValidators: TablDef_ColumnValidators;
+    #columns: TableDef_ColumnInfos;
+    #columnValidators: TableDef_ColumnValidators;
     #id: number;
     #indexes: TableDef_IndexInfos;
     #name: string;
@@ -26,7 +26,7 @@ class TableDef {
         return this.#autoIncrementColumn !== null;
     }
 
-    get columns(): TablDef_ColumnInfos {
+    get columns(): TableDef_ColumnInfos {
         return this.#columns;
     }
 
@@ -93,7 +93,7 @@ class TableDef {
         return this;
     }
 
-    getColumn(columnName: string): TablDef_ColumnInfo {
+    getColumn(columnName: string): TableDef_ColumnInfo {
         if (!this.#columns.has(columnName))
             throw new Error(`Column '${columnName}' does not exist.`);
 
@@ -177,13 +177,14 @@ class TableDef {
         
         this.#indexes = {};
         for (let indexName in indexes) {
-            this.#indexes[this.name + '-' + indexName] = [];
+            let indexColumns = [];
             for (let indexColumn of indexes[indexName]) {
-                this.#indexes[this.name + '-' + indexName].push({
+                indexColumns.push({
                     name: indexColumn[0], 
                     desc: indexColumn[1],
                 });
             }
+            this.#indexes[this.name + '-' + indexName] = indexColumns;
         }
 
         return this;
@@ -275,15 +276,15 @@ export type TableDef_IndexInfos = {[indexName: string]: Array<{
     desc: boolean,
 }>};
 
-type TablDef_ColumnInfo = {
+export type TableDef_ColumnInfo = {
     field: ABDField,
     fieldValidator: ABDFieldValidator,
     index: number,
     select: string,
 };
-type TablDef_ColumnInfos = TS0List<string, TablDef_ColumnInfo>;
+export type TableDef_ColumnInfos = TS0List<string, TableDef_ColumnInfo>;
 
-type TablDef_ColumnValidators = {[columnName: string]: Array<ABDFieldValidator>};
+type TableDef_ColumnValidators = {[columnName: string]: Array<ABDFieldValidator>};
 
 export type TableDef_ValidatorInfo = {[columnName: string]: {
     field: {

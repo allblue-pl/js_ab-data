@@ -7,8 +7,9 @@ export default class ResponseResult<T_ResponseResultData extends ResponseResultD
     static get Types_Failure(): number;
     static get Types_Error(): number;
     get data(): T_ResponseResultData;
+    get error(): string | null;
     get message(): string;
-    constructor(response: Response, resultData: ResponseResultData | null, actionError: string | null);
+    constructor(response: Response, resultData: ResponseResultData | null, error: string | null);
     getErrorInfo(): ErrorInfo;
     isError(): boolean;
     isFailure(): boolean;
@@ -19,3 +20,4 @@ export type ResponseResultData = {
     _message: string;
     [key: string]: TS0RawValue;
 };
+export declare const p_ResponseResultData: import("@allblue/ts0").TS0PresetType;

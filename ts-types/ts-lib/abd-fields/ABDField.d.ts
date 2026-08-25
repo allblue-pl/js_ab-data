@@ -17,8 +17,8 @@ declare abstract class ABDField {
     escapeArray(arr: Array<TS0RawValue>): string;
     getFieldValidator(fieldValidatorArgs: ABDFieldValidator_Args): ABDFieldValidator;
     parse(value: TS0RawValue): TS0RawValue;
-    unescape(value: string): TS0RawValue;
-    __unescape(value: string): TS0RawValue;
+    unescape(value: boolean | number | string | null): boolean | number | string | null;
+    __unescape(value: boolean | number | string): boolean | number | string;
     abstract __compareDBType(dbVersion: DatabaseVersion, dbType: string, dbExtra: string): boolean;
     abstract __getDBExtra(dbVersion: DatabaseVersion): string;
     abstract __getDBType(dbVersion: DatabaseVersion): string;

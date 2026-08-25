@@ -52,8 +52,8 @@ class ABDFloat extends ABDField {
         return value;
     }
 
-    override __unescape(value: string): TS0RawValue {
-        return parseFloat(value);
+    override __unescape(value: boolean|number|string): boolean|number|string {
+        return parseFloat(String(value));
     }
 
 }

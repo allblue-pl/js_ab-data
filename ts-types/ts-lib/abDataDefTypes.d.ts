@@ -1,16 +1,18 @@
-import type { TS0RawValue } from "@allblue/ts0";
+import { type TS0Preset, type TS0RawValue, type TS0ValueType } from "@allblue/ts0";
 declare const types_TNull: unique symbol;
 export declare class abDataDefTypes_Class {
     TArray(itemType: ABDataDefValueType): ABDataDefArrayType;
     TArrayPreset(presets: Array<ABDataDefValueType>): ABDataDefArrayPresetType;
     TDefault(defaultValue: TS0RawValue): ABDataDefDefaultType;
-    TEnum(values: Array<boolean | number | string>): ABDataDefEnumType;
+    TEnum(values: Array<boolean | number | string | null>): ABDataDefEnumType;
     get TNull(): typeof types_TNull;
     TObject(keyType: ABDataDefValueType, valueType: ABDataDefValueType): ABDataDefObjectType;
     TObjectPreset(presets: ABDataDefPreset, extras?: ABDataDefObjectType | null): ABDataDefObjectPresetType;
     TRequestArgs(requestName: string, actionName: string): ABDataDefRequestArgsType;
     TRequestResult(requestName: string, actionName: string): ABDataDefRequestResultType;
     TTableRow(tableName: string): ABDataDefTableRowType;
+    parse(value: ABDataDefValueType): TS0ValueType;
+    parsePreset(presets: ABDataDefPreset): TS0Preset;
 }
 declare const abDataDefTypes: abDataDefTypes_Class;
 export default abDataDefTypes;
@@ -31,8 +33,8 @@ export declare class ABDataDefDefaultType {
 }
 export declare class ABDataDefEnumType {
     #private;
-    get values(): Array<boolean | number | string>;
-    constructor(values: Array<boolean | number | string>);
+    get values(): Array<boolean | number | string | null>;
+    constructor(values: Array<boolean | number | string | null>);
 }
 export declare class ABDataDefObjectType {
     #private;

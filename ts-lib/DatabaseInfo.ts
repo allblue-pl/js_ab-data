@@ -1,20 +1,20 @@
 import ts0 from "@allblue/ts0";
 import DataScheme from "./DataScheme.ts";
 import DatabaseVersion from "./DatabaseVersion.ts";
-import FieldInfo from "./FieldInfo.ts";
+import DBFieldInfo from "./FieldInfo.ts";
 import TableDef, { type TableDef_IndexInfos } from "./TableDef.ts";
 import TableInfo from "./TableInfo.ts";
 import ABDField from "./abd-fields/ABDField.ts";
 
 class DatabaseInfo {
     static Compare(scheme: DataScheme, db_Info: DatabaseInfo): 
-            DatabaseInfo_DatabaseActions {
+            DatabaseInfo_DBActions {
 
         let ignored_TableNames_LC = scheme.getIgnored_TableNames();
         for (let i = 0; i < ignored_TableNames_LC.length; i++)
             ignored_TableNames_LC[i] = ignored_TableNames_LC[i].toLowerCase();
 
-        let actions: DatabaseInfo_DatabaseActions = {
+        let actions: DatabaseInfo_DBActions = {
             tables: {
                 delete: [],
                 create: [],
@@ -69,12 +69,12 @@ class DatabaseInfo {
     }
 
     static CompareIndexes(scheme:DataScheme, db_Info: DatabaseInfo): 
-            DatabaseInfo_DatabaseIndexActions {
+            DatabaseInfo_DBIndexActions {
         let ignored_TableNames_LC = scheme.getIgnored_TableNames();
         for (let i = 0; i < ignored_TableNames_LC.length; i++)
             ignored_TableNames_LC[i] = ignored_TableNames_LC[i].toLowerCase();
 
-        let actions: DatabaseInfo_DatabaseIndexActions = {
+        let actions: DatabaseInfo_DBIndexActions = {
             tables: {
                 create: [],
                 alter: [],
@@ -107,12 +107,12 @@ class DatabaseInfo {
     static Compare_Fields(columnName: string, scheme: DataScheme, 
             scheme_TableDef: TableDef, scheme_Field: ABDField, 
             db_Info: DatabaseInfo, tableInfo__DB: TableInfo, 
-            db_FieldInfo: FieldInfo): boolean {
+            db_FieldInfo: DBFieldInfo): boolean {
         // console.log('DB', db_FieldInfo);
         // console.log('Info', fieldInfo_Scheme);
         // console.log('###');
 
-        if (!FieldInfo.CompareDBType(scheme_Field, db_Info.dbVersion, 
+        if (!DBFieldInfo.CompareDBType(scheme_Field, db_Info.dbVersion, 
                 db_FieldInfo.dbType, db_FieldInfo.dbExtra)) {
             console.log(db_FieldInfo, scheme_Field);
             console.log(`# Table '${scheme_TableDef.name}'.` +
@@ -219,6 +219,10 @@ class DatabaseInfo {
 
         let db_IndexInfos = db_TableInfo.indexInfos;
         let scheme_Indexes = scheme_TableDef.indexes;
+
+        // console.log("###");
+        // console.log(db_IndexInfos);
+        // console.log(scheme_Indexes);
 
         /* Delete */
         for (let indexName in db_IndexInfos) {
@@ -439,7 +443,7 @@ class DatabaseInfo {
 export default DatabaseInfo;
 
 
-export type DatabaseInfo_DatabaseActions = {
+export type DatabaseInfo_DBActions = {
     tables: {
         delete: Array<string>,
         create: Array<TableDef>,
@@ -447,7 +451,7 @@ export type DatabaseInfo_DatabaseActions = {
     },
 };
 
-export type DatabaseInfo_DatabaseIndexActions = {
+export type DatabaseInfo_DBIndexActions = {
     tables: {
         delete: Array<string>,
         alter: Array<DatabaseInfo_TableIndexActions>;

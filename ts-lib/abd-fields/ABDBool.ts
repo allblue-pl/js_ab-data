@@ -58,7 +58,7 @@ class ABDBool extends ABDField {
         return false;
     }
 
-    override __unescape(value: string): TS0RawValue {
+    override __unescape(value: boolean|number|string): boolean|number|string {
         return value ? true : false;
     }
 

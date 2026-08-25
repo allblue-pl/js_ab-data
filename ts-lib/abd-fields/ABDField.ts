@@ -80,7 +80,7 @@ abstract class ABDField {
         return this.__parse(value);
     }
 
-    unescape(value: string): TS0RawValue {
+    unescape(value: boolean|number|string|null): boolean|number|string|null {
         if (value === null)
             return null;
 
@@ -88,7 +88,7 @@ abstract class ABDField {
     }
 
 
-    __unescape(value: string): TS0RawValue { 
+    __unescape(value: boolean|number|string): boolean|number|string { 
         return value;
     }
 

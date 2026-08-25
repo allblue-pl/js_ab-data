@@ -1,4 +1,4 @@
-import type { TS0RawValue } from "@allblue/ts0";
+import { ts0, TS0ObjectType, TS0PresetType, type TS0Preset, type TS0RawValue, type TS0ValueType } from "@allblue/ts0";
 
 const types_TNull = Symbol("abDataDefTypes_TNull");
 
@@ -15,7 +15,7 @@ export class abDataDefTypes_Class {
         return new ABDataDefDefaultType(defaultValue);
     }
 
-    TEnum(values: Array<boolean|number|string>): ABDataDefEnumType {
+    TEnum(values: Array<boolean|number|string|null>): ABDataDefEnumType {
         return new ABDataDefEnumType(values);
     }
     
@@ -43,6 +43,65 @@ export class abDataDefTypes_Class {
 
     TTableRow(tableName: string): ABDataDefTableRowType {
         return new ABDataDefTableRowType(tableName);
+    }
+
+    parse(value: ABDataDefValueType): TS0ValueType {
+        if (value === null)
+            return null;
+
+        if (value === "bool")
+            return "boolean";
+        if (value === "float")
+            return "number";
+        if (value === "string")
+            return "string";
+        if (value === "long")
+            return "number";
+        if (value === "int")
+            return "number";
+        if (value === types_TNull)
+            return ts0.TNull;
+        
+        if (value instanceof ABDataDefArrayPresetType)
+            return ts0.TPresetArray(this.parse(value.presets) as Array<TS0ValueType>);
+        if (value instanceof ABDataDefArrayType)
+            return ts0.TArray(this.parse(value.itemType));
+        if (value instanceof ABDataDefDefaultType)
+            return ts0.TDefault(value.defaultValue);
+        if (value instanceof ABDataDefEnumType)
+            return ts0.TEnum(value.values);
+        if (value instanceof ABDataDefObjectPresetType) {
+            return ts0.TPreset(this.parsePreset(value.presets) as TS0Preset, 
+                    this.parse(value.extras) as TS0ObjectType | TS0PresetType | null);
+        }
+        if (value instanceof ABDataDefObjectType)
+            return ts0.TObject(this.parse(value.keyType), this.parse(value.itemType));
+        if (value instanceof ABDataDefRequestArgsType || 
+                value instanceof ABDataDefRequestResultType ||
+                value instanceof ABDataDefTableRowType)
+            return ts0.TRawObject;
+        if (value instanceof ABDataDefTypeFnType) {
+            return ts0.TValueType(() => {
+                return this.parse(value.typeFn());
+            })
+        }
+        if (value instanceof Array) {
+            let array_TS0: Array<TS0ValueType> = [];
+            for (let type of value)
+                array_TS0.push(this.parse(type));
+
+            return array_TS0;
+        }
+
+        throw new Error("Cannot parse 'ABDataDefValueType': " + value);
+    }
+
+    parsePreset(presets: ABDataDefPreset): TS0Preset {
+        let presets_TS0: TS0Preset = {};
+        for (let key in presets)
+            presets_TS0[key] = this.parse(presets[key]);
+
+        return presets_TS0;
     }
 }
 const abDataDefTypes = new abDataDefTypes_Class();
@@ -86,13 +145,13 @@ export class ABDataDefDefaultType {
 }
 
 export class ABDataDefEnumType {
-    #values: Array<boolean|number|string>;
+    #values: Array<boolean|number|string|null>;
 
-    get values(): Array<boolean|number|string> {
+    get values(): Array<boolean|number|string|null> {
         return this.#values;
     }
 
-    constructor(values: Array<boolean|number|string>) {
+    constructor(values: Array<boolean|number|string|null>) {
         this.#values = values;
     }
 }

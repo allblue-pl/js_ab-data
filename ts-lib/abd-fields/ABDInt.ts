@@ -13,7 +13,7 @@ class ABDInt extends ABDField {
         return this.#unsigned;
     }
 
-    constructor(properties: ABDInt_Properties = {}, unsigned: boolean = false) {
+    constructor(properties: ABDInt_Properties = {}) {
         super(properties);
 
         this.#unsigned = properties.unsigned === undefined ?

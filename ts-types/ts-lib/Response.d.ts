@@ -14,17 +14,17 @@ declare class Response {
     static get Types_Error(): number;
     static Create(responseData: ResponseData): Response;
     get actionErrors(): {
-        [actionName: string]: string;
+        [actionName: string]: string | null;
     };
     get errorMessage(): string | null;
-    get results(): {
-        [actionName: string]: ResponseResultData;
-    };
+    get info(): ResponseInfo;
+    get requestIds(): Array<string>;
     get type(): number;
     constructor();
+    addResult(requestId: string, result: ResponseResultData | null, actionError: string | null): void;
     getErrorInfo(): ErrorInfo;
     getMessage(): string | null;
-    getResult<T_ResponseResultData extends ResponseResultData>(actionName?: string | TS0NotSet): ResponseResult<T_ResponseResultData>;
+    getActionResult<T_ResponseResultData extends ResponseResultData>(actionName?: string | TS0NotSet): ResponseResult<T_ResponseResultData>;
     isSuccess(): boolean;
     parseRawObject(responseData: ResponseData): void;
     setError(errorMessage: string): void;
@@ -34,16 +34,16 @@ declare class Response {
 export default Response;
 export type ResponseData = {
     actionErrors: {
-        [actionName: string]: string;
+        [actionName: string]: string | null;
     };
     type: number;
     errorMessage: string;
     info: ResponseInfo;
     results: ResponseDataResults;
-    requestIds: Array<number>;
+    requestIds: Array<string>;
 };
 export type ResponseDataResults = {
-    [actionName: string]: ResponseResultData;
+    [actionName: string]: ResponseResultData | null;
 };
 type ResponseInfo = {
     webResult?: ApiResult;

@@ -6,7 +6,7 @@ import type DatabaseVersion from "../DatabaseVersion.ts";
 declare class ABDInt extends ABDField {
     #private;
     get unsigned(): boolean;
-    constructor(properties?: ABDInt_Properties, unsigned?: boolean);
+    constructor(properties?: ABDInt_Properties);
     __getDBExtra(dbVersion: DatabaseVersion): string;
     __getDBType(dbVersion: DatabaseVersion): string;
     __compareDBType(dbVersion: DatabaseVersion, dbType: string): boolean;

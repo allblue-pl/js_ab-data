@@ -5,7 +5,7 @@ class IndexInfo {
 
     get columnInfos(): IndexInfo_ColumnInfos {
         let columnInfos_Sorted = this.#columnInfos.toSorted((a, b) => {
-            return b.seq - a.seq;
+            return a.seq - b.seq;
         });
 
         let columnInfos = [];

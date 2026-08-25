@@ -26,7 +26,7 @@ class RTableDef extends TableDef {
     constructor(id: number, name: string, alias: string, columns: ColumnInfos) {   
         if (name[0] !== '_') {
             columns = [
-                [ '_Id', f.Id() ],
+                [ '_Id', f.Id({ notNull: true }) ],
                 [ '_Modified_DateTime', f.Long({ notNull: false, }) ],
                 ...columns
             ]

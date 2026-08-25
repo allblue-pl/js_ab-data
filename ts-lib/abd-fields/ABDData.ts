@@ -2,20 +2,21 @@ import ts0, { ts0Assert, type TS0RawObject, type TS0RawValue } from "@allblue/ts
     
 import ABDField, { type ABDField_Properties } from "./ABDField.ts";
 
-import ABDJSONValidator, { type ABDJSONValidator_Args } from "../abd-validators/ABDJSONValidator.ts";
+import ABDDataValidator, { type ABDDataValidator_Args } from "../abd-validators/ABDDataValidator.ts";
 import SelectColumnType, { type SelectColumnType_Type } from "../SelectColumnType.ts";
 
 import helper from "../helper.ts";
 import type DatabaseVersion from "../DatabaseVersion.ts";
 import type { ABDFieldValidator_Args } from "../abd-validators/ABDFieldValidator.ts";
 import type ABDFieldValidator from "../abd-validators/ABDFieldValidator.ts";
+import type { ABDataDefValueType } from "../abDataDefTypes.ts";
 
-class ABDJSON extends ABDField {
+class ABDData extends ABDField {
     static Escape(value: TS0RawValue): string {
-        return `'` + ABDJSON.#Parse(value) + `'`;
+        return `'` + ABDData.#Parse(value) + `'`;
     }
 
-    static get TypeSizes(): Record<ABDJSON_Type, number> {
+    static get TypeSizes(): Record<ABDData_Type, number> {
         return {
             tiny:       256,
             regular:    65535,
@@ -25,24 +26,30 @@ class ABDJSON extends ABDField {
 
 
     static #Parse(value: TS0RawValue): string {
-        let jsonValue = ts0.assertType<ABDJSON_Value>(value,
-                presets_ABDJSON_Value).value;
+        let DataValue = ts0.assertType<ABDData_Value>(value,
+                presets_ABDData_Value).value;
 
-        return helper.escapeString(JSON.stringify({ value: jsonValue, }));
+        return helper.escapeString(JSON.stringify({ value: DataValue, }));
     }
 
 
-    #type: ABDJSON_Type;
+    #dataDef: ABDataDefValueType;
+    #type: ABDData_Type;
 
 
-    get type(): ABDJSON_Type {
+    get dataDef(): ABDataDefValueType {
+        return this.#dataDef;
+    }
+
+    get type(): ABDData_Type {
         return this.#type;
     }
 
 
-    constructor(size: ABDJSON_Type, properties: ABDField_Properties = {}) {
+    constructor(dataDef: ABDataDefValueType, size: ABDData_Type, properties: ABDField_Properties = {}) {
         super(properties);
 
+        this.#dataDef = dataDef;
         this.#type = size;
     }
 
@@ -77,12 +84,12 @@ class ABDJSON extends ABDField {
         return '';
     }
 
-    __getFieldValidator(fieldValidatorArgs: ABDJSONValidator_Args): 
-            ABDJSONValidator {
+    __getFieldValidator(fieldValidatorArgs: ABDDataValidator_Args): 
+            ABDDataValidator {
         if (fieldValidatorArgs.type === undefined)
             fieldValidatorArgs.type = this.#type;
 
-        return new ABDJSONValidator(fieldValidatorArgs as ABDJSONValidator_Args);
+        return new ABDDataValidator(fieldValidatorArgs as ABDDataValidator_Args);
     }
 
     __getSelectType(): SelectColumnType_Type {
@@ -90,15 +97,15 @@ class ABDJSON extends ABDField {
     }
 
     __getType(): string {
-        return 'JSON';
+        return 'Data';
     }
 
     __escape(value: TS0RawValue): string {
-        return ABDJSON.Escape(value);
+        return ABDData.Escape(value);
     }
 
     __parse(value: TS0RawValue): TS0RawValue {
-        return ABDJSON.#Parse(value);
+        return ABDData.#Parse(value);
     }
 
     override __unescape(value: boolean|number|string): boolean|number|string {
@@ -106,11 +113,11 @@ class ABDJSON extends ABDField {
     }
 
 }
-export default ABDJSON;
+export default ABDData;
 
-export type ABDJSON_Type = "tiny"|"regular"|"medium";
+export type ABDData_Type = "tiny"|"regular"|"medium";
 
-export type ABDJSON_Value = {
+export type ABDData_Value = {
     value: TS0RawValue,
 }
-export const presets_ABDJSON_Value = ts0.TRawValue;
+export const presets_ABDData_Value = ts0.TRawValue;

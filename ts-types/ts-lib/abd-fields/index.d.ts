@@ -12,10 +12,14 @@ import ABDString from "./ABDString.ts";
 import ABDText, { type ABDText_Type } from "./ABDText.ts";
 import ABDTime from "./ABDTime.ts";
 import type { ABDField_Properties } from "./ABDField.ts";
+import type { ABDData_Type } from "./ABDData.ts";
+import type { ABDataDefValueType } from "../abDataDefTypes.ts";
+import ABDData from "./ABDData.ts";
 declare class abdField_Class {
     get ABDAutoIncrementId(): typeof ABDAutoIncrementId;
     get ABDBlob(): typeof ABDBlob;
     get ABDBool(): typeof ABDBool;
+    get ABDData(): typeof ABDData;
     get ABDDate(): typeof ABDDate;
     get ABDDateTime(): typeof ABDDateTime;
     get ABDFloat(): typeof ABDFloat;
@@ -29,10 +33,11 @@ declare class abdField_Class {
     AutoIncrementId(): ABDAutoIncrementId;
     Blob(type: ABDBlob_Type, properties?: ABDField_Properties): ABDBlob;
     Bool(properties?: ABDField_Properties): ABDBool;
+    Data(dataDef: ABDataDefValueType, type: ABDData_Type, properties?: ABDField_Properties): ABDData;
     Date(properties?: ABDField_Properties): ABDDate;
     DateTime(properties?: ABDField_Properties): ABDDateTime;
     Float(properties?: ABDField_Properties): ABDFloat;
-    Id(): ABDId;
+    Id(properties?: ABDField_Properties): ABDId;
     Int(properties?: ABDField_Properties): ABDInt;
     JSON(type: ABDJSON_Type, properties?: ABDField_Properties): ABDJSON;
     Long(properties?: ABDField_Properties): ABDLong;

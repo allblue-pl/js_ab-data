@@ -51,7 +51,7 @@ class ABDTime extends ABDField {
         return value;
     }
 
-    override __unescape(value: string): TS0RawValue {
+    override __unescape(value: boolean|number|string): boolean|number|string {
         return Number(value);
     }
 

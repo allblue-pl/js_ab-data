@@ -14,6 +14,6 @@ declare class ABDBool extends ABDField {
     __getType(): string;
     __escape(value: TS0RawValue): string;
     __parse(value: TS0RawValue): TS0RawValue;
-    __unescape(value: string): TS0RawValue;
+    __unescape(value: boolean | number | string): boolean | number | string;
 }
 export default ABDBool;
