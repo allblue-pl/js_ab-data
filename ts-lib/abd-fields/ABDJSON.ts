@@ -2,13 +2,15 @@ import ts0, { ts0Assert, type TS0RawObject, type TS0RawValue } from "@allblue/ts
     
 import ABDField, { type ABDField_Properties } from "./ABDField.ts";
 
-import ABDJSONValidator, { type ABDJSONValidator_Args } from "../abd-validators/ABDJSONValidator.ts";
 import SelectColumnType, { type SelectColumnType_Type } from "../SelectColumnType.ts";
 
 import helper from "../helper.ts";
 import type DatabaseVersion from "../DatabaseVersion.ts";
 import type { ABDFieldValidator_Args } from "../abd-validators/ABDFieldValidator.ts";
 import type ABDFieldValidator from "../abd-validators/ABDFieldValidator.ts";
+import type { ABDStringValidator_Args } from "../abd-validators/ABDStringValidator.ts";
+import ABDText from "./ABDText.ts";
+import ABDStringValidator from "../abd-validators/ABDStringValidator.ts";
 
 class ABDJSON extends ABDField {
     static Escape(value: TS0RawValue): string {
@@ -77,12 +79,12 @@ class ABDJSON extends ABDField {
         return '';
     }
 
-    __getFieldValidator(fieldValidatorArgs: ABDJSONValidator_Args): 
-            ABDJSONValidator {
-        if (fieldValidatorArgs.type === undefined)
-            fieldValidatorArgs.type = this.#type;
+    __getFieldValidator(fieldValidatorArgs: ABDStringValidator_Args): 
+            ABDStringValidator {
+        if (fieldValidatorArgs.maxLength === undefined)
+            fieldValidatorArgs.maxLength = ABDJSON.TypeSizes[this.#type];
 
-        return new ABDJSONValidator(fieldValidatorArgs as ABDJSONValidator_Args);
+        return new ABDStringValidator(fieldValidatorArgs);
     }
 
     __getSelectType(): SelectColumnType_Type {

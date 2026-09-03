@@ -1,16 +1,18 @@
 import ts0, { ts0Assert, TS0AssertError, TS0List, type TS0RawObject, type TS0RawValue } from "@allblue/ts0"
-import f from "./abd-fields/index.ts";
 import ABDFieldValidator, { type ABDFieldValidator_Args } from "./abd-validators/ABDFieldValidator.ts";
 import Validator from "./Validator.ts";
 import type DBFieldInfo from "./FieldInfo.ts";
-import type ABDField from "./abd-fields/ABDField.ts";
+import ABDField from "./abd-fields/ABDField.ts";
 import type TableInfo from "./TableInfo.ts";
 import type IndexInfo from "./IndexInfo.ts";
+import ABDAutoIncrementId from "./abd-fields/ABDAutoIncrementId.ts";
+import type ABDFieldRef from "./abd-fields/ABDFieldRef.ts";
 
 class TableDef {
     #alias: string;
     #autoIncrementColumn: string|null;
     #columns: TableDef_ColumnInfos;
+    #columns_Extra: TableDef_ExtraColumnInfos;
     #columnValidators: TableDef_ColumnValidators;
     #id: number;
     #indexes: TableDef_IndexInfos;
@@ -28,6 +30,10 @@ class TableDef {
 
     get columns(): TableDef_ColumnInfos {
         return this.#columns;
+    }
+
+    get columns_Extra(): TableDef_ExtraColumnInfos {
+        return this.#columns_Extra;
     }
 
     get indexes(): TableDef_IndexInfos {
@@ -73,11 +79,13 @@ class TableDef {
                 select: name,
             });
 
-            if (field instanceof f.ABDAutoIncrementId) {
+            if (field instanceof ABDAutoIncrementId) {
                 this.#autoIncrementColumn = name;
                 this.#primaryKeys = null;
             }
         }
+
+        this.#columns_Extra = new TS0List();
     }
 
     addColumnValidator(columnName: string, fieldValidator: ABDFieldValidator): 
@@ -93,6 +101,19 @@ class TableDef {
         return this;
     }
 
+    addExtras(extraColumns: Array<[ string, ABDField ]>): TableDef {
+        for (let column of extraColumns) {
+            let name = column[0];
+            let field = column[1];
+
+            this.#columns_Extra.set(name, {
+                field: field,
+            });
+        }
+
+        return this;
+    }
+
     getColumn(columnName: string): TableDef_ColumnInfo {
         if (!this.#columns.has(columnName))
             throw new Error(`Column '${columnName}' does not exist.`);
@@ -100,7 +121,7 @@ class TableDef {
         return this.#columns.get(columnName);
     }
 
-    getColumn_Field(columnName: string): ABDField {
+    getColumn_Field(columnName: string): ABDField|ABDFieldRef {
         return this.getColumn(columnName).field;
     }
 
@@ -124,7 +145,7 @@ class TableDef {
         return validators;
     }
 
-    getSelectColumnInfo(columnName: string): [ string, ABDField ] {
+    getSelectColumnInfo(columnName: string): [ string, ABDField|ABDFieldRef ] {
         let column = this.getColumn(columnName);
 
         return [ column.select, column.field ];
@@ -197,8 +218,11 @@ class TableDef {
         for (let columnName of primaryKeys) {
             if (!this.hasColumn(columnName))
                 throw new Error(`Cannot set PKs. Column '${columnName}' does not exist.`);
-            if (!this.#columns.get(columnName).field.notNull)
-                throw new Error(`Primary Key '${columnName}' must be 'notNull'.`);
+            let field = this.#columns.get(columnName).field;
+            if (field instanceof ABDField) {
+                if (!field.notNull)
+                    throw new Error(`Primary Key '${columnName}' must be 'notNull'.`);
+            }
         }
 
         this.#autoIncrementColumn = null;
@@ -277,12 +301,17 @@ export type TableDef_IndexInfos = {[indexName: string]: Array<{
 }>};
 
 export type TableDef_ColumnInfo = {
-    field: ABDField,
+    field: ABDField|ABDFieldRef,
     fieldValidator: ABDFieldValidator,
     index: number,
     select: string,
 };
 export type TableDef_ColumnInfos = TS0List<string, TableDef_ColumnInfo>;
+
+export type TableDef_ExtraColumnInfo = {
+    field: ABDField,
+};
+export type TableDef_ExtraColumnInfos = TS0List<string, TableDef_ExtraColumnInfo>;
 
 type TableDef_ColumnValidators = {[columnName: string]: Array<ABDFieldValidator>};
 

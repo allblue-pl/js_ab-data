@@ -11,7 +11,7 @@ export declare class ABDRequestResult {
     constructor(argPath: string);
 }
 export declare function abdRequestResult(argPath: string): ABDRequestResult;
-export type TRequestArgArray = Array<TRequestArgObject>;
+export type TRequestArgArray = Array<TRequestArgValue>;
 export type TRequestArgObject = {
     [key: string | number]: TRequestArgValue;
 };

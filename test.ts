@@ -1,6 +1,6 @@
 
-let a = 0;
-let b = 4;
+import abUUID from "./ts-lib/abUUID.ts";
 
-console.log(a + (++b))
-console.log(b);
+let uuid = abUUID.generate();
+console.log("Time", abUUID.getTime(uuid), abUUID.validate(uuid));
+console.log(abUUID.validate(crypto.randomUUID()));

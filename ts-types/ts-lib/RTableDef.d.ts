@@ -9,7 +9,6 @@ import type ABDDateTime from "./abd-fields/ABDDateTime.ts";
 import type ABDFloat from "./abd-fields/ABDFloat.ts";
 import type ABDId from "./abd-fields/ABDId.ts";
 import type ABDInt from "./abd-fields/ABDInt.ts";
-import type ABDJSON from "./abd-fields/ABDJSON.ts";
 import type ABDLong from "./abd-fields/ABDLong.ts";
 import type ABDString from "./abd-fields/ABDString.ts";
 import type ABDTime from "./abd-fields/ABDTime.ts";
@@ -17,7 +16,6 @@ import type ABDText from "./abd-fields/ABDText.ts";
 import type { ABDTimeValidator_Args } from "./abd-validators/ABDTimeValidator.ts";
 import type { ABDFloatValidator_Args } from "./abd-validators/ABDFloatValidator.ts";
 import type { ABDIntValidator_Args } from "./abd-validators/ABDIntValidator.ts";
-import type { ABDJSONValidator_Args } from "./abd-validators/ABDJSONValidator.ts";
 import type { ABDLongValidator_Args } from "./abd-validators/ABDLongValidator.ts";
 import type { ABDStringValidator_Args } from "./abd-validators/ABDStringValidator.ts";
 declare class RTableDef extends TableDef {
@@ -51,10 +49,6 @@ type ColumnInfos = Array<[string, ABDAutoIncrementId] | [
     string,
     ABDInt,
     ABDIntValidator_Args?
-] | [
-    string,
-    ABDJSON,
-    ABDJSONValidator_Args?
 ] | [
     string,
     ABDLong,

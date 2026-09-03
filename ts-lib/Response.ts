@@ -136,12 +136,12 @@ class Response {
         return this.errorMessage;
     }
 
-    getActionResult<T_ResponseResultData extends ResponseResultData>(actionName: string|TS0NotSet = ts0.notSet): 
+    getActionResult<T_ResponseResultData extends ResponseResultData>(requestId: string|TS0NotSet = ts0.notSet): 
             ResponseResult<T_ResponseResultData> {
         if (this.type >= 3)
             return new ResponseResult(this, null, null);
 
-        if (actionName === ts0.notSet) {
+        if (requestId === ts0.notSet) {
             let resultsCount = 0;
             for (let actionName in this.#results) {
                 if (actionName[0] !== '_')
@@ -150,17 +150,22 @@ class Response {
             if (resultsCount > 1)
                 throw new Error(`You must specify 'actionName' in batch request.`);
 
-            actionName = 'request';
+            requestId = 'request';
         }
 
-        if (!(actionName in this.#results)) {
-            if (actionName in this.actionErrors)
-                return new ResponseResult(this, null, this.actionErrors[actionName]);
+        if (!this.#requestIds.includes(requestId)) {
+            return new ResponseResult(this, null, `Request with id '${requestId}'` + 
+                    ` does not exist.`);
+        }
+
+        if (!(requestId in this.#results)) {
+            if (requestId in this.actionErrors)
+                return new ResponseResult(this, null, this.actionErrors[requestId]);
 
             return new ResponseResult(this, null, null);
         }
 
-        return new ResponseResult(this, this.#results[actionName], null);
+        return new ResponseResult(this, this.#results[requestId], null);
     }
 
     isSuccess(): boolean {

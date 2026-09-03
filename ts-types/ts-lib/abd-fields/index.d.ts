@@ -15,6 +15,7 @@ import type { ABDField_Properties } from "./ABDField.ts";
 import type { ABDData_Type } from "./ABDData.ts";
 import type { ABDataDefValueType } from "../abDataDefTypes.ts";
 import ABDData from "./ABDData.ts";
+import ABDFieldRef from "./ABDFieldRef.ts";
 declare class abdField_Class {
     get ABDAutoIncrementId(): typeof ABDAutoIncrementId;
     get ABDBlob(): typeof ABDBlob;
@@ -41,6 +42,7 @@ declare class abdField_Class {
     Int(properties?: ABDField_Properties): ABDInt;
     JSON(type: ABDJSON_Type, properties?: ABDField_Properties): ABDJSON;
     Long(properties?: ABDField_Properties): ABDLong;
+    Ref(tableName: string, columnName: string): ABDFieldRef;
     String(size: number, properties?: ABDField_Properties): ABDString;
     Time(properties?: {}): ABDTime;
     Text(type: ABDText_Type, properties?: {}): ABDText;

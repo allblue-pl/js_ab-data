@@ -21,7 +21,7 @@ class ABDStringValidator extends ABDFieldValidator {
     }
 
     getType(): string {
-        return 'JSON';
+        return 'String';
     }
 
 

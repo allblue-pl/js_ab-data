@@ -19,7 +19,7 @@ class ABDTimeValidator extends ABDFieldValidator {
     }
 
     getType(): string {
-        return 'JSON';
+        return 'Time';
     }
 
 

@@ -18,6 +18,12 @@ export class abDataDefTypes_Class {
     TEnum(values: Array<boolean|number|string|null>): ABDataDefEnumType {
         return new ABDataDefEnumType(values);
     }
+
+    TJoin(objectPresetInfos: Array<[prefix: string, 
+            type: ABDataDefJoin_SupportedTypes, keyNames?: Array<string>]>, 
+            extras: ABDataDefObjectType|null = null): ABDataDefJoinType {
+        return new ABDataDefJoinType(objectPresetInfos, extras);
+    }
     
     get TNull(): typeof types_TNull {
         return types_TNull;
@@ -43,6 +49,14 @@ export class abDataDefTypes_Class {
 
     TTableRow(tableName: string): ABDataDefTableRowType {
         return new ABDataDefTableRowType(tableName);
+    }
+
+    TTableVariantRow(tableVariantName: string): ABDataDefTableVariantRowType {
+        return new ABDataDefTableVariantRowType(tableVariantName);
+    }
+
+    TType(typeName: string): ABDataDefTypeType {
+        return new ABDataDefTypeType(typeName);
     }
 
     parse(value: ABDataDefValueType): TS0ValueType {
@@ -78,7 +92,8 @@ export class abDataDefTypes_Class {
             return ts0.TObject(this.parse(value.keyType), this.parse(value.itemType));
         if (value instanceof ABDataDefRequestArgsType || 
                 value instanceof ABDataDefRequestResultType ||
-                value instanceof ABDataDefTableRowType)
+                value instanceof ABDataDefTableRowType ||
+                value instanceof ABDataDefTableVariantRowType)
             return ts0.TRawObject;
         if (value instanceof ABDataDefTypeFnType) {
             return ts0.TValueType(() => {
@@ -155,6 +170,32 @@ export class ABDataDefEnumType {
         this.#values = values;
     }
 }
+
+export class ABDataDefJoinType {
+    #joinInfos: Array<[string, ABDataDefJoin_SupportedTypes, Array<string>?]>;
+    #extras: ABDataDefObjectType|null;
+
+    get extras(): ABDataDefObjectType|null {
+        return this.#extras;
+    }
+
+    get joinInfos(): Array<[string, ABDataDefJoin_SupportedTypes, Array<string>?]> {
+        return this.#joinInfos;
+    }
+
+    constructor(objectPresetInfos: Array<[string, ABDataDefJoin_SupportedTypes, 
+            Array<string>?]>, extras: ABDataDefObjectType|null = null) {
+        this.#joinInfos = objectPresetInfos;
+        this.#extras = extras;
+    }
+}
+type ABDataDefJoin_SupportedTypes = 
+    "bool"|"float"|"string"|"long"|"int"|
+    ABDataDefObjectPresetType|
+    ABDataDefTableRowType|
+    ABDataDefTableVariantRowType;
+
+
 
 export class ABDataDefObjectType {
     #keyType: ABDataDefValueType;
@@ -240,6 +281,30 @@ export class ABDataDefTableRowType {
     }
 }
 
+export class ABDataDefTableVariantRowType {
+    #tableVariantName: string;
+
+    get tableVariantName(): string {
+        return this.#tableVariantName;
+    }
+
+    constructor(tableVariantName: string) {
+        this.#tableVariantName = tableVariantName;
+    }
+}
+
+export class ABDataDefTypeType {
+    #typeName: string;
+
+    get typeName(): string {
+        return this.#typeName;
+    }
+
+    constructor(typeName: string) {
+        this.#typeName = typeName;
+    }
+}
+
 export class ABDataDefTypeFnType {
     #typeFn: () => ABDataDefValueType;
 
@@ -256,8 +321,8 @@ export type ABDataDefValueType = null|
         "bool"|"float"|"string"|"long"|"int"|
         typeof types_TNull|
         ABDataDefArrayPresetType|ABDataDefArrayType|ABDataDefDefaultType|
-        ABDataDefEnumType|ABDataDefObjectPresetType|ABDataDefObjectType|
-        ABDataDefRequestArgsType|ABDataDefRequestResultType|
-        ABDataDefTableRowType|ABDataDefTypeFnType|
+        ABDataDefEnumType|ABDataDefJoinType|ABDataDefObjectPresetType|
+        ABDataDefObjectType|ABDataDefRequestArgsType|ABDataDefRequestResultType|
+        ABDataDefTableRowType|ABDataDefTableVariantRowType|ABDataDefTypeType|ABDataDefTypeFnType|
         Array<ABDataDefValueType>;
 export type ABDataDefPreset = {[name:string]: ABDataDefValueType};

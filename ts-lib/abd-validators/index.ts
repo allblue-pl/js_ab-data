@@ -1,7 +1,6 @@
 import ABDBoolValidator, { type ABDBoolValidator_Args } from "./ABDBoolValidator.ts";
 import ABDEmailValidator, { type ABDEmailValidator_Args } from "./ABDEmailValidator.ts";
 import ABDIntValidator, { type ABDIntValidator_Args } from "./ABDIntValidator.ts";
-import ABDJSONValidator, { type ABDJSONValidator_Args } from "./ABDJSONValidator.ts";
 import ABDFloatValidator, { type ABDFloatValidator_Args } from "./ABDFloatValidator.ts";
 import ABDLongValidator, { type ABDLongValidator_Args } from "./ABDLongValidator.ts";
 import ABDStringValidator, { type ABDStringValidator_Args } from "./ABDStringValidator.ts";
@@ -10,7 +9,6 @@ class abdValidators_Class {
     get ABDBoolValidator(): typeof ABDBoolValidator { return ABDBoolValidator; }
     get ABDEmailValidator(): typeof ABDEmailValidator { return ABDEmailValidator; };
     get ABDIntValidator(): typeof ABDIntValidator { return ABDIntValidator; };    
-    get ABDJSONValidator(): typeof ABDJSONValidator { return ABDJSONValidator; };
     get ABDFloatValidator(): typeof ABDFloatValidator { return ABDFloatValidator; };
     get ABDLongValidator(): typeof ABDLongValidator { return ABDLongValidator; };
     get ABDStringValidator(): typeof ABDStringValidator { return ABDStringValidator; };
@@ -26,10 +24,6 @@ class abdValidators_Class {
 
     Int(args: ABDIntValidator_Args = {}): ABDIntValidator {
         return new ABDIntValidator(args);
-    }
-
-    JSON(args: ABDJSONValidator_Args = { type: "medium" }): ABDJSONValidator {
-        return new ABDJSONValidator(args);
     }
 
     Float(args: ABDFloatValidator_Args = {}): ABDFloatValidator {

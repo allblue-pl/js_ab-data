@@ -62,6 +62,6 @@ export function abdRequestResult(argPath: string): ABDRequestResult {
     return new ABDRequestResult(argPath);
 }
 
-export type TRequestArgArray = Array<TRequestArgObject>;
+export type TRequestArgArray = Array<TRequestArgValue>;
 export type TRequestArgObject = {[key:string|number]: TRequestArgValue};
 export type TRequestArgValue = boolean|null|number|string|TRequestArgArray|TRequestArgObject|ABDRequestResult;

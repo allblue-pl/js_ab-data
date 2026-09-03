@@ -2,6 +2,7 @@ import abDataDefTypes from "./ts-lib/abDataDefTypes.ts";
 import abdFields from "./ts-lib/abd-fields/index.ts";
 import abdValidators from "./ts-lib/abd-validators/index.ts";
 import ABDField from "./ts-lib/abd-fields/ABDField.ts";
+import ABDFieldRef from "./ts-lib/abd-fields/ABDFieldRef.ts";
 import ABDRequestArgs, {
     abdRequestResult,
     ABDRequestResult,
@@ -18,12 +19,19 @@ import RTableDef from "./ts-lib/RTableDef.ts";
 import { type TableDef_ValidatorInfo } from "./ts-lib/TableDef.ts";
 // import TableRequestDef from "./ts-lib/TableRequestDef.ts";
 import Device from "./ts-lib/Device.ts";
-import { type ABDataDefPreset, type ABDataDefValueType, ABDataDefArrayPresetType, 
-        ABDataDefArrayType, ABDataDefObjectPresetType, ABDataDefObjectType, 
-        ABDataDefTableRowType } from "./ts-lib/abDataDefTypes.ts";
 import SelectColumnType, { type SelectColumnType_Type } from "./ts-lib/SelectColumnType.ts";
 
 import abData from "./ts-lib/index.ts";
+import { 
+    ABDataDefArrayPresetType, 
+    ABDataDefArrayType, 
+    ABDataDefObjectPresetType, 
+    ABDataDefObjectType, 
+    ABDataDefTableRowType, 
+    ABDataDefTableVariantRowType,
+    type ABDataDefPreset, 
+    type ABDataDefValueType,
+} from "./ts-lib/abDataDefTypes.ts";
 import Response, {
     type ResponseData
 } from "./ts-lib/Response.ts";
@@ -37,6 +45,7 @@ import TableDef, {
     type TableDef_ColumnInfo,
     type TableDef_ColumnInfos,
     type TableDef_IndexInfos } from "./ts-lib/TableDef.ts";
+import TableDefVariant from "./ts-lib/TableDefVariant.ts";
 import TableInfo from "./ts-lib/TableInfo.ts";
 import TableRequestDef, { 
     type TableRequest_Args_Delete,
@@ -47,16 +56,24 @@ import TableRequestDef, {
     type WhereConditions, 
 } from "./ts-lib/TableRequestDef.ts";
 
-export { type ABDataDefPreset, type ABDataDefValueType, ABDataDefArrayPresetType, 
-        ABDataDefArrayType, ABDataDefObjectPresetType, ABDataDefObjectType, 
-        ABDataDefTableRowType, };
-export { abDataDefTypes, abdFields, abdValidators, p_ResponseResultData, ABDField, DataScheme, DataStore, 
+export { abDataDefTypes, abdFields, abdValidators, p_ResponseResultData, DataScheme, DataStore, 
         DatabaseInfo, DatabaseVersion, Device, ResponseResult, type ResponseResultData, 
         RequestDef, RTableDef, type TableDef_ValidatorInfo, 
         SelectColumnType, type SelectColumnType_Type };
 export { FieldInfo, IndexInfo };
 
 export default abData;
+export { 
+    ABDataDefArrayPresetType, 
+    ABDataDefArrayType, 
+    ABDataDefObjectPresetType, 
+    ABDataDefObjectType, 
+    ABDataDefTableRowType, 
+    ABDataDefTableVariantRowType,
+    type ABDataDefPreset, 
+    type ABDataDefValueType, };
+export { ABDField };
+export { ABDFieldRef };
 export { ABDRequestArgs,
     abdRequestResult,
     ABDRequestResult };
@@ -71,6 +88,7 @@ export { TableDef,
     type TableDef_ColumnInfo,
     type TableDef_ColumnInfos,
     type TableDef_IndexInfos };
+export { TableDefVariant };
 export { TableInfo };
 export { TableRequestDef,
     type TableRequest_Args_Delete,

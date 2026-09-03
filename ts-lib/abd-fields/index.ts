@@ -18,6 +18,7 @@ import type ABDField from "./ABDField.ts";
 import type { ABDData_Type } from "./ABDData.ts";
 import type { ABDataDefValueType } from "../abDataDefTypes.ts";
 import ABDData from "./ABDData.ts";
+import ABDFieldRef from "./ABDFieldRef.ts";
 
 
 class abdField_Class {
@@ -99,6 +100,10 @@ class abdField_Class {
     // {
     //     return new ABDObject(properties);
     // }
+
+    Ref(tableName: string, columnName: string): ABDFieldRef {
+        return new ABDFieldRef(tableName, columnName);
+    }
 
     String(size: number, properties: ABDField_Properties = {}): ABDString {
         return new ABDString(size, properties);

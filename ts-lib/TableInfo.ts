@@ -4,6 +4,7 @@ import DatabaseVersion from "./DatabaseVersion.ts";
 import TableDef from "./TableDef.ts";
 import DBFieldInfo from "./FieldInfo.ts";
 import IndexInfo from "./IndexInfo.ts";
+import type DataScheme from "./DataScheme.ts";
 
 class TableInfo {
     #charset: string;
@@ -13,12 +14,13 @@ class TableInfo {
     #name: string;
     #primaryKeys: Array<string>;
 
-    static GetQuery_Create(dbVersion: DatabaseVersion, tableDef: TableDef): string {
+    static GetQuery_Create(dbVersion: DatabaseVersion, 
+            scheme: DataScheme, tableDef: TableDef): string {
         let query = `CREATE TABLE \`${tableDef.name}\` (`;
         let fields = [];
         
         for (let [ columnName, column ] of tableDef.columns) {
-            let field = column.field;
+            let field = scheme.parseField(column.field);
             let field_DBExtra = field.getDBExtra(dbVersion);
             fields.push(`\`${columnName}\` ` + field.getDBType(dbVersion) + 
                     (field.notNull ? ' NOT NULL' : ' NULL') +

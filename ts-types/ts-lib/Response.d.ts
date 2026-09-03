@@ -24,7 +24,7 @@ declare class Response {
     addResult(requestId: string, result: ResponseResultData | null, actionError: string | null): void;
     getErrorInfo(): ErrorInfo;
     getMessage(): string | null;
-    getActionResult<T_ResponseResultData extends ResponseResultData>(actionName?: string | TS0NotSet): ResponseResult<T_ResponseResultData>;
+    getActionResult<T_ResponseResultData extends ResponseResultData>(requestId?: string | TS0NotSet): ResponseResult<T_ResponseResultData>;
     isSuccess(): boolean;
     parseRawObject(responseData: ResponseData): void;
     setError(errorMessage: string): void;

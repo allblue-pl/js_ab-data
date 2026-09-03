@@ -1,15 +1,14 @@
-import ts0, { ts0Assert, type TS0RawObject, type TS0RawValue } from "@allblue/ts0"
+import ts0, { ts0Assert, type TS0RawValue } from "@allblue/ts0";
     
 import ABDField, { type ABDField_Properties } from "./ABDField.ts";
 
-import ABDDataValidator, { type ABDDataValidator_Args } from "../abd-validators/ABDDataValidator.ts";
 import SelectColumnType, { type SelectColumnType_Type } from "../SelectColumnType.ts";
 
 import helper from "../helper.ts";
 import type DatabaseVersion from "../DatabaseVersion.ts";
-import type { ABDFieldValidator_Args } from "../abd-validators/ABDFieldValidator.ts";
-import type ABDFieldValidator from "../abd-validators/ABDFieldValidator.ts";
 import type { ABDataDefValueType } from "../abDataDefTypes.ts";
+import ABDStringValidator from "../abd-validators/ABDStringValidator.ts";
+import type { ABDStringValidator_Args } from "../abd-validators/ABDStringValidator.ts";
 
 class ABDData extends ABDField {
     static Escape(value: TS0RawValue): string {
@@ -84,12 +83,12 @@ class ABDData extends ABDField {
         return '';
     }
 
-    __getFieldValidator(fieldValidatorArgs: ABDDataValidator_Args): 
-            ABDDataValidator {
-        if (fieldValidatorArgs.type === undefined)
-            fieldValidatorArgs.type = this.#type;
+    __getFieldValidator(fieldValidatorArgs: ABDStringValidator_Args): 
+            ABDStringValidator {
+        if (fieldValidatorArgs.maxLength === undefined)
+            fieldValidatorArgs.maxLength = ABDData.TypeSizes[this.#type];
 
-        return new ABDDataValidator(fieldValidatorArgs as ABDDataValidator_Args);
+        return new ABDStringValidator(fieldValidatorArgs);
     }
 
     __getSelectType(): SelectColumnType_Type {

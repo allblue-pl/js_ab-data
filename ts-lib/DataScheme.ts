@@ -6,17 +6,34 @@ import type { ResponseData, ResponseDataResults } from "./Response.ts";
 import type { ResponseResultData } from "./ResponseResult.ts";
 import type { ValidatorInfo } from "./Validator.ts";
 import type Response from "./Response.ts";
+import type { ABDataDefValueType } from "./abDataDefTypes.ts";
+import type TableDefVariant from "./TableDefVariant.ts";
+import type ABDFieldRef from "./abd-fields/ABDFieldRef.ts";
+import ABDField from "./abd-fields/ABDField.ts";
 
 class DataScheme {
     #ignored_TableNames: Array<string>;
     #requestDefs: Map<string, RequestDef>;
     #tableDefs: Map<string, TableDef>;
+    #tableDefVariants: Map<string, TableDefVariant>;
+    #typeDefs: Map<string, {
+        def: ABDataDefValueType
+        requestArg: boolean,
+    }>;
     #version: number;
     #validation: boolean;
 
 
     get tableNames(): Array<string> {
         return this.#tableDefs.keys().toArray();
+    }
+
+    get tableVariantNames(): Array<string> {
+        return this.#tableDefVariants.keys().toArray();
+    }
+
+    get typeNames(): Array<string> {
+        return this.#typeDefs.keys().toArray();
     }
 
     get requestNames(): Array<string> {
@@ -32,8 +49,10 @@ class DataScheme {
         this.#version = version;
         this.#validation = validation;
 
-        this.#requestDefs = new Map<string, RequestDef>();
-        this.#tableDefs = new Map<string, TableDef>();
+        this.#requestDefs = new Map();
+        this.#tableDefs = new Map();
+        this.#tableDefVariants = new Map();
+        this.#typeDefs = new Map();
 
         this.#ignored_TableNames = [];
     }
@@ -53,22 +72,31 @@ class DataScheme {
         return this;
     }
 
-    defT(tableDef: TableDef): DataScheme {
+    defTable(tableDef: TableDef): DataScheme {
         if (tableDef.pks === null)
             throw new Error(`Table '${tableDef.name}' PKs not set.`);
 
-        this.defTable(tableDef);
+        this.#validateTableId(tableDef.getTableId());
+        this.#validateTableName(tableDef.name);
+        this.#validateTableAlias(tableDef.alias);
+
+        this.#tableDefs.set(tableDef.name, tableDef);
 
         return this;
     }
 
-    defTable(tableDef: TableDef): DataScheme {
-        this.#validateTableId(tableDef.getTableId());
+    defTableVariant(tableDefVariant: TableDefVariant): DataScheme {
+        this.#tableDefVariants.set(tableDefVariant.name, tableDefVariant);
 
-        if (this.#tableDefs.has(tableDef.name))
-            throw new Error(`Table '${tableDef.name}' already exists.`);
+        return this;
+    }
 
-        this.#tableDefs.set(tableDef.name, tableDef);
+    defType(typeName: string, typeDef: ABDataDefValueType, 
+            requestArg: boolean = false): DataScheme {
+        this.#typeDefs.set(typeName, {
+            def: typeDef,
+            requestArg: requestArg,
+        });
 
         return this;
     }
@@ -103,6 +131,15 @@ class DataScheme {
         throw new Error(`Table definition with id '${tableId}' does not exist.`);
     }
 
+    getTableDefVariant(tableName: string): TableDefVariant {
+        for (let [ tableDefName, tableDefVariant ] of this.#tableDefVariants) {
+            if (tableName.toLowerCase() === tableDefName.toLowerCase())
+                return tableDefVariant;
+        }
+
+        throw new Error(`Table definition variant '${tableName}' does not exist.`);
+    }
+
     getTableIds(): {[tableName: string]: number} {
         let tableIds: {[tableName: string]: number} = {};
         for (let tableName of this.tableNames) {
@@ -121,6 +158,14 @@ class DataScheme {
         }
 
         return tableValidatorInfos;
+    }
+
+    getTypeInfo(typeName: string): { def: ABDataDefValueType, requestArg: boolean } {
+        let typeDef = this.#typeDefs.get(typeName);
+        if (typeDef === undefined)
+            throw new Error(`Type definition '${typeName}' does not exist.`);
+
+        return typeDef;
     }
     
     hasTable(tableName: string): boolean {
@@ -149,7 +194,15 @@ class DataScheme {
         this.#ignored_TableNames = tableNames;
 
         return this;
-    }  
+    }
+
+    parseField(field: ABDField|ABDFieldRef): ABDField {
+        if (field instanceof ABDField)
+            return field;
+
+        return this.parseField(this.getTableDef(field.tableName)
+                .getColumn(field.columnName).field);
+    }
     
     // validateResponse(responseDataResults: ResponseDataResults, 
     //         request: Request): void|never {
@@ -225,10 +278,22 @@ class DataScheme {
     }
 
 
-    #validateTableId(tableId: number): void {
+    #validateTableAlias(tableAlias: string): void|never {
+        for (let [ tableName, table ] of this.#tableDefs) {
+            if (table.alias === tableAlias)
+                throw new Error(`Table with alias '${tableAlias}' already exists ('${tableName}').`);
+        }
+    }
+
+    #validateTableName(tableName: string): void|never {
+        if (this.#tableDefs.has(tableName))
+            throw new Error(`Table with name '${tableName}' already exists.`);
+    }
+
+    #validateTableId(tableId: number): void|never {
         for (let [ tableName, table ] of this.#tableDefs) {
             if (table.getTableId() === tableId)
-                throw new Error(`Table with id '${tableId}' already exists ('${tableName}')`);
+                throw new Error(`Table with id '${tableId}' already exists ('${tableName}').`);
         }
     }
 

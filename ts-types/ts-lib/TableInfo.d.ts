@@ -2,9 +2,10 @@ import DatabaseVersion from "./DatabaseVersion.ts";
 import TableDef from "./TableDef.ts";
 import DBFieldInfo from "./FieldInfo.ts";
 import IndexInfo from "./IndexInfo.ts";
+import type DataScheme from "./DataScheme.ts";
 declare class TableInfo {
     #private;
-    static GetQuery_Create(dbVersion: DatabaseVersion, tableDef: TableDef): string;
+    static GetQuery_Create(dbVersion: DatabaseVersion, scheme: DataScheme, tableDef: TableDef): string;
     get fieldInfos(): Array<DBFieldInfo>;
     get indexInfos(): {
         [indexName: string]: IndexInfo;

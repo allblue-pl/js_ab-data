@@ -18,7 +18,6 @@ import type ABDText from "./abd-fields/ABDText.ts";
 import type { ABDTimeValidator_Args } from "./abd-validators/ABDTimeValidator.ts";
 import type { ABDFloatValidator_Args } from "./abd-validators/ABDFloatValidator.ts";
 import type { ABDIntValidator_Args } from "./abd-validators/ABDIntValidator.ts";
-import type { ABDJSONValidator_Args } from "./abd-validators/ABDJSONValidator.ts";
 import type { ABDLongValidator_Args } from "./abd-validators/ABDLongValidator.ts";
 import type { ABDStringValidator_Args } from "./abd-validators/ABDStringValidator.ts";
 
@@ -49,7 +48,6 @@ type ColumnInfos = Array<[ string, ABDAutoIncrementId ] |
         [ string, ABDFloat, ABDFloatValidator_Args? ] |
         [ string, ABDId ] |
         [ string, ABDInt, ABDIntValidator_Args? ] |
-        [ string, ABDJSON, ABDJSONValidator_Args? ] |
         [ string, ABDLong, ABDLongValidator_Args? ] |
         [ string, ABDString, ABDStringValidator_Args? ] |
         [ string, ABDText, ABDStringValidator_Args? ] |
