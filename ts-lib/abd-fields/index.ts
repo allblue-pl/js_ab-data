@@ -18,7 +18,8 @@ import type ABDField from "./ABDField.ts";
 import type { ABDData_Type } from "./ABDData.ts";
 import type { ABDataDefValueType } from "../abDataDefTypes.ts";
 import ABDData from "./ABDData.ts";
-import ABDFieldRef from "./ABDFieldRef.ts";
+import ABDColumnRef from "./ABDColumnRef.ts";
+import ABDIdRef from "./ABDIdRef.ts";
 
 
 class abdField_Class {
@@ -35,7 +36,7 @@ class abdField_Class {
     get ABDInt(): typeof ABDInt { return ABDInt; };
     get ABDJSON(): typeof ABDJSON { return ABDJSON; };
     get ABDLong(): typeof ABDLong { return ABDLong; };
-    // get ABDObject() { return ABDObject; };
+    get ABDIdRef(): typeof ABDIdRef { return ABDIdRef; };
     get ABDString(): typeof ABDString { return ABDString; };
     get ABDTime(): typeof ABDTime { return ABDTime; };
     get ABDText(): typeof ABDText { return ABDText; };
@@ -56,6 +57,10 @@ class abdField_Class {
 
     Bool(properties: ABDField_Properties = {}): ABDBool  {
         return new ABDBool(properties);
+    }
+
+    ColumnRef(tableName: string, columnName: string): ABDColumnRef {
+        return new ABDColumnRef(tableName, columnName);
     }
 
     Data(dataDef: ABDataDefValueType, type: ABDData_Type, 
@@ -80,7 +85,11 @@ class abdField_Class {
         return new ABDFloat(properties);
     }
 
-    Id(properties: ABDField_Properties = {}): ABDId {
+    Id(): ABDId {
+        return new ABDId();
+    }
+
+    IdRef(properties: ABDField_Properties = {}): ABDIdRef {
         return new ABDId(properties);
     }
 
@@ -100,10 +109,6 @@ class abdField_Class {
     // {
     //     return new ABDObject(properties);
     // }
-
-    Ref(tableName: string, columnName: string): ABDFieldRef {
-        return new ABDFieldRef(tableName, columnName);
-    }
 
     String(size: number, properties: ABDField_Properties = {}): ABDString {
         return new ABDString(size, properties);

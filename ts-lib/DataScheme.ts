@@ -8,7 +8,7 @@ import type { ValidatorInfo } from "./Validator.ts";
 import type Response from "./Response.ts";
 import type { ABDataDefValueType } from "./abDataDefTypes.ts";
 import type TableDefVariant from "./TableDefVariant.ts";
-import type ABDFieldRef from "./abd-fields/ABDFieldRef.ts";
+import type ABDColumnRef from "./abd-fields/ABDColumnRef.ts";
 import ABDField from "./abd-fields/ABDField.ts";
 
 class DataScheme {
@@ -196,7 +196,7 @@ class DataScheme {
         return this;
     }
 
-    parseField(field: ABDField|ABDFieldRef): ABDField {
+    parseField(field: ABDField|ABDColumnRef): ABDField {
         if (field instanceof ABDField)
             return field;
 

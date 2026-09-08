@@ -47,8 +47,8 @@ export class abDataDefTypes_Class {
         return new ABDataDefRequestResultType(requestName, actionName);
     }
 
-    TTableRow(tableName: string): ABDataDefTableRowType {
-        return new ABDataDefTableRowType(tableName);
+    TTableRow(tableName: string, type: "select"|"update"|"insert" = "select"): ABDataDefTableRowType {
+        return new ABDataDefTableRowType(tableName, type);
     }
 
     TTableVariantRow(tableVariantName: string): ABDataDefTableVariantRowType {
@@ -271,13 +271,19 @@ export class ABDataDefRequestResultType {
 
 export class ABDataDefTableRowType {
     #tableName: string;
+    #type: "select"|"update"|"insert";
 
     get tableName(): string {
         return this.#tableName;
     }
 
-    constructor(tableName: string) {
+    get type(): "select"|"update"|"insert" {
+        return this.#type;
+    }
+
+    constructor(tableName: string, type: "select"|"update"|"insert") {
         this.#tableName = tableName;
+        this.#type = type;
     }
 }
 

@@ -2,7 +2,7 @@ import { TS0List, type TS0RawObject, type TS0RawValue } from "@allblue/ts0";
 import ABDFieldValidator, { type ABDFieldValidator_Args } from "./abd-validators/ABDFieldValidator.ts";
 import Validator from "./Validator.ts";
 import ABDField from "./abd-fields/ABDField.ts";
-import type ABDFieldRef from "./abd-fields/ABDFieldRef.ts";
+import type ABDColumnRef from "./abd-fields/ABDColumnRef.ts";
 declare class TableDef {
     #private;
     get alias(): string;
@@ -16,11 +16,11 @@ declare class TableDef {
     addColumnValidator(columnName: string, fieldValidator: ABDFieldValidator): TableDef;
     addExtras(extraColumns: Array<[string, ABDField]>): TableDef;
     getColumn(columnName: string): TableDef_ColumnInfo;
-    getColumn_Field(columnName: string): ABDField | ABDFieldRef;
+    getColumn_Field(columnName: string): ABDField | ABDColumnRef;
     getColumnIndex(columnName: string): number;
     getColumnNames(): Array<string>;
     getColumnValidators(columnName: string): Array<ABDFieldValidator>;
-    getSelectColumnInfo(columnName: string): [string, ABDField | ABDFieldRef];
+    getSelectColumnInfo(columnName: string): [string, ABDField | ABDColumnRef];
     getTableId(): number;
     getTableName(): string;
     getValidatorInfos(): TableDef_ValidatorInfo;
@@ -50,7 +50,7 @@ export type TableDef_IndexInfos = {
     }>;
 };
 export type TableDef_ColumnInfo = {
-    field: ABDField | ABDFieldRef;
+    field: ABDField | ABDColumnRef;
     fieldValidator: ABDFieldValidator;
     index: number;
     select: string;

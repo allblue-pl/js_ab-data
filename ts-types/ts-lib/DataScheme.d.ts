@@ -4,7 +4,7 @@ import type { Request_Parsed } from "./RequestProcessor.ts";
 import type Response from "./Response.ts";
 import type { ABDataDefValueType } from "./abDataDefTypes.ts";
 import type TableDefVariant from "./TableDefVariant.ts";
-import type ABDFieldRef from "./abd-fields/ABDFieldRef.ts";
+import type ABDColumnRef from "./abd-fields/ABDColumnRef.ts";
 import ABDField from "./abd-fields/ABDField.ts";
 declare class DataScheme {
     #private;
@@ -38,7 +38,7 @@ declare class DataScheme {
     hasTable_ById(tableId: number): boolean;
     hasRequestDef(requestName: string): boolean;
     ignoreT(tableNames: Array<string>): DataScheme;
-    parseField(field: ABDField | ABDFieldRef): ABDField;
+    parseField(field: ABDField | ABDColumnRef): ABDField;
     validateRequestResponse(request: Request_Parsed, response: Response): void | never;
     validateRequestArgs(request: Request_Parsed): void | never;
 }

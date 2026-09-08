@@ -2,7 +2,7 @@ import abDataDefTypes from "./lib/abDataDefTypes.js";
 import abdFields from "./lib/abd-fields/index.js";
 import abdValidators from "./lib/abd-validators/index.js";
 import ABDField from "./lib/abd-fields/ABDField.js";
-import ABDFieldRef from "./lib/abd-fields/ABDFieldRef.js";
+import ABDColumnRef from "./lib/abd-fields/ABDColumnRef.js";
 import ABDRequestArgs, {
     abdRequestResult,
     ABDRequestResult,
@@ -73,7 +73,7 @@ export {
                           
                              };
 export { ABDField };
-export { ABDFieldRef };
+export { ABDColumnRef };
 export { ABDRequestArgs,
     abdRequestResult,
     ABDRequestResult };

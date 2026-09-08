@@ -1,5 +1,5 @@
 
-export default class ABDFieldRef {
+export default class ABDColumnRef {
     #columnName: string;
     #tableName: string;
 

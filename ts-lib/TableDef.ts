@@ -6,7 +6,7 @@ import ABDField from "./abd-fields/ABDField.ts";
 import type TableInfo from "./TableInfo.ts";
 import type IndexInfo from "./IndexInfo.ts";
 import ABDAutoIncrementId from "./abd-fields/ABDAutoIncrementId.ts";
-import type ABDFieldRef from "./abd-fields/ABDFieldRef.ts";
+import type ABDColumnRef from "./abd-fields/ABDColumnRef.ts";
 
 class TableDef {
     #alias: string;
@@ -121,7 +121,7 @@ class TableDef {
         return this.#columns.get(columnName);
     }
 
-    getColumn_Field(columnName: string): ABDField|ABDFieldRef {
+    getColumn_Field(columnName: string): ABDField|ABDColumnRef {
         return this.getColumn(columnName).field;
     }
 
@@ -145,7 +145,7 @@ class TableDef {
         return validators;
     }
 
-    getSelectColumnInfo(columnName: string): [ string, ABDField|ABDFieldRef ] {
+    getSelectColumnInfo(columnName: string): [ string, ABDField|ABDColumnRef ] {
         let column = this.getColumn(columnName);
 
         return [ column.select, column.field ];
@@ -301,7 +301,7 @@ export type TableDef_IndexInfos = {[indexName: string]: Array<{
 }>};
 
 export type TableDef_ColumnInfo = {
-    field: ABDField|ABDFieldRef,
+    field: ABDField|ABDColumnRef,
     fieldValidator: ABDFieldValidator,
     index: number,
     select: string,

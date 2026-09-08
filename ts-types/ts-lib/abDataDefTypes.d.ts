@@ -15,7 +15,7 @@ export declare class abDataDefTypes_Class {
     TObjectPreset(presets: ABDataDefPreset, extras?: ABDataDefObjectType | null): ABDataDefObjectPresetType;
     TRequestArgs(requestName: string, actionName: string): ABDataDefRequestArgsType;
     TRequestResult(requestName: string, actionName: string): ABDataDefRequestResultType;
-    TTableRow(tableName: string): ABDataDefTableRowType;
+    TTableRow(tableName: string, type?: "select" | "update" | "insert"): ABDataDefTableRowType;
     TTableVariantRow(tableVariantName: string): ABDataDefTableVariantRowType;
     TType(typeName: string): ABDataDefTypeType;
     parse(value: ABDataDefValueType): TS0ValueType;
@@ -81,7 +81,8 @@ export declare class ABDataDefRequestResultType {
 export declare class ABDataDefTableRowType {
     #private;
     get tableName(): string;
-    constructor(tableName: string);
+    get type(): "select" | "update" | "insert";
+    constructor(tableName: string, type: "select" | "update" | "insert");
 }
 export declare class ABDataDefTableVariantRowType {
     #private;

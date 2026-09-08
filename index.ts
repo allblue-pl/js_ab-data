@@ -2,7 +2,7 @@ import abDataDefTypes from "./ts-lib/abDataDefTypes.ts";
 import abdFields from "./ts-lib/abd-fields/index.ts";
 import abdValidators from "./ts-lib/abd-validators/index.ts";
 import ABDField from "./ts-lib/abd-fields/ABDField.ts";
-import ABDFieldRef from "./ts-lib/abd-fields/ABDFieldRef.ts";
+import ABDColumnRef from "./ts-lib/abd-fields/ABDColumnRef.ts";
 import ABDRequestArgs, {
     abdRequestResult,
     ABDRequestResult,
@@ -73,7 +73,7 @@ export {
     type ABDataDefPreset, 
     type ABDataDefValueType, };
 export { ABDField };
-export { ABDFieldRef };
+export { ABDColumnRef };
 export { ABDRequestArgs,
     abdRequestResult,
     ABDRequestResult };
