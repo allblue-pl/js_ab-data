@@ -1,15 +1,19 @@
 import { type TS0RawValue } from "@allblue/ts0";
 import Response from "./Response.ts";
 import type { ErrorInfo } from "./ts-types.ts";
-export default class ResponseResult<T_ResponseResultData extends ResponseResultData> {
+export default class ResponseResult {
     #private;
     static get Types_Success(): number;
     static get Types_Failure(): number;
     static get Types_Error(): number;
-    get data(): T_ResponseResultData;
+    get data(): ResponseResultData;
     get error(): string | null;
     get message(): string;
     constructor(response: Response, resultData: ResponseResultData | null, error: string | null);
+    getData_Failure<T_ResultData extends ResponseResultData>(): T_ResultData;
+    getData_Result<T_ResultData extends ResponseResultData>(): T_ResultData;
+    getData_Success<T_ResultData extends ResponseResultData>(): T_ResultData;
+    getData_Raw(): ResponseResultData | null;
     getErrorInfo(): ErrorInfo;
     isError(): boolean;
     isFailure(): boolean;

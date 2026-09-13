@@ -48,16 +48,26 @@ export default class TableDefVariant {
         return this;
     }
 
-    addTableColumns(prefix: string, tableDef: TableDef): TableDefVariant {
-        for (let [ columnName, column ] of tableDef.columns)
+    addTableColumns(prefix: string, tableDef: TableDef, columnNames: Array<string>|null = null): TableDefVariant {
+        if (columnNames === null)
+            columnNames = tableDef.getColumnNames();
+
+        for (let columnName of columnNames) {
+            let column = tableDef.getColumn(columnName);
             this.#columns.set(prefix + columnName, column.field);
+        }
 
         return this;
     }
 
-    addTableColumns_Extra(prefix: string, tableDef: TableDef): TableDefVariant {
-        for (let [ columnName, column ] of tableDef.columns)
+    addTableColumns_Extra(prefix: string, tableDef: TableDef, columnNames: Array<string>|null = null): TableDefVariant {
+         if (columnNames === null)
+            columnNames = tableDef.getColumnNames();
+
+        for (let columnName of columnNames) {
+            let column = tableDef.getColumn(columnName);
             this.#columns_Extra.set(prefix + columnName, column.field);
+        }
 
         return this;
     }

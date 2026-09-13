@@ -136,8 +136,7 @@ class Response {
         return this.errorMessage;
     }
 
-    getActionResult<T_ResponseResultData extends ResponseResultData>(requestId: string|TS0NotSet = ts0.notSet): 
-            ResponseResult<T_ResponseResultData> {
+    getActionResult(requestId: string|TS0NotSet = ts0.notSet): ResponseResult {
         if (this.type >= 3)
             return new ResponseResult(this, null, null);
 

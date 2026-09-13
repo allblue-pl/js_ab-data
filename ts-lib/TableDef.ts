@@ -36,6 +36,10 @@ class TableDef {
         return this.#columns_Extra;
     }
 
+    get id(): number {
+        return this.#id;
+    }
+
     get indexes(): TableDef_IndexInfos {
         return this.#indexes;
     }
@@ -149,14 +153,6 @@ class TableDef {
         let column = this.getColumn(columnName);
 
         return [ column.select, column.field ];
-    }
-
-    getTableId(): number {
-        return this.#id;
-    }
-
-    getTableName(): string {
-        return this.#name;
     }
 
     getValidatorInfos(): TableDef_ValidatorInfo {

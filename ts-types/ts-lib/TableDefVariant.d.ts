@@ -11,6 +11,6 @@ export default class TableDefVariant {
     constructor(name: string, tablDef: TableDef);
     addColumns(columns: Array<[columnName: string, field: ABDField | ABDColumnRef]>): TableDefVariant;
     addColumns_Extra(columns: Array<[columnName: string, field: ABDField | ABDColumnRef]>): TableDefVariant;
-    addTableColumns(prefix: string, tableDef: TableDef): TableDefVariant;
-    addTableColumns_Extra(prefix: string, tableDef: TableDef): TableDefVariant;
+    addTableColumns(prefix: string, tableDef: TableDef, columnNames?: Array<string> | null): TableDefVariant;
+    addTableColumns_Extra(prefix: string, tableDef: TableDef, columnNames?: Array<string> | null): TableDefVariant;
 }

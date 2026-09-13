@@ -4,17 +4,23 @@ declare class RequestDef {
     constructor();
     defA(actionName: string, actionType: "r" | "w", argsDef: {
         [argName: string]: ABDataDefValueType;
-    }, resultDef: {
+    }, successDef: {
+        [propertyName: string]: ABDataDefValueType;
+    }, failureDef?: {
         [propertyName: string]: ABDataDefValueType;
     }): RequestDef;
     defAction(actionName: string, actionType: "r" | "w", argsDef: {
         [argName: string]: ABDataDefValueType;
-    }, resultDef: {
+    }, successDef: {
+        [propertyName: string]: ABDataDefValueType;
+    }, failureDef?: {
         [propertyName: string]: ABDataDefValueType;
     }): RequestDef;
     extA(actionName: string, argsDef: {
         [argName: string]: ABDataDefValueType;
-    }, resultDef: {
+    }, successDef: {
+        [propertyName: string]: ABDataDefValueType;
+    }, failureDef?: {
         [propertyName: string]: ABDataDefValueType;
     }): RequestDef;
     getADef(actionName: string): RequestDef_ActionDef;
@@ -30,7 +36,10 @@ type RequestDef_ActionDef = {
     argsDef: {
         [argName: string]: ABDataDefValueType;
     };
-    resultDef: {
+    successDef: {
+        [propertyName: string]: ABDataDefValueType;
+    };
+    failureDef: {
         [propertyName: string]: ABDataDefValueType;
     };
 };

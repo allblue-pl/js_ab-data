@@ -6,7 +6,7 @@ import type { ResponseData, ResponseDataResults } from "./Response.ts";
 import type { ResponseResultData } from "./ResponseResult.ts";
 import type { ValidatorInfo } from "./Validator.ts";
 import type Response from "./Response.ts";
-import type { ABDataDefValueType } from "./abDataDefTypes.ts";
+import { ABDataDefObjectPresetType, type ABDataDefPreset, type ABDataDefValueType } from "./abDataDefTypes.ts";
 import type TableDefVariant from "./TableDefVariant.ts";
 import type ABDColumnRef from "./abd-fields/ABDColumnRef.ts";
 import ABDField from "./abd-fields/ABDField.ts";
@@ -20,9 +20,14 @@ class DataScheme {
         def: ABDataDefValueType
         requestArg: boolean,
     }>;
+    #layoutDefs: Map<string, ABDataDefObjectPresetType>;
     #version: number;
     #validation: boolean;
 
+
+    get layoutNames(): Array<string> {
+        return this.#layoutDefs.keys().toArray();
+    }
 
     get tableNames(): Array<string> {
         return this.#tableDefs.keys().toArray();
@@ -53,8 +58,24 @@ class DataScheme {
         this.#tableDefs = new Map();
         this.#tableDefVariants = new Map();
         this.#typeDefs = new Map();
+        this.#layoutDefs = new Map();
 
         this.#ignored_TableNames = [];
+    }
+
+    defL(layoutName: string, defPreset: ABDataDefPreset): DataScheme {
+        this.defLayout(layoutName, defPreset);
+
+        return this;
+    }
+
+    defLayout(layoutName: string, defPreset: ABDataDefPreset): DataScheme {
+        if (this.#layoutDefs.has(layoutName))
+            throw new Error(`Layout '${layoutName}' already exists.`);
+
+        this.#layoutDefs.set(layoutName, new ABDataDefObjectPresetType(defPreset));
+
+        return this;
     }
 
     defR(requestName: string, requestDef: RequestDef): DataScheme {
@@ -73,12 +94,27 @@ class DataScheme {
     }
 
     defTable(tableDef: TableDef): DataScheme {
+        for (let [ tableName, tableDef_T ] of this.#tableDefs) {
+            if (tableDef_T.id === tableDef.id) {
+                throw new Error(`Cannot define table '${tableDef.name}'.` +
+                        ` Id '${tableDef.id}' already exists in '${tableDef_T.name}'.`);
+            }
+            if (tableDef_T.name === tableDef.name) {
+                throw new Error(`Cannot define table '${tableName}'.` +
+                        ` Name '${tableDef.name}' already exists.`);
+            }
+            if (tableDef_T.alias === tableDef.alias) {
+                throw new Error(`Cannot define table '${tableDef.name}'.` +
+                        ` Id '${tableDef.alias}' already exists in '${tableDef_T.name}'.`);
+            }
+        }
+
         if (tableDef.pks === null)
             throw new Error(`Table '${tableDef.name}' PKs not set.`);
 
-        this.#validateTableId(tableDef.getTableId());
-        this.#validateTableName(tableDef.name);
-        this.#validateTableAlias(tableDef.alias);
+        // this.#validateTableId(tableDef.id);
+        // this.#validateTableName(tableDef.name);
+        // this.#validateTableAlias(tableDef.alias);
 
         this.#tableDefs.set(tableDef.name, tableDef);
 
@@ -101,8 +137,24 @@ class DataScheme {
         return this;
     }
 
+    defTypes(prefix: string, typeDefs: {[key: string]: ABDataDefValueType}): DataScheme {
+        for (let typeName in typeDefs)
+            this.defType(`${prefix}_${typeName}`, typeDefs[typeName]);
+
+        return this;
+    }
+
     getIgnored_TableNames(): Array<string> {
         return this.#ignored_TableNames.slice();
+    }
+
+    getLayoutDef(layoutName: string): ABDataDefObjectPresetType {
+        for (let [ layoutName_T, layoutDef ] of this.#layoutDefs) {
+            if (layoutName_T.toLowerCase() === layoutName.toLowerCase())
+                return layoutDef;
+        }
+
+        throw new Error(`Layout definition '${layoutName}' does not exist.`);
     }
 
     getRequestDef(requestName: string): RequestDef|never {
@@ -124,7 +176,7 @@ class DataScheme {
 
     getTableDef_ById(tableId: number): TableDef {
         for (let [ tableDefName, tableDef ] of this.#tableDefs) {
-            if (tableDef.getTableId() === tableId)
+            if (tableDef.id === tableId)
                 return tableDef;
         }
 
@@ -144,7 +196,7 @@ class DataScheme {
         let tableIds: {[tableName: string]: number} = {};
         for (let tableName of this.tableNames) {
             let tableDef = this.getTableDef(tableName);
-            tableIds[tableName] = tableDef.getTableId();
+            tableIds[tableName] = tableDef.id;
         }
 
         return tableIds;
@@ -179,7 +231,7 @@ class DataScheme {
 
     hasTable_ById(tableId: number): boolean {
         for (let [ tableDefName, tableDef ] of this.#tableDefs) {
-            if (tableDef.getTableId() === tableId)
+            if (tableDef.id === tableId)
                 return true;
         }
 
@@ -236,12 +288,14 @@ class DataScheme {
         let result = response.getActionResult(requestId);
 
         if (!result.isError()) {
-            if (!ts0.checkType(result.data, ts0.TRawObject)) {
-                console.error(`'${requestName}:${actionName}' result:`, result.data);
+            if (!ts0.checkType(result.getData_Result(), ts0.TRawObject)) {
+                console.error(`'${requestName}:${actionName}' result:`, 
+                        result.getData_Raw());
                 throw new Error(`Result of '${requestName}:${actionName}' must be a 'RawObject'.`);
             }
 
             if (this.#validation) {
+                throw new Error("Validation not implemented.");
                 // let errors: Array<string> = [];
                 // if (!ts0.checkType(result.data, ts0.TPreset(actionDef.resultDef), errors)) {
                 //     console.error(`'${requestName}:${actionName}' result:`, result.data);
@@ -269,6 +323,7 @@ class DataScheme {
         let actionDef = requestDef.getActionDef(actionName);
 
         if (this.#validation) {
+            throw new Error("Validation not implemented.");
             // let errors: Array<string> = [];
             // if (!ts0.checkType(actionArgs, ts0.TPreset(actionDef.argsDef), errors)) {
             //     console.error(`Args errors:`, errors);
@@ -278,24 +333,23 @@ class DataScheme {
     }
 
 
-    #validateTableAlias(tableAlias: string): void|never {
-        for (let [ tableName, table ] of this.#tableDefs) {
-            if (table.alias === tableAlias)
-                throw new Error(`Table with alias '${tableAlias}' already exists ('${tableName}').`);
-        }
-    }
+    // #validateTableAlias(tableAlias: string): void|never {
+    //     for (let [ tableName, table ] of this.#tableDefs) {
+    //         if (table.alias === tableAlias)
+    //             throw new Error(`Table with alias '${tableAlias}' already exists ('${tableName}').`);
+    //     }
+    // }
 
-    #validateTableName(tableName: string): void|never {
-        if (this.#tableDefs.has(tableName))
-            throw new Error(`Table with name '${tableName}' already exists.`);
-    }
+    // #validateTableName(tableName: string): void|never {
+    //     if (this.#tableDefs.has(tableName))
+    //         throw new Error(`Table with name '${tableName}' already exists.`);
+    // }
 
-    #validateTableId(tableId: number): void|never {
-        for (let [ tableName, table ] of this.#tableDefs) {
-            if (table.getTableId() === tableId)
-                throw new Error(`Table with id '${tableId}' already exists ('${tableName}').`);
-        }
-    }
-
+    // #validateTableId(tableId: number): void|never {
+    //     for (let [ tableName, table ] of this.#tableDefs) {
+    //         if (table.id === tableId)
+    //             throw new Error(`Table with id '${tableId}' already exists ('${tableName}').`);
+    //     }
+    // }
 }
 export default DataScheme;

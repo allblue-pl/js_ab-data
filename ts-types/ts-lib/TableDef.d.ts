@@ -9,6 +9,7 @@ declare class TableDef {
     get autoIncrement(): boolean;
     get columns(): TableDef_ColumnInfos;
     get columns_Extra(): TableDef_ExtraColumnInfos;
+    get id(): number;
     get indexes(): TableDef_IndexInfos;
     get name(): string;
     get pks(): Array<string>;
@@ -21,8 +22,6 @@ declare class TableDef {
     getColumnNames(): Array<string>;
     getColumnValidators(columnName: string): Array<ABDFieldValidator>;
     getSelectColumnInfo(columnName: string): [string, ABDField | ABDColumnRef];
-    getTableId(): number;
-    getTableName(): string;
     getValidatorInfos(): TableDef_ValidatorInfo;
     hasColumn(columnName: string): boolean;
     setIndexes(indexes: {

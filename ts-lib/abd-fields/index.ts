@@ -90,7 +90,7 @@ class abdField_Class {
     }
 
     IdRef(properties: ABDField_Properties = {}): ABDIdRef {
-        return new ABDId(properties);
+        return new ABDIdRef(properties);
     }
 
     Int(properties: ABDField_Properties = {}): ABDInt {

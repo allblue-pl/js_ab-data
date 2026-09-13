@@ -43,8 +43,9 @@ export class abDataDefTypes_Class {
         return new ABDataDefRequestArgsType(requestName, actionName);
     }
 
-    TRequestResult(requestName: string, actionName: string): ABDataDefRequestResultType {
-        return new ABDataDefRequestResultType(requestName, actionName);
+    TRequestResult(requestName: string, actionName: string, 
+            resultType: "success"|"failure"|"result"): ABDataDefRequestResultType {
+        return new ABDataDefRequestResultType(requestName, actionName, resultType);
     }
 
     TTableRow(tableName: string, type: "select"|"update"|"insert" = "select"): ABDataDefTableRowType {
@@ -254,6 +255,7 @@ export class ABDataDefRequestArgsType {
 export class ABDataDefRequestResultType {
     #actionName: string;
     #requestName: string;
+    #resultType: "success"|"failure"|"result";
 
     get actionName(): string {
         return this.#actionName;
@@ -263,9 +265,15 @@ export class ABDataDefRequestResultType {
         return this.#requestName;
     }
 
-    constructor(requestName: string, actionName: string) {
+    get resultType(): "success"|"failure"|"result" {
+        return this.#resultType;
+    }
+
+    constructor(requestName: string, actionName: string, 
+            resultType: "success"|"failure"|"result" = "result") {
         this.#requestName = requestName;
         this.#actionName = actionName;
+        this.#resultType = resultType;
     }
 }
 

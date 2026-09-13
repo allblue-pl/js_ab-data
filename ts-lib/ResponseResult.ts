@@ -3,7 +3,7 @@ import ts0, { TS0ArrayType, ts0Assert, type TS0RawArray, type TS0RawObject, type
 import Response from "./Response.ts";
 import type { ErrorInfo } from "./ts-types.ts";
 
-export default class ResponseResult<T_ResponseResultData extends ResponseResultData> {
+export default class ResponseResult {
     static get Types_Success(): number {
         return 0;
     }
@@ -16,15 +16,13 @@ export default class ResponseResult<T_ResponseResultData extends ResponseResultD
         return 2;
     }
 
-    #data: T_ResponseResultData|null;
+    #data: ResponseResultData|null;
     #error: string|null;
     #response: Response;
 
 
-    get data(): T_ResponseResultData {
-        ts0Assert(this.#data !== null, `Response result data is null.`);
-
-        return this.#data;
+    get data(): ResponseResultData {
+        return this.getData_Result();
     }
 
     get error(): string|null {
@@ -50,7 +48,31 @@ export default class ResponseResult<T_ResponseResultData extends ResponseResultD
 
         this.#error = error;
         this.#response = response;
-        this.#data = resultData as T_ResponseResultData;
+        this.#data = resultData;
+    }
+
+
+
+    getData_Failure<T_ResultData extends ResponseResultData>(): T_ResultData {
+        ts0Assert(this.isFailure(), `Response result is not a success.`);
+
+        return this.#data as T_ResultData;
+    }
+
+    getData_Result<T_ResultData extends ResponseResultData>(): T_ResultData {
+        ts0Assert(this.#data !== null, `Result data is null.`);
+
+        return this.#data as T_ResultData;
+    }
+
+    getData_Success<T_ResultData extends ResponseResultData>(): T_ResultData {
+        ts0Assert(this.isSuccess(), `Response result is not a success.`);
+
+        return this.#data as T_ResultData;
+    }
+
+    getData_Raw(): ResponseResultData|null {
+        return this.#data;
     }
 
     getErrorInfo(): ErrorInfo {
