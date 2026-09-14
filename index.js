@@ -25,10 +25,16 @@ import abData from "./lib/index.js";
 import { 
     ABDataDefArrayPresetType, 
     ABDataDefArrayType, 
+    ABDataDefEnumType,
+    ABDataDefJoinType,
+    ABDataDefMapType, 
     ABDataDefObjectPresetType, 
     ABDataDefObjectType, 
+    ABDataDefRequestArgsType,
+    ABDataDefRequestResultType,
     ABDataDefTableRowType, 
     ABDataDefTableVariantRowType,
+    ABDataDefTypeType,
                           
                             
 } from "./lib/abDataDefTypes.js";
@@ -66,10 +72,16 @@ export default abData;
 export { 
     ABDataDefArrayPresetType, 
     ABDataDefArrayType, 
+    ABDataDefEnumType,
+    ABDataDefJoinType,
+    ABDataDefMapType, 
     ABDataDefObjectPresetType, 
     ABDataDefObjectType, 
+    ABDataDefRequestArgsType,
+    ABDataDefRequestResultType,
     ABDataDefTableRowType, 
     ABDataDefTableVariantRowType,
+    ABDataDefTypeType,
                           
                              };
 export { ABDField };

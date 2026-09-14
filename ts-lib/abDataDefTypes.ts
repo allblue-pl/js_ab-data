@@ -25,11 +25,15 @@ export class abDataDefTypes_Class {
         return new ABDataDefJoinType(objectPresetInfos, extras);
     }
     
+    TMap(keyType: "int"|"string", valueType: ABDataDefValueType): ABDataDefMapType {
+        return new ABDataDefMapType(keyType, valueType);
+    }
+
     get TNull(): typeof types_TNull {
         return types_TNull;
     }
 
-    TObject(keyType: ABDataDefValueType, valueType: ABDataDefValueType): 
+    TObject(keyType: "int"|"string", valueType: ABDataDefValueType): 
             ABDataDefObjectType {
         return new ABDataDefObjectType(keyType, valueType);
     }
@@ -196,21 +200,37 @@ type ABDataDefJoin_SupportedTypes =
     ABDataDefTableRowType|
     ABDataDefTableVariantRowType;
 
-
-
-export class ABDataDefObjectType {
-    #keyType: ABDataDefValueType;
+export class ABDataDefMapType {
+    #keyType: "int"|"string";
     #itemType: ABDataDefValueType;
 
     get itemType(): ABDataDefValueType {
         return this.#itemType;
     }
 
-    get keyType(): ABDataDefValueType {
+    get keyType(): "int"|"string" {
         return this.#keyType;
     }
 
-    constructor(keyType: ABDataDefValueType, itemType: ABDataDefValueType) {
+    constructor(keyType: "int"|"string", itemType: ABDataDefValueType) {
+        this.#keyType = keyType;
+        this.#itemType = itemType;
+    }
+}
+
+export class ABDataDefObjectType {
+    #keyType: "int"|"string";
+    #itemType: ABDataDefValueType;
+
+    get itemType():ABDataDefValueType {
+        return this.#itemType;
+    }
+
+    get keyType(): "int"|"string" {
+        return this.#keyType;
+    }
+
+    constructor(keyType: "int"|"string", itemType: ABDataDefValueType) {
         this.#keyType = keyType;
         this.#itemType = itemType;
     }
@@ -335,7 +355,7 @@ export type ABDataDefValueType = null|
         "bool"|"float"|"string"|"long"|"int"|
         typeof types_TNull|
         ABDataDefArrayPresetType|ABDataDefArrayType|ABDataDefDefaultType|
-        ABDataDefEnumType|ABDataDefJoinType|ABDataDefObjectPresetType|
+        ABDataDefEnumType|ABDataDefJoinType|ABDataDefMapType|ABDataDefObjectPresetType|
         ABDataDefObjectType|ABDataDefRequestArgsType|ABDataDefRequestResultType|
         ABDataDefTableRowType|ABDataDefTableVariantRowType|ABDataDefTypeType|ABDataDefTypeFnType|
         Array<ABDataDefValueType>;

@@ -25,10 +25,16 @@ import abData from "./ts-lib/index.ts";
 import { 
     ABDataDefArrayPresetType, 
     ABDataDefArrayType, 
+    ABDataDefEnumType,
+    ABDataDefJoinType,
+    ABDataDefMapType, 
     ABDataDefObjectPresetType, 
     ABDataDefObjectType, 
+    ABDataDefRequestArgsType,
+    ABDataDefRequestResultType,
     ABDataDefTableRowType, 
     ABDataDefTableVariantRowType,
+    ABDataDefTypeType,
     type ABDataDefPreset, 
     type ABDataDefValueType,
 } from "./ts-lib/abDataDefTypes.ts";
@@ -66,10 +72,16 @@ export default abData;
 export { 
     ABDataDefArrayPresetType, 
     ABDataDefArrayType, 
+    ABDataDefEnumType,
+    ABDataDefJoinType,
+    ABDataDefMapType, 
     ABDataDefObjectPresetType, 
     ABDataDefObjectType, 
+    ABDataDefRequestArgsType,
+    ABDataDefRequestResultType,
     ABDataDefTableRowType, 
     ABDataDefTableVariantRowType,
+    ABDataDefTypeType,
     type ABDataDefPreset, 
     type ABDataDefValueType, };
 export { ABDField };
