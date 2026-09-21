@@ -13,4 +13,5 @@ export default class TableDefVariant {
     addColumns_Extra(columns: Array<[columnName: string, field: ABDField | ABDColumnRef]>): TableDefVariant;
     addTableColumns(prefix: string, tableDef: TableDef, columnNames?: Array<string> | null): TableDefVariant;
     addTableColumns_Extra(prefix: string, tableDef: TableDef, columnNames?: Array<string> | null): TableDefVariant;
+    removeTableColumns(columnNames: Array<string>): TableDefVariant;
 }

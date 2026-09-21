@@ -20,6 +20,7 @@
         "verbatimModuleSyntax": true
     },
     "exclude": [
+        "./.dev/**/*",
         "./lib/**/*",
         "./tests/**/*",
         "./ts-types/**/*"
