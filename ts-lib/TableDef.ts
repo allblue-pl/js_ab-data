@@ -7,6 +7,7 @@ import type TableInfo from "./TableInfo.ts";
 import type IndexInfo from "./IndexInfo.ts";
 import ABDAutoIncrementId from "./abd-fields/ABDAutoIncrementId.ts";
 import type ABDColumnRef from "./abd-fields/ABDColumnRef.ts";
+import type { ABDFieldInfo } from "./abd-fields/index.ts";
 
 class TableDef {
     #alias: string;
@@ -59,7 +60,7 @@ class TableDef {
     }
 
     constructor(id: number, name: string, alias: string, columns: 
-            Array<[ string, ABDField, ABDFieldValidator_Args? ]>) {
+            Array<ABDFieldInfo>) {
         this.#id = id;
         this.#name = name;
         this.#alias = alias;
@@ -86,6 +87,11 @@ class TableDef {
             if (field instanceof ABDAutoIncrementId) {
                 this.#autoIncrementColumn = name;
                 this.#primaryKeys = null;
+            }
+
+            if (column.length > 3) {
+                for (let fieldValidator of column[3]!)
+                    this.addColumnValidator(name, fieldValidator);
             }
         }
 

@@ -1,6 +1,7 @@
 import abDataDefTypes from "./ts-lib/abDataDefTypes.ts";
 import abdFields from "./ts-lib/abd-fields/index.ts";
 import abdValidators from "./ts-lib/abd-validators/index.ts";
+import pl_ABData from "./ts-lib/languages/pl_ABData.ts";
 import ABDField from "./ts-lib/abd-fields/ABDField.ts";
 import ABDColumnRef from "./ts-lib/abd-fields/ABDColumnRef.ts";
 import ABDRequestArgs, {
@@ -32,6 +33,7 @@ import {
     ABDataDefObjectType, 
     ABDataDefRequestArgsType,
     ABDataDefRequestResultType,
+    ABDataDefTableColumnType, 
     ABDataDefTableRowType, 
     ABDataDefTableVariantRowType,
     ABDataDefTypeType,
@@ -69,6 +71,7 @@ export { abDataDefTypes, abdFields, abdValidators, p_ResponseResultData, DataSch
 export { FieldInfo, IndexInfo };
 
 export default abData;
+export { pl_ABData };
 export { 
     ABDataDefArrayPresetType, 
     ABDataDefArrayType, 
@@ -79,6 +82,7 @@ export {
     ABDataDefObjectType, 
     ABDataDefRequestArgsType,
     ABDataDefRequestResultType,
+    ABDataDefTableColumnType, 
     ABDataDefTableRowType, 
     ABDataDefTableVariantRowType,
     ABDataDefTypeType,

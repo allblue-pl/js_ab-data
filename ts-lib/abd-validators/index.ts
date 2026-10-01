@@ -4,6 +4,7 @@ import ABDIntValidator, { type ABDIntValidator_Args } from "./ABDIntValidator.ts
 import ABDFloatValidator, { type ABDFloatValidator_Args } from "./ABDFloatValidator.ts";
 import ABDLongValidator, { type ABDLongValidator_Args } from "./ABDLongValidator.ts";
 import ABDStringValidator, { type ABDStringValidator_Args } from "./ABDStringValidator.ts";
+import ABDEnumValidator, { type ABDEnumValidator_Args } from "./ABDEnumValidator.ts";
 
 class abdValidators_Class {
     get ABDBoolValidator(): typeof ABDBoolValidator { return ABDBoolValidator; }
@@ -20,6 +21,10 @@ class abdValidators_Class {
 
     Email(args: ABDEmailValidator_Args): ABDEmailValidator {
         return new ABDEmailValidator(args);
+    }
+
+    Enum(args: ABDEnumValidator_Args): ABDEnumValidator {
+        return new ABDEnumValidator(args);
     }
 
     Int(args: ABDIntValidator_Args = {}): ABDIntValidator {

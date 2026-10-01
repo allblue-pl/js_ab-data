@@ -6,7 +6,7 @@ declare abstract class ABDField {
     #private;
     get defaultValue(): TS0RawValue;
     get notNull(): boolean;
-    constructor(properties?: ABDField_Properties);
+    constructor(properties?: ABDField_Properties_Base);
     compareDBType(dbVersion: DatabaseVersion, dbType: string, dbExtra: string): boolean;
     getDBType(dbVersion: DatabaseVersion): string;
     getDBExtra(dbVersion: DatabaseVersion): string;
@@ -33,6 +33,7 @@ export default ABDField;
 export type ABDField_Properties = {
     notNull?: boolean;
     defaultValue?: TS0RawValue;
-} & {
+};
+export type ABDField_Properties_Base = ABDField_Properties & {
     [argName: string]: TS0RawValue;
 };

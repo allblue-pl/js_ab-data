@@ -14,6 +14,7 @@ export type ABDStringValidator_Args_Raw = {
     regexp?: [string, string];
     trim?: boolean;
     chars?: string;
+    multiline?: boolean;
 };
 export type ABDStringValidator_Args = ABDFieldValidator_Args & ABDStringValidator_Args_Raw;
 export type ABDStringValidator_Args_Parsed = ABDFieldValidator_Args_Parsed & ABDStringValidator_Args_Raw;

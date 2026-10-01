@@ -1,6 +1,6 @@
 import ts0, { ts0Helper, type TS0RawValue } from "@allblue/ts0"
 
-import ABDField, { type ABDField_Properties, } from "./ABDField.ts";
+import ABDField, { type ABDField_Properties_Base, } from "./ABDField.ts";
 
 import ABDIntValidator, { type ABDIntValidator_Args } from "../abd-validators/ABDIntValidator.ts";
 import SelectColumnType, { type SelectColumnType_Type } from "../SelectColumnType.ts";
@@ -70,6 +70,6 @@ class ABDInt extends ABDField {
 }
 export default ABDInt;
 
-export type ABDInt_Properties = ABDField_Properties & {
+export type ABDInt_Properties = ABDField_Properties_Base & {
     unsigned?: boolean
 };

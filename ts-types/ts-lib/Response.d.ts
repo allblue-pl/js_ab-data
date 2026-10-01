@@ -23,7 +23,6 @@ declare class Response {
     constructor();
     addResult(requestId: string, result: ResponseResultData | null, actionError: string | null): void;
     getErrorInfo(): ErrorInfo;
-    getMessage(): string | null;
     getActionResult(requestId?: string | TS0NotSet): ResponseResult;
     isSuccess(): boolean;
     parseRawObject(responseData: ResponseData): void;

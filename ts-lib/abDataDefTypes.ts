@@ -33,7 +33,7 @@ export class abDataDefTypes_Class {
         return types_TNull;
     }
 
-    TObject(keyType: "int"|"string", valueType: ABDataDefValueType): 
+    TObject(keyType: "int"|"long"|"string", valueType: ABDataDefValueType): 
             ABDataDefObjectType {
         return new ABDataDefObjectType(keyType, valueType);
     }
@@ -50,6 +50,10 @@ export class abDataDefTypes_Class {
     TRequestResult(requestName: string, actionName: string, 
             resultType: "success"|"failure"|"result"): ABDataDefRequestResultType {
         return new ABDataDefRequestResultType(requestName, actionName, resultType);
+    }
+
+    TTableColumn(tableName: string, columnName: string): ABDataDefTableColumnType {
+        return new ABDataDefTableColumnType(tableName, columnName);
     }
 
     TTableRow(tableName: string, type: "select"|"update"|"insert" = "select"): ABDataDefTableRowType {
@@ -100,6 +104,8 @@ export class abDataDefTypes_Class {
                 value instanceof ABDataDefTableRowType ||
                 value instanceof ABDataDefTableVariantRowType)
             return ts0.TRawObject;
+        if (value instanceof ABDataDefTableColumnType)
+            return ts0.TRawValue;
         if (value instanceof ABDataDefTypeFnType) {
             return ts0.TValueType(() => {
                 return this.parse(value.typeFn());
@@ -219,18 +225,18 @@ export class ABDataDefMapType {
 }
 
 export class ABDataDefObjectType {
-    #keyType: "int"|"string";
+    #keyType: "int"|"long"|"string";
     #itemType: ABDataDefValueType;
 
     get itemType():ABDataDefValueType {
         return this.#itemType;
     }
 
-    get keyType(): "int"|"string" {
+    get keyType(): "int"|"long"|"string" {
         return this.#keyType;
     }
 
-    constructor(keyType: "int"|"string", itemType: ABDataDefValueType) {
+    constructor(keyType: "int"|"long"|"string", itemType: ABDataDefValueType) {
         this.#keyType = keyType;
         this.#itemType = itemType;
     }
@@ -297,6 +303,24 @@ export class ABDataDefRequestResultType {
     }
 }
 
+export class ABDataDefTableColumnType {
+    #tableName: string;
+    #columnName: string;
+
+    get columnName(): string {
+        return this.#columnName;
+    }
+
+    get tableName(): string {
+        return this.#tableName;
+    }
+
+    constructor(tableName: string, columnName: string) {
+        this.#tableName = tableName;
+        this.#columnName = columnName;
+    }
+}
+
 export class ABDataDefTableRowType {
     #tableName: string;
     #type: "select"|"update"|"insert";
@@ -357,6 +381,6 @@ export type ABDataDefValueType = null|
         ABDataDefArrayPresetType|ABDataDefArrayType|ABDataDefDefaultType|
         ABDataDefEnumType|ABDataDefJoinType|ABDataDefMapType|ABDataDefObjectPresetType|
         ABDataDefObjectType|ABDataDefRequestArgsType|ABDataDefRequestResultType|
-        ABDataDefTableRowType|ABDataDefTableVariantRowType|ABDataDefTypeType|ABDataDefTypeFnType|
-        Array<ABDataDefValueType>;
+        ABDataDefTableColumnType|ABDataDefTableRowType|ABDataDefTableVariantRowType|
+        ABDataDefTypeType|ABDataDefTypeFnType|Array<ABDataDefValueType>;
 export type ABDataDefPreset = {[name:string]: ABDataDefValueType};

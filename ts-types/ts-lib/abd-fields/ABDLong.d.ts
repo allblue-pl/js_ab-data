@@ -1,10 +1,10 @@
 import { type TS0RawValue } from "@allblue/ts0";
-import ABDField, { type ABDField_Properties } from "./ABDField.ts";
+import ABDField, { type ABDField_Properties_Base } from "./ABDField.ts";
 import ABDLongValidator, { type ABDLongValidator_Args } from "../abd-validators/ABDLongValidator.ts";
 import { type SelectColumnType_Type } from "../SelectColumnType.ts";
 import type DatabaseVersion from "../DatabaseVersion.ts";
 declare class ABDLong extends ABDField {
-    constructor(properties?: ABDField_Properties);
+    constructor(properties?: ABDField_Properties_Base);
     __compareDBType(dbVersion: DatabaseVersion, dbType: string): boolean;
     __getDBExtra(dbVersion: DatabaseVersion): string;
     __getDBType(dbVersion: DatabaseVersion): string;
@@ -17,4 +17,4 @@ declare class ABDLong extends ABDField {
     __unescape(value: boolean | number | string): boolean | number | string;
 }
 export default ABDLong;
-export type ABDLong_Properties = ABDField_Properties;
+export type ABDLong_Properties = ABDField_Properties_Base;

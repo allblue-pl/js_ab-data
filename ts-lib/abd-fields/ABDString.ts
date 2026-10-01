@@ -1,6 +1,6 @@
 import ts0, { type TS0RawValue } from "@allblue/ts0"
     
-import ABDField, { type ABDField_Properties } from "./ABDField.ts";
+import ABDField, { type ABDField_Properties_Base } from "./ABDField.ts";
 
 import ABDStringValidator, { type ABDStringValidator_Args } from "../abd-validators/ABDStringValidator.ts";
 import SelectColumnType, { type SelectColumnType_Type } from "../SelectColumnType.ts";
@@ -17,7 +17,7 @@ class ABDString extends ABDField {
     }
 
 
-    constructor(size: number, properties: ABDField_Properties = {}) {
+    constructor(size: number, properties: ABDField_Properties_Base = {}) {
         super(properties);
 
         this.#size = size;

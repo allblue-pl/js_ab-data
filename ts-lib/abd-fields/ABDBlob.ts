@@ -1,5 +1,5 @@
 import { ts0Assert, type TS0RawValue } from "@allblue/ts0";
-import ABDField, { type ABDField_Properties } from "./ABDField.ts";
+import ABDField, { type ABDField_Properties_Base } from "./ABDField.ts";
 import SelectColumnType, { type SelectColumnType_Type } from "../SelectColumnType.ts";
 import helper from "../helper.ts";
 import type DatabaseVersion from "../DatabaseVersion.ts";
@@ -22,7 +22,7 @@ class ABDBlob extends ABDField {
         return this.#type;
     }   
 
-    constructor(type: ABDBlob_Type, properties: ABDField_Properties = {}) {
+    constructor(type: ABDBlob_Type, properties: ABDField_Properties_Base = {}) {
         super(properties);
 
         this.#type = type;

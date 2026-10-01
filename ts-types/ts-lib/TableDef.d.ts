@@ -1,8 +1,9 @@
 import { TS0List, type TS0RawObject, type TS0RawValue } from "@allblue/ts0";
-import ABDFieldValidator, { type ABDFieldValidator_Args } from "./abd-validators/ABDFieldValidator.ts";
+import ABDFieldValidator from "./abd-validators/ABDFieldValidator.ts";
 import Validator from "./Validator.ts";
 import ABDField from "./abd-fields/ABDField.ts";
 import type ABDColumnRef from "./abd-fields/ABDColumnRef.ts";
+import type { ABDFieldInfo } from "./abd-fields/index.ts";
 declare class TableDef {
     #private;
     get alias(): string;
@@ -13,7 +14,7 @@ declare class TableDef {
     get indexes(): TableDef_IndexInfos;
     get name(): string;
     get pks(): Array<string>;
-    constructor(id: number, name: string, alias: string, columns: Array<[string, ABDField, ABDFieldValidator_Args?]>);
+    constructor(id: number, name: string, alias: string, columns: Array<ABDFieldInfo>);
     addColumnValidator(columnName: string, fieldValidator: ABDFieldValidator): TableDef;
     addExtras(extraColumns: Array<[string, ABDField]>): TableDef;
     getColumn(columnName: string): TableDef_ColumnInfo;

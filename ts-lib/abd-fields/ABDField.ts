@@ -18,7 +18,7 @@ abstract class ABDField {
     }
 
 
-    constructor(properties: ABDField_Properties = {}) {
+    constructor(properties: ABDField_Properties_Base = {}) {
         this.#notNull = properties.notNull === undefined ? 
                 false : properties.notNull;
         this.#defaultValue = properties.defaultValue;
@@ -109,4 +109,7 @@ export default ABDField;
 export type ABDField_Properties = {
     notNull?: boolean,
     defaultValue?: TS0RawValue,
-} & {[argName: string]: TS0RawValue};
+};
+
+export type ABDField_Properties_Base = ABDField_Properties & 
+        {[argName: string]: TS0RawValue};

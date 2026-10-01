@@ -68,6 +68,8 @@ class ABDStringValidator extends ABDFieldValidator {
 
             if (this.args['chars'] !== null) {
                 let chars_Escaped =  this.args['chars']; //abStrings.escapeRegExpChars(this.args['chars']);
+                if (this.args.multiline)
+                    chars_Escaped += "\r\n";
                 // value = ' hello ';
                 // echo '#' . chars . '#' . value . '#';
 
@@ -106,6 +108,7 @@ export type ABDStringValidator_Args_Raw = {
     regexp?: [ string, string ];
     trim?: boolean
     chars?: string,
+    multiline?: boolean,
 };
 export type ABDStringValidator_Args = ABDFieldValidator_Args &
         ABDStringValidator_Args_Raw;

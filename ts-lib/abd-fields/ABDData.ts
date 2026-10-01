@@ -1,6 +1,6 @@
 import ts0, { ts0Assert, type TS0RawValue } from "@allblue/ts0";
     
-import ABDField, { type ABDField_Properties } from "./ABDField.ts";
+import ABDField, { type ABDField_Properties_Base } from "./ABDField.ts";
 
 import SelectColumnType, { type SelectColumnType_Type } from "../SelectColumnType.ts";
 
@@ -45,7 +45,7 @@ class ABDData extends ABDField {
     }
 
 
-    constructor(dataDef: ABDataDefValueType, size: ABDData_Type, properties: ABDField_Properties = {}) {
+    constructor(dataDef: ABDataDefValueType, size: ABDData_Type, properties: ABDField_Properties_Base = {}) {
         super(properties);
 
         this.#dataDef = dataDef;

@@ -1,4 +1,3 @@
-import ts0, { TS0PresetType, type TS0Preset, type TS0ValueType } from "@allblue/ts0";
 import abText from "ab-text";
 import DataScheme from "./DataScheme.ts";
 import DataStore from "./DataStore.ts";
@@ -19,7 +18,6 @@ import TableRequestDef from "./TableRequestDef.ts";
 import Validator from "./Validator.ts";
 import { default as ABDField, default as Field } from "./abd-fields/ABDField.ts";
 import abdFields from "./abd-fields/index.ts";
-import lang_PL_ABData from "./languages/pl.ab-data.ts";
 import abdValidators from "./abd-validators/index.ts";
 
 export { DataScheme, DataStore, RequestDef, Response, ResponseResult as ResponseResult };
@@ -123,8 +121,6 @@ class abData_Class {
 
     constructor() {
         this.#debug = false;
-
-        abText.add('pl.abData', lang_PL_ABData);
     }
 
     error(errorTitle: string, error: Error): void {

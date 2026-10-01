@@ -1,10 +1,10 @@
 import { type TS0RawValue } from "@allblue/ts0";
-import ABDField, { type ABDField_Properties } from "./ABDField.ts";
+import ABDField, { type ABDField_Properties_Base } from "./ABDField.ts";
 import ABDFloatValidator, { type ABDFloatValidator_Args } from "../abd-validators/ABDFloatValidator.ts";
 import { type SelectColumnType_Type } from "../SelectColumnType.ts";
 import type DatabaseVersion from "../DatabaseVersion.ts";
 declare class ABDFloat extends ABDField {
-    constructor(properties: ABDField_Properties);
+    constructor(properties: ABDField_Properties_Base);
     __compareDBType(dbVersion: DatabaseVersion, dbType: string): boolean;
     __getDefaultValue(): TS0RawValue;
     __getDBExtra(dbVersion: DatabaseVersion): string;

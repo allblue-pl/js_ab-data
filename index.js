@@ -1,6 +1,7 @@
 import abDataDefTypes from "./lib/abDataDefTypes.js";
 import abdFields from "./lib/abd-fields/index.js";
 import abdValidators from "./lib/abd-validators/index.js";
+import pl_ABData from "./lib/languages/pl_ABData.js";
 import ABDField from "./lib/abd-fields/ABDField.js";
 import ABDColumnRef from "./lib/abd-fields/ABDColumnRef.js";
 import ABDRequestArgs, {
@@ -32,6 +33,7 @@ import {
     ABDataDefObjectType, 
     ABDataDefRequestArgsType,
     ABDataDefRequestResultType,
+    ABDataDefTableColumnType, 
     ABDataDefTableRowType, 
     ABDataDefTableVariantRowType,
     ABDataDefTypeType,
@@ -69,6 +71,7 @@ export { abDataDefTypes, abdFields, abdValidators, p_ResponseResultData, DataSch
 export { FieldInfo, IndexInfo };
 
 export default abData;
+export { pl_ABData };
 export { 
     ABDataDefArrayPresetType, 
     ABDataDefArrayType, 
@@ -79,6 +82,7 @@ export {
     ABDataDefObjectType, 
     ABDataDefRequestArgsType,
     ABDataDefRequestResultType,
+    ABDataDefTableColumnType, 
     ABDataDefTableRowType, 
     ABDataDefTableVariantRowType,
     ABDataDefTypeType,

@@ -132,12 +132,8 @@ class Response {
         };
     }
 
-    getMessage(): string|null {
-        return this.errorMessage;
-    }
-
     getActionResult(requestId: string|TS0NotSet = ts0.notSet): ResponseResult {
-        if (this.type >= 3)
+        if (this.type > 3)
             return new ResponseResult(this, null, null);
 
         if (requestId === ts0.notSet) {

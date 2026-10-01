@@ -3,7 +3,7 @@ import ABDStringValidator, { type ABDStringValidator_Args } from "../abd-validat
 import type DatabaseVersion from "../DatabaseVersion.ts";
 import helper from "../helper.ts";
 import SelectColumnType, { type SelectColumnType_Type } from "../SelectColumnType.ts";
-import ABDField, { type ABDField_Properties } from "./ABDField.ts";
+import ABDField, { type ABDField_Properties_Base } from "./ABDField.ts";
 
 export default class ABDText extends ABDField {
     static get TypeSizes(): Record<ABDText_Type, number> {
@@ -23,7 +23,7 @@ export default class ABDText extends ABDField {
     }
 
 
-    constructor(type: ABDText_Type, properties: ABDField_Properties = {}) {
+    constructor(type: ABDText_Type, properties: ABDField_Properties_Base = {}) {
         super(properties);
 
         this.#type = type;

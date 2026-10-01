@@ -12,10 +12,11 @@ export declare class abDataDefTypes_Class {
     ]>, extras?: ABDataDefObjectType | null): ABDataDefJoinType;
     TMap(keyType: "int" | "string", valueType: ABDataDefValueType): ABDataDefMapType;
     get TNull(): typeof types_TNull;
-    TObject(keyType: "int" | "string", valueType: ABDataDefValueType): ABDataDefObjectType;
+    TObject(keyType: "int" | "long" | "string", valueType: ABDataDefValueType): ABDataDefObjectType;
     TObjectPreset(presets: ABDataDefPreset, extras?: ABDataDefObjectType | null): ABDataDefObjectPresetType;
     TRequestArgs(requestName: string, actionName: string): ABDataDefRequestArgsType;
     TRequestResult(requestName: string, actionName: string, resultType: "success" | "failure" | "result"): ABDataDefRequestResultType;
+    TTableColumn(tableName: string, columnName: string): ABDataDefTableColumnType;
     TTableRow(tableName: string, type?: "select" | "update" | "insert"): ABDataDefTableRowType;
     TTableVariantRow(tableVariantName: string): ABDataDefTableVariantRowType;
     TType(typeName: string): ABDataDefTypeType;
@@ -64,8 +65,8 @@ export declare class ABDataDefMapType {
 export declare class ABDataDefObjectType {
     #private;
     get itemType(): ABDataDefValueType;
-    get keyType(): "int" | "string";
-    constructor(keyType: "int" | "string", itemType: ABDataDefValueType);
+    get keyType(): "int" | "long" | "string";
+    constructor(keyType: "int" | "long" | "string", itemType: ABDataDefValueType);
 }
 export declare class ABDataDefObjectPresetType {
     #private;
@@ -85,6 +86,12 @@ export declare class ABDataDefRequestResultType {
     get requestName(): string;
     get resultType(): "success" | "failure" | "result";
     constructor(requestName: string, actionName: string, resultType?: "success" | "failure" | "result");
+}
+export declare class ABDataDefTableColumnType {
+    #private;
+    get columnName(): string;
+    get tableName(): string;
+    constructor(tableName: string, columnName: string);
 }
 export declare class ABDataDefTableRowType {
     #private;
@@ -107,7 +114,7 @@ export declare class ABDataDefTypeFnType {
     get typeFn(): () => ABDataDefValueType;
     constructor(typeFn: () => ABDataDefValueType);
 }
-export type ABDataDefValueType = null | "bool" | "float" | "string" | "long" | "int" | typeof types_TNull | ABDataDefArrayPresetType | ABDataDefArrayType | ABDataDefDefaultType | ABDataDefEnumType | ABDataDefJoinType | ABDataDefMapType | ABDataDefObjectPresetType | ABDataDefObjectType | ABDataDefRequestArgsType | ABDataDefRequestResultType | ABDataDefTableRowType | ABDataDefTableVariantRowType | ABDataDefTypeType | ABDataDefTypeFnType | Array<ABDataDefValueType>;
+export type ABDataDefValueType = null | "bool" | "float" | "string" | "long" | "int" | typeof types_TNull | ABDataDefArrayPresetType | ABDataDefArrayType | ABDataDefDefaultType | ABDataDefEnumType | ABDataDefJoinType | ABDataDefMapType | ABDataDefObjectPresetType | ABDataDefObjectType | ABDataDefRequestArgsType | ABDataDefRequestResultType | ABDataDefTableColumnType | ABDataDefTableRowType | ABDataDefTableVariantRowType | ABDataDefTypeType | ABDataDefTypeFnType | Array<ABDataDefValueType>;
 export type ABDataDefPreset = {
     [name: string]: ABDataDefValueType;
 };
