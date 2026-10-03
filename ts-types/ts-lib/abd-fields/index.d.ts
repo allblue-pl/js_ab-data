@@ -55,8 +55,8 @@ declare class abdField_Class {
     Float(properties?: ABDField_Properties): ABDFloat;
     Id(): ABDId;
     IdRef(properties?: ABDField_Properties): ABDIdRef;
-    Int(properties?: ABDField_Properties): ABDInt;
-    JSON(type: ABDJSON_Type, properties?: ABDInt_Properties): ABDJSON;
+    Int(properties?: ABDInt_Properties): ABDInt;
+    JSON(type: ABDJSON_Type, properties?: ABDField_Properties): ABDJSON;
     Long(properties?: ABDField_Properties): ABDLong;
     String(size: number, properties?: ABDField_Properties): ABDString;
     Time(properties?: {}): ABDTime;

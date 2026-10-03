@@ -110,11 +110,11 @@ class abdField_Class {
         return new ABDIdRef(properties);
     }
 
-    Int(properties: ABDField_Properties = {}): ABDInt {
+    Int(properties: ABDInt_Properties = {}): ABDInt {
         return new ABDInt(properties);
     }
 
-    JSON(type: ABDJSON_Type, properties: ABDInt_Properties = {}): ABDJSON {
+    JSON(type: ABDJSON_Type, properties: ABDField_Properties = {}): ABDJSON {
         return new ABDJSON(type, properties);
     }
 
