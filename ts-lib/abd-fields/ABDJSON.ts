@@ -1,4 +1,4 @@
-import ts0, { ts0Assert, type TS0RawObject, type TS0RawValue } from "@allblue/ts0"
+import ts0, { ts0Assert, type TS0RawValue } from "@allblue/ts0";
     
 import ABDField, { type ABDField_Properties_Base } from "./ABDField.ts";
 
@@ -6,10 +6,7 @@ import SelectColumnType, { type SelectColumnType_Type } from "../SelectColumnTyp
 
 import helper from "../helper.ts";
 import type DatabaseVersion from "../DatabaseVersion.ts";
-import type { ABDFieldValidator_Args } from "../abd-validators/ABDFieldValidator.ts";
-import type ABDFieldValidator from "../abd-validators/ABDFieldValidator.ts";
 import type { ABDStringValidator_Args } from "../abd-validators/ABDStringValidator.ts";
-import ABDText from "./ABDText.ts";
 import ABDStringValidator from "../abd-validators/ABDStringValidator.ts";
 
 class ABDJSON extends ABDField {

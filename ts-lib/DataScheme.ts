@@ -1,10 +1,7 @@
-import ts0, { type TS0ValueType } from "@allblue/ts0"
+import ts0 from "@allblue/ts0";
 import RequestDef from "./RequestDef.ts";
 import TableDef, { type TableDef_ValidatorInfo } from "./TableDef.ts";
 import type { Request_Parsed } from "./RequestProcessor.ts";
-import type { ResponseData, ResponseDataResults } from "./Response.ts";
-import type { ResponseResultData } from "./ResponseResult.ts";
-import type { ValidatorInfo } from "./Validator.ts";
 import type Response from "./Response.ts";
 import { ABDataDefObjectPresetType, type ABDataDefPreset, type ABDataDefValueType } from "./abDataDefTypes.ts";
 import type TableDefVariant from "./TableDefVariant.ts";

@@ -1,5 +1,4 @@
-import { ts0Helper, TS0List } from "@allblue/ts0";
-import type { TableDef_ColumnInfos } from "./TableDef.ts";
+import { TS0List } from "@allblue/ts0";
 import type TableDef from "./TableDef.ts";
 import type ABDField from "./abd-fields/ABDField.ts";
 import type ABDColumnRef from "./abd-fields/ABDColumnRef.ts";

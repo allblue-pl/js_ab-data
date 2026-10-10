@@ -1,5 +1,4 @@
-import ts0, { type TS0RawObject } from "@allblue/ts0"
-import Response, { type ResponseData } from "./Response.ts";
+import Response from "./Response.ts";
 import RequestProcessor, { type Request, type Request_Parsed, type RequestInfo } from "./RequestProcessor.ts";
 import type Device from "./Device.ts";
 import type DataScheme from "./DataScheme.ts";

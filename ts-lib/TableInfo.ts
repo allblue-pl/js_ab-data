@@ -1,5 +1,3 @@
-import ts0 from "@allblue/ts0"
-import ABDAutoIncrementId from "./abd-fields/ABDAutoIncrementId.ts";
 import DatabaseVersion from "./DatabaseVersion.ts";
 import TableDef from "./TableDef.ts";
 import DBFieldInfo from "./FieldInfo.ts";

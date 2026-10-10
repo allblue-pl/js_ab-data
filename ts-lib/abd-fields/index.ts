@@ -1,4 +1,3 @@
-import ts0 from "@allblue/ts0"
 
 import ABDAutoIncrementId from "./ABDAutoIncrementId.ts";
 import ABDBlob, { type ABDBlob_Type } from "./ABDBlob.ts";
@@ -13,8 +12,7 @@ import ABDLong from "./ABDLong.ts";
 import ABDString from "./ABDString.ts";
 import ABDText, { type ABDText_Type } from "./ABDText.ts";
 import ABDTime from "./ABDTime.ts";
-import type { ABDField_Properties, ABDField_Properties_Base } from "./ABDField.ts";
-import type ABDField from "./ABDField.ts";
+import type { ABDField_Properties } from "./ABDField.ts";
 import type { ABDData_Type } from "./ABDData.ts";
 import type { ABDataDefValueType } from "../abDataDefTypes.ts";
 import ABDData from "./ABDData.ts";
@@ -27,7 +25,6 @@ import type { ABDBoolValidator_Args } from "../abd-validators/ABDBoolValidator.t
 import type { ABDTimeValidator_Args } from "../abd-validators/ABDTimeValidator.ts";
 import type { ABDStringValidator_Args } from "../abd-validators/ABDStringValidator.ts";
 import type { ABDLongValidator_Args } from "../abd-validators/ABDLongValidator.ts";
-import type { ABDFieldValidator_Args } from "../abd-validators/ABDFieldValidator.ts";
 import type { ABDFloatValidator_Args } from "../abd-validators/ABDFloatValidator.ts";
 import type { ABDEnumValidator_Args } from "../abd-validators/ABDEnumValidator.ts";
 import type { ABDIntValidator_Args } from "../abd-validators/ABDIntValidator.ts";

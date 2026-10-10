@@ -1,11 +1,9 @@
-import ts0 from "@allblue/ts0";
 import DataScheme from "./DataScheme.ts";
 import DatabaseVersion from "./DatabaseVersion.ts";
 import DBFieldInfo from "./FieldInfo.ts";
 import TableDef, { type TableDef_IndexInfos } from "./TableDef.ts";
 import TableInfo from "./TableInfo.ts";
 import ABDField from "./abd-fields/ABDField.ts";
-import ABDColumnRef from "./abd-fields/ABDColumnRef.ts";
 
 class DatabaseInfo {
     static Compare(scheme: DataScheme, db_Info: DatabaseInfo): 

@@ -1,9 +1,6 @@
-import ABDField from "./abd-fields/ABDField.ts";
 import RequestDef from "./RequestDef.ts";
-import TableDef from "./TableDef.ts";
 import t, { type ABDataDefPreset } from "./abDataDefTypes.ts";
-import { t_SelectColumnType_Enum, type SelectColumnType_Type} from "./SelectColumnType.ts";
-import { ts0, TS0PresetType, type TS0Preset, type TS0RawValue } from "@allblue/ts0";
+import { ts0, type TS0RawValue } from "@allblue/ts0";
 import abDataDefTypes from "./abDataDefTypes.ts";
 
 class TableRequestDef extends RequestDef {

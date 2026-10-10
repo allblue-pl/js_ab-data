@@ -1,6 +1,5 @@
-import ts0 from "@allblue/ts0"
 import ABDField from "./abd-fields/ABDField.ts";
-import DatabaseVersion, { type DatabaseType } from "./DatabaseVersion.ts";
+import DatabaseVersion from "./DatabaseVersion.ts";
 
 export default class FieldInfo {
     static CompareDBType(field: ABDField, dbVersion: DatabaseVersion, 

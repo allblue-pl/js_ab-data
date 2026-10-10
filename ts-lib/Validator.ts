@@ -1,7 +1,5 @@
-import ts0, { type TS0RawValue } from "@allblue/ts0"
+import { type TS0RawValue } from "@allblue/ts0";
 import ABDFieldValidator from "./abd-validators/ABDFieldValidator.ts";
-import type ABDField from "./abd-fields/ABDField.ts";
-import type DBFieldInfo from "./FieldInfo.ts";
 
 export default class Validator {
     #info: ValidatorInfo;
